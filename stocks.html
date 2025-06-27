@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlphaWave - My Stocks</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="geolocation-service.js"></script>
+    <script src="location-components.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f5f5f5;
+            font-family: 'Quicksand', sans-serif;
+            color: #333;
+        }
+
+        .dashboard-page {
+            background: #1a1a1a;
+            min-height: 100vh;
+            color: white;
+        }
+
+        .navbar {
+            background: #1a1a1a;
+            padding: 15px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .navbar .logo-circle {
+            width: 45px;
+            height: 45px;
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            margin-right: 10px;
+            background: transparent;
+            color: white;
+            font-weight: normal;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 400px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 40px 10px 15px;
+            border: 1px solid #444;
+            border-radius: 25px;
+            background: white;
+            color: #333;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .pro-badge {
+            background: #333;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            border: 1px solid #555;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        
+        .profile-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .profile-modal-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .profile-modal {
+            position: absolute;
+            top: 80px;
+            right: 20px;
+            width: 380px;
+            height: 450px;
+            background: #e8e8e8;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            font-family: 'Quicksand', sans-serif;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .profile-modal-overlay.show .profile-modal {
+            transform: translateY(0);
+        }
+
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            border-radius: 8px;
+            margin-bottom: 2px;
+        }
+
+        .profile-menu-item:hover {
+            background: rgba(0, 0, 0, 0.1);
+            padding-left: 10px;
+        }
+
+        .profile-menu-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .profile-menu-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: white;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .profile-menu-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+      
+        
+        .delete-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-modal-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .delete-modal {
+            width: 363px;
+            height: 181px;
+            background: #e8e8e8;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            padding: 20px;
+            font-family: 'Quicksand', sans-serif;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .delete-modal-overlay.show .delete-modal {
+            transform: scale(1);
+        }
+
+        .delete-warning-icon {
+            margin-bottom: 15px;
+        }
+
+        .delete-warning-triangle {
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-bottom: 35px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .delete-warning-triangle::before {
+            content: '!';
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            position: absolute;
+            bottom: -28px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .delete-message {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.3;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 400;
+        }
+
+        .delete-message strong {
+            font-weight: 600;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .delete-buttons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .delete-btn {
+            width: 96px;
+            height: 32px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            background: #e8e8e8;
+            color: #333;
+            font-size: 20px;
+            font-weight: 500;
+            font-family: 'Quicksand', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-btn:hover {
+            background: #d8d8d8;
+        }
+
+        .main-layout {
+            display: flex;
+        }
+
+        .sidebar {
+            width: 200px;
+            background: white;
+            height: calc(100vh - 99px); 
+            
+            padding: 30px 0;
+            border-right: 1px solid #333;
+            position: fixed;
+            left: 0;
+            top: 99px; 
+            background-image: url('SideGradient.png');
+            background-size: 100%;
+            background-position: center top;
+            background-repeat: no-repeat;
+            z-index: 10;
+        }  
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar-nav li {
+            margin: 5px 0;
+        }
+
+        .sidebar-nav a {
+            display: block;
+            padding: 15px 30px;
+            color: #ccc;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-weight: 500;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: #2a2a2a;
+            color: white;
+        }
+
+        .content {
+            flex: 1;
+            padding: 30px;
+            background: #f5f5f5;
+            color: #333;
+            min-height: calc(100vh - 99px);
+            font-family: 'Quicksand', sans-serif;
+            margin-left: 200px; 
+        }
+
+        .stocks-header {
+            margin-bottom: 30px;
+        }
+
+        .stocks-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .stocks-title-left h2 {
+            font-size: 40px;
+            font-weight: bold;
+            color: #333;
+            font-family: 'Quicksand', sans-serif;
+            margin: 0;
+        }
+
+        .companies-count {
+            color: #666;
+            font-size: 30px;
+            font-weight: 300;
+            font-family: 'Quicksand', sans-serif;
+            margin-top: 5px;
+        }
+
+        .sort-option {
+            color: #666;
+            font-size: 30px;
+            font-weight: 300;
+            font-family: 'Quicksand', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stock-list {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .stock-list-item {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .stock-list-item:hover {
+            background: #f8f8f8;
+        }
+
+        .stock-list-item:last-child {
+            border-bottom: none;
+        }
+
+        .stock-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 14px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .stock-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .stock-logo.aapl { background: #000; }
+        .stock-logo.googl { background: #4285f4; }
+        .stock-logo.tsla { background: #cc0000; }
+        .stock-logo.amzn { background: #ff9900; }
+        .stock-logo.nflx { background: #e50914; }
+        .stock-logo.meta { background: #1877f2; }
+        .stock-logo.nvda { background: #76b900; }
+        .stock-logo.amd { background: #ed1c24; }
+        .stock-logo.team { background: #0052cc; }
+        .stock-logo.tsm { background: #ff6600; }
+        .stock-logo.lly { background: #cc0000; }
+
+        .stock-info {
+            flex: 1;
+        }
+
+        .stock-info h5 {
+            margin: 0 0 5px 0;
+            font-weight: bold;
+            font-size: 23px;
+            color: #333;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .stock-info p {
+            margin: 0;
+            color: #666;
+            font-size: 19px;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .stock-price {
+            text-align: right;
+        }
+
+        .stock-price .price {
+            font-weight: 600;
+            font-size: 20px;
+            color: #333;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .stock-price .change {
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .stock-price .change.positive {
+            color: #4CAF50;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                top: 0;
+                left: 0;
+                min-height: auto;
+            }
+
+            .content {
+                margin-left: 0;
+            }
+
+            .main-layout {
+                flex-direction: column;
+            }
+
+            .stocks-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .stocks-title {
+                width: 100%;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .sort-option {
+                align-self: flex-end;
+            }
+
+            .profile-modal {
+                right: 10px;
+                width: 350px;
+                height: 420px;
+                top: 70px;
+            }
+        }
+        @media (max-width: 576px) {
+            .content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-page">
+        <nav class="navbar">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="dashboard.html">
+                    <div class="logo-circle">AlphaWave</div>
+                    AlphaWave
+                </a>
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Search">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+                <div class="navbar-right">
+                    <a href="pro.html" class="pro-badge">Pro</a>
+                    <i class="fas fa-bell" style="color: white;"></i>
+                    <div class="user-avatar" onclick="toggleProfileModal()">
+                        <img src="accountLogo.jpg" alt="User">
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="main-layout">
+            <div class="sidebar">
+                <ul class="sidebar-nav">
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="portfolio.html">Portfolio</a></li>
+                    <li><a href="news.html">Latest News</a></li>
+                </ul>
+            </div>
+
+            <div class="content">
+                <div class="stocks-header">
+                    <div class="stocks-title">
+                        <div class="stocks-title-left">
+                            <h2>My Stocks</h2>
+                            <div class="companies-count">12 Companies</div>
+                        </div>
+                        <div class="sort-option">Recently <i class="fas fa-chevron-up"></i><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                </div>
+
+                <div class="stock-list" id="stocksContainer">
+                    <!-- Stocks items will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal Overlay -->
+    <div class="profile-modal-overlay" id="profileModalOverlay" onclick="closeProfileModal(event)">
+        <div class="profile-modal" onclick="event.stopPropagation()">
+            <div class="profile-menu-item" onclick="handleMenuClick('personal-info')">
+                <div class="profile-menu-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="profile-menu-text">Personal info</div>
+            </div>
+
+            <div class="profile-menu-item" onclick="handleMenuClick('logout')">
+                <div class="profile-menu-icon">
+                    <i class="fas fa-door-open"></i>
+                </div>
+                <div class="profile-menu-text">Logout</div>
+            </div>
+
+            <div class="profile-menu-item" onclick="handleMenuClick('currency')">
+                <div class="profile-menu-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="profile-menu-text">Currency</div>
+            </div>
+
+            <div class="profile-menu-item" onclick="handleMenuClick('theme')">
+                <div class="profile-menu-icon">
+                    <i class="fas fa-sun"></i>
+                </div>
+                <div class="profile-menu-text">Theme</div>
+            </div>
+
+            <div class="profile-menu-item" onclick="handleMenuClick('help')">
+                <div class="profile-menu-icon">
+                    <i class="fas fa-question-circle"></i>
+                </div>
+                <div class="profile-menu-text">Help & Support</div>
+            </div>
+
+            <div class="profile-menu-item" onclick="handleMenuClick('terms')">
+                <div class="profile-menu-icon">
+                    <i class="fas fa-file-contract"></i>
+                </div>
+                <div class="profile-menu-text">Terms of Service</div>
+            </div>
+
+            <div class="profile-menu-item" onclick="handleMenuClick('delete-account')">
+                <div class="profile-menu-icon">
+                    <i class="fas fa-user-times"></i>
+                </div>
+                <div class="profile-menu-text">Delete your account</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Account Confirmation Modal -->
+    <div class="delete-modal-overlay" id="deleteModalOverlay" onclick="closeDeleteModal(event)">
+        <div class="delete-modal" onclick="event.stopPropagation()">
+            <div class="delete-warning-icon">
+                <div class="delete-warning-triangle"></div>
+            </div>
+            <div class="delete-message">
+                Are you sure that you<br>want to <strong>delete</strong> your account?
+            </div>
+            <div class="delete-buttons">
+                <button class="delete-btn" onclick="confirmDelete()">Yes</button>
+                <button class="delete-btn" onclick="closeDeleteModal()">No</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Profile Modal Functions
+        function toggleProfileModal() {
+            const overlay = document.getElementById('profileModalOverlay');
+            if (overlay.classList.contains('show')) {
+                closeProfileModal();
+            } else {
+                openProfileModal();
+            }
+        }
+
+        function openProfileModal() {
+            const overlay = document.getElementById('profileModalOverlay');
+            overlay.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeProfileModal(event) {
+            if (event && event.target !== event.currentTarget) {
+                return;
+            }
+            
+            const overlay = document.getElementById('profileModalOverlay');
+            overlay.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        function handleMenuClick(action) {
+            console.log('Menu action:', action);
+            
+            //delete account specially
+            if (action === 'delete-account') {
+                closeProfileModal();
+                showDeleteModal();
+                return;
+            }
+            
+            
+            closeProfileModal();
+        }
+
+        
+        function showDeleteModal() {
+            const overlay = document.getElementById('deleteModalOverlay');
+            overlay.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDeleteModal(event) {
+            if (event && event.target !== event.currentTarget) {
+                return;
+            }
+            
+            const overlay = document.getElementById('deleteModalOverlay');
+            overlay.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        function confirmDelete() {
+            console.log('Account deletion confirmed - no action taken');
+            closeDeleteModal();
+        }
+
+        
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeProfileModal();
+                closeDeleteModal();
+            }
+        });
+
+        
+        const stocksData = [
+            { symbol: 'AAPL', name: 'Apple Inc', price: '198.85', change: '+15.33%', logo: 'AppleBigLogo.png', fallback: '🍎' },
+            { symbol: 'GOOGL', name: 'Alphabet Inc', price: '158.71', change: '+9.68%', logo: 'Google.jpg', fallback: 'G' },
+            { symbol: 'TSLA', name: 'Tesla Inc', price: '272.20', change: '+22.69%', logo: 'TeslaBigLogo.png', fallback: 'T' },
+            { symbol: 'AMZN', name: 'Amazon.com Inc', price: '191.10', change: '+11.98%', logo: 'AmazonBigLogo.png', fallback: 'a' },
+            { symbol: 'NFLX', name: 'Netflix Inc', price: '945.47', change: '+8.62%', logo: 'netflix.png', fallback: 'N' },
+            { symbol: 'META', name: 'Meta Platforms Inc', price: '555.87', change: '+2.32%', logo: 'Meta.png', fallback: 'f' },
+            { symbol: 'NVDA', name: 'NVIDIA Corporation', price: '122.49', change: '+2.98%', logo: 'nvidia.jpg', fallback: 'N' },
+            { symbol: 'AMD', name: 'Advanced Micro Devices', price: '753.71', change: '+3.78%', logo: 'AMD.jpg', fallback: 'AMD' },
+            { symbol: 'TEAM', name: 'Atlassian Corporation', price: '209.62', change: '+4.02%', logo: 'TEAMBigLogo.png', fallback: 'T' },
+            { symbol: 'TSM', name: 'Taiwan Semiconductor Manu', price: '158.75', change: '+12.29%', logo: 'TsmcBigLogo.png', fallback: 'T' },
+            { symbol: 'LLY', name: 'Eli Lilly and Company', price: '753.71', change: '+3.78%', logo: 'LLYBigLogo.jpg', fallback: 'L' }
+        ];
+
+        function getStockIcon(symbol) {
+            const icons = {
+                'AAPL': 'A',
+                'GOOGL': 'G',
+                'TSLA': 'T',
+                'AMZN': 'a',
+                'NFLX': 'N',
+                'META': 'f',
+                'NVDA': 'N',
+                'AMD': 'AMD',
+                'SPOT': 'S',
+                'TSM': 'T'
+            };
+            return icons[symbol] || symbol.charAt(0);
+        }
+
+        function showStockDetail(symbol) {
+            window.location.href = `stock-detail.html?symbol=${symbol}`;
+        }
+
+        function loadStocksPage() {
+            const container = document.getElementById('stocksContainer');
+            if (container) {
+                container.innerHTML = stocksData.map(stock => `
+                    <div class="stock-list-item" onclick="showStockDetail('${stock.symbol}')">
+                        <div class="stock-logo ${stock.symbol.toLowerCase()}" id="logo-${stock.symbol}">
+                            <img src="${stock.logo}" alt="${stock.symbol}" 
+                                 onerror="this.style.display='none'; document.getElementById('logo-${stock.symbol}').innerHTML='${stock.fallback}';"
+                                 onload="console.log('Loaded: ${stock.logo}');">
+                        </div>
+                        <div class="stock-info">
+                            <h5>${stock.symbol}</h5>
+                            <p>${stock.name}</p>
+                        </div>
+                        <div class="stock-price">
+                            <div class="price">${stock.price}</div>
+                            <div class="change positive">${stock.change}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Load stocks content on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStocksPage();
+        });
+    </script>
+</body>
+</html>

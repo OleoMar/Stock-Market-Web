@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlphaWave - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Include the location services -->
+    <script src="geolocation-service.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        body {
+            background: #f5f5f5;
+            font-family: 'Quicksand', sans-serif;
+            color: #333;
+        }
+
+        .dashboard-page {
+            background: #1a1a1a;
+            min-height: 100vh;
+            color: white;
+        }
+
+        .navbar {
+            background: #1a1a1a;
+            padding: 15px 0;
+            border-bottom: 1px solid #333;
+            height: 99px;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar .container-fluid {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0 20px;
+            flex-wrap: nowrap;
+        }
+
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+            font-size: 40px;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .navbar .logo-circle {
+            width: 45px;
+            height: 45px;
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            margin-right: 10px;
+            background: transparent;
+            color: white;
+            font-weight: normal;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 469px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .search-input {
+            width: 100%;
+            max-width: 469px;
+            height: 43px;
+            padding: 10px 40px 10px 15px;
+            border: 1px solid #444;
+            border-radius: 9px;
+            background: white;
+            color: #333;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .pro-badge {
+            background: #D9D9D9;
+            color: #333;
+            padding: 8px 20px;
+            border-radius: 9px;
+            text-decoration: none;
+            font-weight: 600;
+            border: none;
+            font-family: 'Quicksand', sans-serif;
+            width: 84px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .navbar-right i.fa-bell {
+            color: white;
+            font-size: 16px;
+        }
+
+        
+        .location-info {
+            display: none;
+            align-items: center;
+            margin-right: 10px;
+            font-size: 11px;
+            color: #ccc;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .location-info i {
+            margin-right: 4px;
+            color: #666;
+        }
+
+        .market-status-container {
+            display: none;
+            align-items: center;
+            margin-right: 10px;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 11px;
+            color: #ccc;
+        }
+
+        .market-status-indicator {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .market-status-indicator.open {
+            background: #4CAF50;
+            animation: pulse 2s infinite;
+        }
+
+        .market-status-indicator.closed {
+            background: #f44336;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+       
+        .refresh-stocks-btn {
+            display: none;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ccc;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 8px;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .refresh-stocks-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .refresh-stocks-btn.loading {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .refresh-stocks-btn i {
+            margin-right: 3px;
+        }
+
+        .refresh-stocks-btn.loading i {
+            animation: spin 1s linear infinite;
+        }
+
+        
+        @media (min-width: 1200px) {
+            .location-info,
+            .market-status-container,
+            .refresh-stocks-btn {
+                display: flex;
+            }
+        }
+
+        .main-layout {
+            display: flex;
+        }
+
+        .sidebar {
+            width: 200px;
+            background: white;
+            height: calc(100vh - 99px);
+            padding: 30px 0;
+            border-right: 1px solid #333;
+            position: fixed;
+            left: 0;
+            top: 99px;
+            background-image: url('SideGradient.png');
+            background-size: 100%;
+            background-position: center bottom;
+            background-repeat: no-repeat;
+            z-index: 10;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar-nav li {
+            margin: 5px 0;
+        }
+
+        .sidebar-nav a {
+            display: block;
+            padding: 15px 30px;
+            color: #ccc;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-weight: 500;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: #2a2a2a;
+            color: white;
+        }
+
+        .content {
+            flex: 1;
+            padding: 30px;
+            background: #f5f5f5;
+            color: #333;
+            min-height: calc(100vh - 99px);
+            font-family: 'Quicksand', sans-serif;
+            margin-left: 200px;
+        }
+
+        .portfolio-header {
+            background: linear-gradient(135deg, #e8e8e8 0%, #d5d5d5 100%);
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .portfolio-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('dotsBg.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.4;
+        }
+
+        .portfolio-label {
+            font-size: 24px;
+            color: #000;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 600;
+        }
+
+        .portfolio-value {
+            font-size: 48px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .portfolio-change {
+            background: rgba(0,0,0,0.5);
+            color: #4CAF50;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+            width: 366px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Quicksand', sans-serif;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .portfolio-change i {
+            color: #4CAF50;
+            margin-right: 8px;
+        }
+
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .view-all {
+            background: #f0f0f0;
+            color: #666;
+            padding: 8px 15px;
+            border-radius: 15px;
+            text-decoration: none;
+            font-size: 14px;
+            border: 1px solid #e0e0e0;
+            cursor: pointer;
+            font-family: 'Quicksand', sans-serif;
+            width: 162px;
+            height: 43px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stocks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, 120px);
+            gap: 15px;
+            margin-bottom: 30px;
+            justify-content: start;
+        }
+
+        .stock-card {
+            background: #333;
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            height: 140px;
+            width: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            border: none; 
+        }
+
+        .stock-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .stock-card.loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .stock-card.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ccc;
+            border-top: 2px solid #4CAF50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+       
+        .stock-card.live,
+        .stock-card.offline {
+            border: none;
+            opacity: 1;
+        }
+
+        .stock-logo-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .stock-icon-fallback {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background: #555;
+        }
+
+        .stock-icon-fallback.tsla { background: #cc0000; }
+        .stock-icon-fallback.aapl { background: #000000; }
+        .stock-icon-fallback.googl { background: #4285f4; }
+        .stock-icon-fallback.nvda { background: #76b900; }
+        .stock-icon-fallback.amd { background: #ed1c24; font-size: 11px; }
+        .stock-icon-fallback.meta { background: #1877f2; }
+        .stock-icon-fallback.amzn { background: #ff9900; }
+        .stock-icon-fallback.nflx { background: #e50914; }
+
+        .stock-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+
+        .offline-indicator {
+            display: none;
+        }
+
+        .stock-symbol {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 4px;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .stock-price {
+            font-size: 12px;
+            font-weight: 600;
+            color: #ddd;
+            margin-bottom: 4px;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .stock-change {
+            font-size: 11px;
+            font-weight: 600;
+            font-family: 'Quicksand', sans-serif;
+            margin-bottom: 4px;
+        }
+
+        .stock-change.positive {
+            color: #4CAF50;
+        }
+
+        .stock-change.negative {
+            color: #f44336;
+        }
+
+        .stock-meta {
+            display: none; 
+        }
+
+        .news-section {
+            margin-bottom: 50px;
+        }
+
+        .news-item {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            margin-bottom: 15px;
+            background: #333;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .news-item:hover {
+            transform: translateX(5px);
+        }
+
+        .news-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .news-item.sponsored {
+            background: #8B4747;
+        }
+
+        .news-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            margin-right: 15px;
+            object-fit: cover;
+            background: linear-gradient(45deg, #4285f4, #34a853);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .news-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .news-content {
+            flex: 1;
+        }
+
+        .news-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .news-source {
+            color: #ccc;
+        }
+
+        .news-time {
+            color: #999;
+        }
+
+        .news-category {
+            color: #4CAF50;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .news-category.top-story {
+            background: transparent;
+            color: #4CAF50;
+        }
+
+        .news-title {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.3;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        
+        .region-indicator {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+            font-family: 'Quicksand', sans-serif;
+            display: flex;
+            align-items: center;
+        }
+
+        .region-indicator i {
+            margin-right: 5px;
+            color: #4CAF50;
+        }
+
+        
+        .last-updated {
+            font-size: 11px;
+            color: #999;
+            text-align: center;
+            margin-bottom: 20px;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .last-updated i {
+            margin-right: 5px;
+            color: #4CAF50;
+        }
+
+       
+        .error-notification {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: #f44336;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1000;
+            max-width: 400px;
+            display: none;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .error-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dismiss-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            margin-left: auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .search-input {
+                width: 300px;
+            }
+            
+            .navbar-brand {
+                font-size: 24px;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                top: 0;
+                left: 0;
+                min-height: auto;
+            }
+
+            .content {
+                margin-left: 0;
+            }
+
+            .main-layout {
+                flex-direction: column;
+            }
+            }
+
+            
+            .stocks-grid {
+                grid-template-columns: repeat(auto-fit, 100px);
+            }
+
+            .stock-card {
+                height: 120px;
+                width: 100px;
+            }
+            
+            .portfolio-value {
+                font-size: 32px;
+            }
+
+            .portfolio-change {
+                width: 300px;
+                height: 40px;
+            }
+
+            .view-all {
+                width: 120px;
+                height: 35px;
+            }
+
+            .location-info, .market-status-container, .refresh-stocks-btn {
+                display: none;
+            }
+        }
+        @media (max-width: 576px) {
+            .content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-page">
+        <nav class="navbar">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="dashboard.html">
+                    <div class="logo-circle">AlphaWave</div>
+                    AlphaWave
+                </a>
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Search stocks...">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+                <div class="navbar-right">
+                    <!-- Location info -->
+                    <div class="location-info" style="display: none;">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span class="location-text">Detecting...</span>
+                    </div>
+                    
+                    <!-- Market status -->
+                    <div class="market-status-container" style="display: none;">
+                        <div class="market-status-indicator closed"></div>
+                        <span class="market-status-text">Market Closed</span>
+                    </div>
+                    
+                    <!-- Refresh stocks button -->
+                    <button class="refresh-stocks-btn" onclick="refreshStockData()" title="Refresh stock data">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                    
+                    <a href="pro.html" class="pro-badge">Pro</a>
+                    <i class="fas fa-bell" style="color: white;"></i>
+                    <div class="user-avatar" onclick="toggleProfileModal()">
+                        <img src="accountLogo.jpg" alt="User">
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="main-layout">
+            <div class="sidebar">
+                <ul class="sidebar-nav">
+                    <li><a href="dashboard.html" class="active">Dashboard</a></li>
+                    <li><a href="portfolio.html">Portfolio</a></li>
+                    <li><a href="news.html">Latest News</a></li>
+                </ul>
+            </div>
+
+            <div class="content">
+                <div class="portfolio-header">
+                    <div class="portfolio-label">Portfolio Value</div>
+                    <div class="portfolio-value">$47,892.50</div>
+                    <div class="portfolio-change">
+                        <i class="fas fa-arrow-up"></i> +$1,245.30 (+2.8%)
+                    </div>
+                </div>
+
+                <div class="last-updated" id="lastUpdated" style="display: none;">
+                    <i class="fas fa-clock"></i>
+                    <span>Last updated: Never</span>
+                </div>
+
+                <div class="section-title">
+                    <h3>My Stocks</h3>
+                    <a href="stocks.html" class="view-all">View all ›</a>
+                </div>
+                <div class="region-indicator" id="regionalIndicator" style="display: none;">
+                    <i class="fas fa-globe"></i>
+                    <span>Popular in your region</span>
+                </div>
+                <div class="stocks-grid" id="myStocksGrid">
+                    <!-- Stocks will be loaded here by the API -->
+                    <div class="stock-card loading">
+                        <div class="stock-symbol">Loading...</div>
+                    </div>
+                </div>
+
+                <div class="section-title">
+                    <h3>My Watchlist</h3>
+                    <a href="watchlist.html" class="view-all">View all ›</a>
+                </div>
+                <div class="stocks-grid" id="watchlistGrid">
+                    <!-- Watchlist will be loaded here by the API -->
+                    <div class="stock-card loading">
+                        <div class="stock-symbol">Loading...</div>
+                    </div>
+                </div>
+
+                <div class="section-title">
+                    <h3>Latest News</h3>
+                    <a href="news.html" class="view-all">See more ›</a>
+                </div>
+                <div class="news-section">
+                    <div id="newsContainer">
+                        <div class="news-item">
+                            <div class="news-image">📰</div>
+                            <div class="news-content">
+                                <div class="news-meta">
+                                    <span class="news-source">Bloomberg</span>
+                                    <span class="news-time">2h ago</span>
+                                    <span class="news-category top-story">Top Story</span>
+                                </div>
+                                <h5 class="news-title">Federal Reserve Signals Rate Changes</h5>
+                            </div>
+                        </div>
+                        <div class="news-item">
+                            <div class="news-image">📈</div>
+                            <div class="news-content">
+                                <div class="news-meta">
+                                    <span class="news-source">Reuters</span>
+                                    <span class="news-time">4h ago</span>
+                                </div>
+                                <h5 class="news-title">Tech Sector Leads Market Rally</h5>
+                            </div>
+                        </div>
+                        <div class="news-item sponsored">
+                            <div class="news-image">💼</div>
+                            <div class="news-content">
+                                <div class="news-meta">
+                                    <span class="news-source">MarketWatch</span>
+                                    <span class="news-time">5h ago</span>
+                                </div>
+                                <h5 class="news-title">Investment Strategies for Market Volatility</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">
+                    <h3>Trending Stocks</h3>
+                </div>
+                <div class="stocks-grid" id="trendingGrid">
+                    <!-- Trending stocks will be loaded here by the API -->
+                    <div class="stock-card loading">
+                        <div class="stock-symbol">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal Overlay -->
+    <div class="profile-modal-overlay" id="profileModalOverlay" onclick="closeProfileModal(event)">
+        <div class="profile-modal" onclick="event.stopPropagation()">
+            <div class="profile-menu-item" onclick="handleMenuClick('personal-info')">
+                <div class="profile-menu-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="profile-menu-text">Personal info</div>
+            </div>
+
+            <div class="profile-menu-item" onclick="handleMenuClick('logout')">
+                <div class="profile-menu-icon">
+                    <i class="fas fa-door-open"></i>
+                </div>
+                <div class="profile-menu-text">Logout</div>
+            </div>
+
+            <div class="profile-menu-item" onclick="handleMenuClick('currency')">
+                <div class="profile-menu-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="profile-menu-text">Currency</div>
+            </div>
+
+            <div class="profile-menu-item" onclick="handleMenuClick('theme')">
+                <div class="profile-menu-icon">
+                    <i class="fas fa-sun"></i>
+                </div>
+                <div class="profile-menu-text">Theme</div>
+            </div>
+
+            <div class="profile-menu-item" onclick="handleMenuClick('help')">
+                <div class="profile-menu-icon">
+                    <i class="fas fa-question-circle"></i>
+                </div>
+                <div class="profile-menu-text">Help & Support</div>
+            </div>
+
+            <div class="profile-menu-item" onclick="handleMenuClick('terms')">
+                <div class="profile-menu-icon">
+                    <i class="fas fa-file-contract"></i>
+                </div>
+                <div class="profile-menu-text">Terms of Service</div>
+            </div>
+
+            <div class="profile-menu-item" onclick="handleMenuClick('delete-account')">
+                <div class="profile-menu-icon">
+                    <i class="fas fa-user-times"></i>
+                </div>
+                <div class="profile-menu-text">Delete your account</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Include the Marketstack API Integration -->
+    <script>
+        // Marketstack API Integration for AlphaWave
+        class MarketstackAPI {
+            constructor() {
+                this.apiKey = 'ae3ae6d12720684ba32175d1d315e7d3';
+                this.baseUrl = 'https://api.marketstack.com/v1';
+                this.cache = new Map();
+                this.cacheExpiry = 5 * 60 * 1000; // 5 minutes cache
+                this.isLoading = false;
+                this.rateLimitDelay = 1000; // 1 second between requests for free tier
+                this.lastRequestTime = 0;
+                
+                // Stock symbols mapping
+                this.stockSymbols = [
+                    'TSLA', 'AAPL', 'NVDA', 'AMD', 'META', 'AMZN', 'GOOGL', 'NFLX'
+                ];
+                
+                this.initializeStockService();
+            }
+
+            // Initialize the stock service
+            async initializeStockService() {
+                try {
+                    console.log('Initializing Marketstack API service...');
+                    
+                    // Load cached data first for immediate display
+                    this.loadCachedData();
+                    
+                    // Then fetch fresh data
+                    await this.fetchAllStockData();
+                    
+                    // Set up periodic updates (every 5 minutes)
+                    this.startPeriodicUpdates();
+                    
+                } catch (error) {
+                    console.error('Error initializing stock service:', error);
+                    this.handleAPIError(error);
+                }
+            }
+
+            // Rate limiting helper
+            async waitForRateLimit() {
+                const now = Date.now();
+                const timeSinceLastRequest = now - this.lastRequestTime;
+                
+                if (timeSinceLastRequest < this.rateLimitDelay) {
+                    const waitTime = this.rateLimitDelay - timeSinceLastRequest;
+                    await new Promise(resolve => setTimeout(resolve, waitTime));
+                }
+                
+                this.lastRequestTime = Date.now();
+            }
+
+            // Get cache key
+            getCacheKey(symbol, endpoint = 'eod') {
+                return `${symbol}_${endpoint}_${new Date().toDateString()}`;
+            }
+
+            // Check if cached data is valid
+            isCacheValid(cacheData) {
+                if (!cacheData || !cacheData.timestamp) return false;
+                return (Date.now() - cacheData.timestamp) < this.cacheExpiry;
+            }
+
+            // Fetch end-of-day data for a single stock
+            async fetchStockData(symbol) {
+                try {
+                    await this.waitForRateLimit();
+                    
+                    const cacheKey = this.getCacheKey(symbol);
+                    const cachedData = this.cache.get(cacheKey);
+                    
+                    if (this.isCacheValid(cachedData)) {
+                        console.log(`Using cached data for ${symbol}`);
+                        return cachedData.data;
+                    }
+
+                    console.log(`Fetching fresh data for ${symbol}...`);
+                    
+                    const url = `${this.baseUrl}/eod?access_key=${this.apiKey}&symbols=${symbol}&limit=2`;
+                    const response = await fetch(url);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        throw new Error(data.error.message || 'API Error');
+                    }
+                    
+                    if (!data.data || data.data.length === 0) {
+                        throw new Error(`No data found for ${symbol}`);
+                    }
+
+                    // Cache the data
+                    this.cache.set(cacheKey, {
+                        data: data.data,
+                        timestamp: Date.now()
+                    });
+
+                    // Save to localStorage
+                    this.saveCacheToStorage();
+                    
+                    return data.data;
+                    
+                } catch (error) {
+                    console.error(`Error fetching data for ${symbol}:`, error);
+                    
+                    // Try to return cached data as fallback
+                    const cacheKey = this.getCacheKey(symbol);
+                    const cachedData = this.cache.get(cacheKey);
+                    if (cachedData) {
+                        console.log(`Using stale cache data for ${symbol}`);
+                        return cachedData.data;
+                    }
+                    
+                    throw error;
+                }
+            }
+
+            // Fetch data for all stocks
+            async fetchAllStockData() {
+                if (this.isLoading) {
+                    console.log('Already loading stock data...');
+                    return;
+                }
+
+                this.isLoading = true;
+                
+                try {
+                    console.log('Fetching all stock data...');
+                    this.showLoadingIndicator();
+                    
+                    const stockPromises = this.stockSymbols.map(async (symbol) => {
+                        try {
+                            const data = await this.fetchStockData(symbol);
+                            return { symbol, data, success: true };
+                        } catch (error) {
+                            console.error(`Failed to fetch ${symbol}:`, error);
+                            return { symbol, error, success: false };
+                        }
+                    });
+
+                    const results = await Promise.all(stockPromises);
+                    
+                    // Process results
+                    const stockData = {};
+                    let successCount = 0;
+                    
+                    results.forEach(result => {
+                        if (result.success && result.data && result.data.length > 0) {
+                            stockData[result.symbol] = this.processStockData(result.data, result.symbol);
+                            successCount++;
+                        } else {
+                            // Use fallback data
+                            stockData[result.symbol] = this.getFallbackData(result.symbol);
+                        }
+                    });
+
+                    console.log(`Successfully fetched data for ${successCount}/${this.stockSymbols.length} stocks`);
+                    
+                    // Update UI
+                    this.updateStockDisplays(stockData);
+                    this.hideLoadingIndicator();
+                    this.updateLastUpdatedTime();
+                    
+                    // Trigger custom event
+                    window.dispatchEvent(new CustomEvent('stockDataUpdated', {
+                        detail: { stockData, successCount }
+                    }));
+                    
+                } catch (error) {
+                    console.error('Error fetching stock data:', error);
+                    this.handleAPIError(error);
+                } finally {
+                    this.isLoading = false;
+                }
+            }
+
+            // Process raw stock data
+            processStockData(rawData, symbol) {
+                try {
+                    // Get latest two data points for comparison
+                    const latest = rawData[0];
+                    const previous = rawData[1] || rawData[0];
+                    
+                    const currentPrice = latest.close;
+                    const previousPrice = previous.close;
+                    const change = currentPrice - previousPrice;
+                    const changePercent = ((change / previousPrice) * 100);
+                    
+                    return {
+                        symbol: symbol,
+                        price: currentPrice,
+                        change: change,
+                        changePercent: changePercent,
+                        volume: latest.volume,
+                        open: latest.open,
+                        high: latest.high,
+                        low: latest.low,
+                        lastUpdate: new Date(latest.date),
+                        isLive: true
+                    };
+                } catch (error) {
+                    console.error(`Error processing data for ${symbol}:`, error);
+                    return this.getFallbackData(symbol);
+                }
+            }
+
+            // Get fallback data when API fails
+            getFallbackData(symbol) {
+                const fallbackPrices = {
+                    'TSLA': 245.67,
+                    'AAPL': 198.85,
+                    'NVDA': 875.43,
+                    'AMD': 142.18,
+                    'META': 485.23,
+                    'AMZN': 191.10,
+                    'GOOGL': 158.71,
+                    'NFLX': 485.32
+                };
+
+                const basePrice = fallbackPrices[symbol] || 100;
+                const randomChange = (Math.random() - 0.5) * 10; // ±5%
+                
+                return {
+                    symbol: symbol,
+                    price: basePrice + randomChange,
+                    change: randomChange,
+                    changePercent: (randomChange / basePrice) * 100,
+                    volume: Math.floor(Math.random() * 10000000),
+                    isLive: false,
+                    lastUpdate: new Date()
+                };
+            }
+
+            // Update stock displays across the application
+            updateStockDisplays(stockData) {
+                try {
+                    // Update dashboard stocks
+                    this.updateDashboardStocks(stockData);
+                    
+                    // Update any price displays with currency formatting
+                    this.updateCurrencyDisplays(stockData);
+                    
+                    console.log('Stock displays updated successfully');
+                    
+                } catch (error) {
+                    console.error('Error updating stock displays:', error);
+                }
+            }
+
+            // Update dashboard stock cards
+            updateDashboardStocks(stockData) {
+                const grids = ['myStocksGrid', 'watchlistGrid', 'trendingGrid'];
+                
+                grids.forEach(gridId => {
+                    const grid = document.getElementById(gridId);
+                    if (grid) {
+                        grid.innerHTML = this.stockSymbols.map(symbol => {
+                            const stock = stockData[symbol];
+                            if (!stock) return '';
+                            
+                            const changeClass = stock.change >= 0 ? 'positive' : 'negative';
+                            const changeSign = stock.change >= 0 ? '+' : '';
+                            const priceFormatted = this.formatCurrency(stock.price);
+                            const changeFormatted = `${changeSign}${stock.changePercent.toFixed(2)}%`;
+                            
+                            return `
+                                <div class="stock-card" onclick="showStockDetail('${symbol}')" data-symbol="${symbol}">
+                                    <div class="stock-logo-container">
+                                        <div class="stock-icon-fallback ${symbol.toLowerCase()}" id="icon-${gridId}-${symbol}">
+                                            <img src="${this.getStockLogo(symbol)}" alt="${symbol}" class="stock-logo" 
+                                                 onerror="this.style.display='none'; document.getElementById('icon-${gridId}-${symbol}').innerHTML='${this.getStockFallback(symbol)}';"
+                                                 onload="this.parentElement.style.background='transparent';">
+                                        </div>
+                                    </div>
+                                    <div class="stock-symbol">${symbol}</div>
+                                    <div class="stock-price">${priceFormatted}</div>
+                                    <div class="stock-change ${changeClass}">${changeFormatted}</div>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+                });
+            }
+
+            // Get stock logo path
+            getStockLogo(symbol) {
+                const logos = {
+                    'TSLA': 'Tesla.png',
+                    'AAPL': 'Apple.png',
+                    'NVDA': 'nvidia.jpg',
+                    'AMD': 'AMD.jpg',
+                    'META': 'Meta.png',
+                    'AMZN': 'amazon_.png',
+                    'GOOGL': 'Google.jpg',
+                    'NFLX': 'netflix.png'
+                };
+                return logos[symbol] || `${symbol.toLowerCase()}.png`;
+            }
+
+            // Get stock fallback text
+            getStockFallback(symbol) {
+                const fallbacks = {
+                    'TSLA': 'T',
+                    'AAPL': 'A',
+                    'NVDA': 'N',
+                    'AMD': 'AMD',
+                    'META': 'f',
+                    'AMZN': 'a',
+                    'GOOGL': 'G',
+                    'NFLX': 'N'
+                };
+                return fallbacks[symbol] || symbol.charAt(0);
+            }
+
+            // Format currency based on user location
+            formatCurrency(amount) {
+                try {
+                    // Use location service if available
+                    if (window.locationService && window.locationService.marketRegion) {
+                        const currency = window.locationService.marketRegion.currency || 'USD';
+                        const country = window.locationService.userLocation?.country || 'US';
+                        const locale = this.getLocaleFromCountry(country);
+                        
+                        return new Intl.NumberFormat(locale, {
+                            style: 'currency',
+                            currency: currency,
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }).format(amount);
+                    }
+                } catch (error) {
+                    console.warn('Error formatting currency:', error);
+                }
+                
+                // Fallback to USD
+                return new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(amount);
+            }
+
+            // Format volume
+            formatVolume(volume) {
+                if (volume >= 1000000) {
+                    return (volume / 1000000).toFixed(1) + 'M';
+                } else if (volume >= 1000) {
+                    return (volume / 1000).toFixed(1) + 'K';
+                }
+                return volume?.toString() || 'N/A';
+            }
+
+            // Get locale from country code
+            getLocaleFromCountry(countryCode) {
+                const locales = {
+                    'US': 'en-US',
+                    'GB': 'en-GB',
+                    'DE': 'de-DE',
+                    'FR': 'fr-FR',
+                    'JP': 'ja-JP',
+                    'CN': 'zh-CN',
+                    'CA': 'en-CA',
+                    'AU': 'en-AU'
+                };
+                return locales[countryCode] || 'en-US';
+            }
+
+            // Update currency displays
+            updateCurrencyDisplays(stockData) {
+                const currencyElements = document.querySelectorAll('[data-currency]');
+                currencyElements.forEach(element => {
+                    const value = parseFloat(element.textContent.replace(/[^0-9.-]/g, ''));
+                    if (!isNaN(value)) {
+                        element.textContent = this.formatCurrency(value);
+                    }
+                });
+            }
+
+            // Show loading indicator
+            showLoadingIndicator() {
+                // Add loading states to stock cards
+                const stockCards = document.querySelectorAll('.stock-card');
+                stockCards.forEach(card => {
+                    card.classList.add('loading');
+                });
+
+                // Update refresh button
+                const refreshBtn = document.querySelector('.refresh-stocks-btn');
+                if (refreshBtn) {
+                    refreshBtn.classList.add('loading');
+                    refreshBtn.disabled = true;
+                }
+            }
+
+            // Hide loading indicator
+            hideLoadingIndicator() {
+                // Remove loading states
+                const stockCards = document.querySelectorAll('.stock-card');
+                stockCards.forEach(card => {
+                    card.classList.remove('loading');
+                });
+
+                // Update refresh button
+                const refreshBtn = document.querySelector('.refresh-stocks-btn');
+                if (refreshBtn) {
+                    refreshBtn.classList.remove('loading');
+                    refreshBtn.disabled = false;
+                }
+            }
+
+            // Update last updated time
+            updateLastUpdatedTime() {
+                const lastUpdatedEl = document.getElementById('lastUpdated');
+                if (lastUpdatedEl) {
+                    const now = new Date();
+                    const timeString = now.toLocaleTimeString('en-US', { 
+                        hour: '2-digit', 
+                        minute: '2-digit',
+                        hour12: true 
+                    });
+                    lastUpdatedEl.querySelector('span').textContent = `Last updated: ${timeString}`;
+                    lastUpdatedEl.style.display = 'block';
+                }
+            }
+
+            // Handle API errors
+            handleAPIError(error) {
+                console.error('API Error:', error);
+                
+                // Show user-friendly error message
+                this.showErrorMessage(error.message || 'Failed to fetch stock data');
+                
+                // Hide loading indicator
+                this.hideLoadingIndicator();
+                
+                // Load cached data as fallback
+                this.loadCachedData();
+            }
+
+            // Show error message
+            showErrorMessage(message) {
+                // Create or update error notification
+                let errorDiv = document.getElementById('stockErrorNotification');
+                if (!errorDiv) {
+                    errorDiv = document.createElement('div');
+                    errorDiv.id = 'stockErrorNotification';
+                    errorDiv.className = 'error-notification';
+                    document.body.appendChild(errorDiv);
+                }
+                
+                errorDiv.innerHTML = `
+                    <div class="error-content">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>${message}</span>
+                        <button onclick="marketstackAPI.dismissError()" class="dismiss-btn">&times;</button>
+                    </div>
+                `;
+                
+                errorDiv.style.display = 'block';
+                
+                // Auto-hide after 10 seconds
+                setTimeout(() => {
+                    this.dismissError();
+                }, 10000);
+            }
+
+            // Dismiss error notification
+            dismissError() {
+                const errorDiv = document.getElementById('stockErrorNotification');
+                if (errorDiv) {
+                    errorDiv.style.display = 'none';
+                }
+            }
+
+            // Save cache to localStorage
+            saveCacheToStorage() {
+                try {
+                    const cacheData = {};
+                    this.cache.forEach((value, key) => {
+                        cacheData[key] = value;
+                    });
+                    localStorage.setItem('alphawave_stock_cache', JSON.stringify(cacheData));
+                } catch (error) {
+                    console.warn('Could not save cache to storage:', error);
+                }
+            }
+
+            // Load cached data from localStorage
+            loadCachedData() {
+                try {
+                    const stored = localStorage.getItem('alphawave_stock_cache');
+                    if (stored) {
+                        const cacheData = JSON.parse(stored);
+                        Object.entries(cacheData).forEach(([key, value]) => {
+                            this.cache.set(key, value);
+                        });
+                        
+                        // Process cached data for display
+                        const stockData = {};
+                        this.stockSymbols.forEach(symbol => {
+                            const cacheKey = this.getCacheKey(symbol);
+                            const cachedData = this.cache.get(cacheKey);
+                            if (cachedData && cachedData.data) {
+                                stockData[symbol] = this.processStockData(cachedData.data, symbol);
+                            } else {
+                                stockData[symbol] = this.getFallbackData(symbol);
+                            }
+                        });
+                        
+                        this.updateStockDisplays(stockData);
+                        console.log('Loaded cached stock data');
+                    }
+                } catch (error) {
+                    console.warn('Could not load cached data:', error);
+                }
+            }
+
+            // Start periodic updates
+            startPeriodicUpdates() {
+                // Update every 5 minutes
+                setInterval(() => {
+                    if (!this.isLoading) {
+                        console.log('Performing periodic stock data update...');
+                        this.fetchAllStockData();
+                    }
+                }, 5 * 60 * 1000);
+            }
+
+            // Manual refresh function
+            async refreshStockData() {
+                if (this.isLoading) {
+                    console.log('Already refreshing...');
+                    return;
+                }
+                
+                console.log('Manual refresh requested...');
+                this.cache.clear(); // Clear cache to force fresh data
+                await this.fetchAllStockData();
+            }
+        }
+
+        // Initialize the Marketstack API service
+        const marketstackAPI = new MarketstackAPI();
+        window.marketstackAPI = marketstackAPI;
+
+        // Authentication System (embedded)
+        class AuthSystem {
+            constructor() {
+                this.users = JSON.parse(localStorage.getItem('alphawave_users') || '[]');
+                this.currentUser = JSON.parse(localStorage.getItem('alphawave_current_user') || 'null');
+                this.initializeAuth();
+            }
+
+            initializeAuth() {
+                const protectedPages = ['dashboard.html', 'portfolio.html', 'news.html', 'stocks.html', 'watchlist.html', 'pro.html'];
+                const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+                
+                if (protectedPages.includes(currentPage) && !this.isLoggedIn()) {
+                    this.redirectToLogin();
+                }
+            }
+
+            isLoggedIn() {
+                return this.currentUser !== null;
+            }
+
+            getCurrentUser() {
+                return this.currentUser;
+            }
+
+            logout() {
+                localStorage.removeItem('alphawave_current_user');
+                this.currentUser = null;
+                this.redirectToLogin();
+            }
+
+            redirectToLogin() {
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Initialize auth system
+        window.authSystem = new AuthSystem();
+
+        // Profile Modal Functions
+        function toggleProfileModal() {
+            const overlay = document.getElementById('profileModalOverlay');
+            if (overlay.classList.contains('show')) {
+                closeProfileModal();
+            } else {
+                openProfileModal();
+            }
+        }
+
+        function openProfileModal() {
+            const overlay = document.getElementById('profileModalOverlay');
+            overlay.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeProfileModal(event) {
+            if (event && event.target !== event.currentTarget) {
+                return;
+            }
+            
+            const overlay = document.getElementById('profileModalOverlay');
+            overlay.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        function handleMenuClick(action) {
+            console.log('Menu action:', action);
+            
+            if (action === 'logout') {
+                window.authSystem.logout();
+                return;
+            }
+            
+            // Just close the modal without redirecting anywhere for other actions
+            closeProfileModal();
+        }
+
+        // Stock related functions
+        function showStockDetail(symbol) {
+            window.location.href = `stock-detail.html?symbol=${symbol}`;
+        }
+
+        function refreshStockData() {
+            if (window.marketstackAPI) {
+                window.marketstackAPI.refreshStockData();
+            }
+        }
+
+        // Update location display in navbar
+        function updateLocationDisplay() {
+            const locationInfo = document.querySelector('.location-info');
+            const locationText = document.querySelector('.location-text');
+            
+            if (window.locationService && window.locationService.userLocation) {
+                const location = window.locationService.userLocation;
+                if (locationInfo && locationText) {
+                    locationInfo.style.display = 'flex';
+                    if (location.isDefault) {
+                        locationText.textContent = 'Default Location';
+                    } else {
+                        locationText.textContent = `${location.city}, ${location.country}`;
+                    }
+                }
+
+                // Update regional indicator
+                const regionalIndicator = document.getElementById('regionalIndicator');
+                if (regionalIndicator && !location.isDefault) {
+                    regionalIndicator.style.display = 'flex';
+                    const span = regionalIndicator.querySelector('span');
+                    if (span) {
+                        span.textContent = `Popular in ${location.countryName}`;
+                    }
+                }
+
+                // Update market status
+                updateMarketStatus();
+            }
+        }
+
+        function updateMarketStatus() {
+            const marketContainer = document.querySelector('.market-status-container');
+            const statusIndicator = document.querySelector('.market-status-indicator');
+            const statusText = document.querySelector('.market-status-text');
+            
+            if (window.locationService && marketContainer) {
+                const timezone = window.locationService.userLocation?.timezone || 'America/New_York';
+                const marketStatus = getMarketStatus(timezone);
+                
+                marketContainer.style.display = 'flex';
+                
+                if (statusIndicator) {
+                    statusIndicator.className = `market-status-indicator ${marketStatus.isOpen ? 'open' : 'closed'}`;
+                }
+                
+                if (statusText) {
+                    statusText.textContent = marketStatus.isOpen ? 'Market Open' : 'Market Closed';
+                }
+            }
+        }
+
+        function getMarketStatus(timezone) {
+            try {
+                const now = new Date();
+                const marketTime = new Intl.DateTimeFormat('en-US', {
+                    timeZone: timezone,
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    hour12: false
+                }).formatToParts(now);
+                
+                const hour = parseInt(marketTime.find(part => part.type === 'hour').value);
+                const minute = parseInt(marketTime.find(part => part.type === 'minute').value);
+                const currentTime = hour * 60 + minute;
+                
+                // NYSE hours: 9:30 AM - 4:00 PM EST (570 - 960 minutes)
+                const marketOpen = 9 * 60 + 30; // 9:30 AM
+                const marketClose = 16 * 60; // 4:00 PM
+                
+                const isWeekday = now.getDay() >= 1 && now.getDay() <= 5;
+                const isOpen = isWeekday && currentTime >= marketOpen && currentTime < marketClose;
+                
+                return {
+                    isOpen: isOpen,
+                    currentTime: `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`,
+                    timezone: timezone
+                };
+            } catch (error) {
+                console.error('Error getting market status:', error);
+                return { isOpen: false, currentTime: '', timezone: 'UTC' };
+            }
+        }
+
+        // Show welcome message for logged in user
+        function showWelcomeMessage() {
+            const user = window.authSystem.getCurrentUser();
+            if (user && user.fullName) {
+                const welcomeDiv = document.createElement('div');
+                welcomeDiv.className = 'user-welcome';
+                welcomeDiv.textContent = `Welcome back, ${user.fullName}!`;
+                welcomeDiv.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    left: 20px;
+                    background: rgba(76, 175, 80, 0.9);
+                    color: white;
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    font-family: 'Quicksand', sans-serif;
+                    font-weight: 500;
+                    z-index: 1000;
+                    animation: slideInLeft 0.5s ease;
+                `;
+                
+                document.body.appendChild(welcomeDiv);
+                
+                // Auto remove after 5 seconds
+                setTimeout(() => {
+                    if (welcomeDiv && welcomeDiv.parentNode) {
+                        welcomeDiv.style.animation = 'slideInLeft 0.5s ease reverse';
+                        setTimeout(() => {
+                            if (welcomeDiv && welcomeDiv.parentNode) {
+                                welcomeDiv.remove();
+                            }
+                        }, 500);
+                    }
+                }, 5000);
+            }
+        }
+
+        // Enhanced initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Dashboard with live stock data loaded');
+            showWelcomeMessage();
+            
+            // Wait for location services to initialize
+            setTimeout(() => {
+                updateLocationDisplay();
+            }, 1000);
+
+            // Listen for location updates
+            window.addEventListener('locationUpdated', function(event) {
+                console.log('Location updated, refreshing displays...');
+                updateLocationDisplay();
+            });
+
+            // Listen for stock data updates
+            window.addEventListener('stockDataUpdated', function(event) {
+                const { stockData, successCount } = event.detail;
+                console.log(`Stock data updated: ${successCount} stocks loaded`);
+            });
+        });
+
+        // Close modal when pressing Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeProfileModal();
+            }
+        });
+
+        // Add slideIn animation keyframes and profile modal styles
+        const additionalStyles = document.createElement('style');
+        additionalStyles.textContent = `
+            @keyframes slideInLeft {
+                from {
+                    transform: translateX(-100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            .profile-modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1000;
+                display: none;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            .profile-modal-overlay.show {
+                display: flex;
+                opacity: 1;
+            }
+
+            .profile-modal {
+                position: absolute;
+                top: 80px;
+                right: 20px;
+                width: 380px;
+                height: 450px;
+                background: #e8e8e8;
+                border-radius: 15px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                padding: 20px;
+                font-family: 'Quicksand', sans-serif;
+                transform: translateY(-20px);
+                transition: transform 0.3s ease;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+
+            .profile-modal-overlay.show .profile-modal {
+                transform: translateY(0);
+            }
+
+            .profile-menu-item {
+                display: flex;
+                align-items: center;
+                padding: 8px 0;
+                cursor: pointer;
+                transition: background 0.3s ease;
+                border-radius: 8px;
+                margin-bottom: 2px;
+            }
+
+            .profile-menu-item:hover {
+                background: rgba(0, 0, 0, 0.1);
+                padding-left: 10px;
+            }
+
+            .profile-menu-item:last-child {
+                margin-bottom: 0;
+            }
+
+            .profile-menu-icon {
+                width: 35px;
+                height: 35px;
+                border-radius: 50%;
+                background: #666;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-right: 10px;
+                color: white;
+                font-size: 14px;
+                flex-shrink: 0;
+            }
+
+            .profile-menu-text {
+                font-size: 14px;
+                font-weight: 500;
+                color: #333;
+                font-family: 'Quicksand', sans-serif;
+            }
+        `;
+        document.head.appendChild(additionalStyles);
+    </script>
+</body>
+</html>

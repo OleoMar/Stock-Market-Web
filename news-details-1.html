@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlphaWave - Federal Reserve Signals Rate Changes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="geolocation-service.js"></script>
+    <script src="location-components.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f5f5f5;
+            font-family: 'Quicksand', sans-serif;
+            color: #333;
+        }
+
+        .dashboard-page {
+            background: #1a1a1a;
+            min-height: 100vh;
+            color: white;
+        }
+
+        .navbar {
+            background: #1a1a1a;
+            padding: 15px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .navbar .logo-circle {
+            width: 45px;
+            height: 45px;
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            margin-right: 10px;
+            background: transparent;
+            color: white;
+            font-weight: normal;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 400px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 40px 10px 15px;
+            border: 1px solid #444;
+            border-radius: 25px;
+            background: white;
+            color: #333;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .pro-badge {
+            background: #333;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            border: 1px solid #555;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .main-layout {
+            display: flex;
+        }
+
+        .sidebar {
+            width: 200px;
+            background: white;
+            height: calc(100vh - 99px); 
+            padding: 30px 0;
+            border-right: 1px solid #333;
+            position: fixed;
+            left: 0;
+            top: 99px; 
+            background-image: url('SideGradient.png');
+            background-size: 100%;
+            background-position: center top;
+            background-repeat: no-repeat;
+            z-index: 10;
+        }       
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar-nav li {
+            margin: 5px 0;
+        }
+
+        .sidebar-nav a {
+            display: block;
+            padding: 15px 30px;
+            color: #ccc;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-weight: 500;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: #2a2a2a;
+            color: white;
+        }
+
+        .content {
+            flex: 1;
+            padding: 30px;
+            background: #f5f5f5;
+            color: #333;
+            min-height: calc(100vh - 99px);
+            font-family: 'Quicksand', sans-serif;
+            margin-left: 200px; 
+        }
+
+        .article-title {
+            font-size: 48px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 40px;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .article-container {
+            background: #2a2a2a;
+            border-radius: 20px;
+            padding: 40px;
+            color: white;
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+        }
+
+        .article-text {
+            flex: 1;
+        }
+
+        .article-paragraph {
+            font-size: 16px;
+            line-height: 1.6;
+            color: white;
+            margin-bottom: 20px;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .video-container {
+            width: 400px;
+            height: 225px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #1a1a1a;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .video-content {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.7) 100%);
+        }
+
+        .video-header {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 11px;
+            color: white;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .market-data {
+            position: absolute;
+            bottom: 50px;
+            left: 10px;
+            right: 10px;
+            color: white;
+            font-size: 12px;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .market-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+        }
+
+        .market-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .market-value {
+            color: #4CAF50;
+            font-weight: 600;
+        }
+
+        .market-ticker {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.9);
+            padding: 8px 10px;
+            font-size: 10px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .ticker-item {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .chart-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
+        }
+
+        .chart-image img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .article-container {
+                flex-direction: column;
+            }
+            
+            .video-container {
+                width: 100%;
+                max-width: 500px;
+                margin: 0 auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                top: 0;
+                left: 0;
+                min-height: auto;
+            }
+
+            .content {
+                margin-left: 0; 
+            }
+
+            .main-layout {
+                flex-direction: column;
+            }
+
+            .article-title {
+                font-size: 32px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .article-container {
+                padding: 20px;
+            }
+        }
+        @media (max-width: 576px) {
+            .content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-page">
+        <nav class="navbar">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="dashboard.html">
+                    <div class="logo-circle">AlphaWave</div>
+                    AlphaWave
+                </a>
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Search">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+                <div class="navbar-right">
+                    <a href="pro.html" class="pro-badge">Pro</a>
+                    <i class="fas fa-bell" style="color: white;"></i>
+                    <div class="user-avatar">
+                        <img src="accountLogo.jpg" alt="User">
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="main-layout">
+            <div class="sidebar">
+                <ul class="sidebar-nav">
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="portfolio.html">Portfolio</a></li>
+                    <li><a href="news.html" class="active">Latest News</a></li>
+                </ul>
+            </div>
+
+            <div class="content">
+                <h1 class="article-title">Federal Reserve Signals Rate Changes</h1>
+                
+                <div class="article-container">
+                    <div class="article-text">
+                        <p class="article-paragraph">
+                            The Federal Reserve has signaled potential adjustments to interest rates in 
+                            response to shifting economic conditions. Recent data suggest a gradual slowdown 
+                            in inflation, prompting speculation that rate cuts could begin later this year.
+                            While 
+                            no specific timeline was provided, Chair Jerome Powell emphasized the Fed's 
+                            commitment to balancing economic growth with price stability.
+                        </p>
+                        <p class="article-paragraph">
+                            Markets reacted cautiously, with investors interpreting the signal as a sign of 
+                            potential easing rather than immediate action. The Fed continues to monitor labor 
+                            market strength and consumer spending trends, both of which remain resilient despite 
+                            elevated rates.
+                        </p>
+                        <p class="article-paragraph">
+                            Analysts suggest that if inflation continues to cool and job numbers remain stable, the 
+                            Fed could initiate a modest rate cut in the final quarter of the year. Until then, the 
+                            central bank is expected to maintain a data-driven approach, avoiding premature 
+                            moves that might reignite inflationary pressures.
+                        </p>
+                        <p class="article-paragraph">
+                            The announcement underscores the Fed's evolving stance as it navigates a post-
+                            pandemic economy marked by global uncertainties and shifting fiscal dynamics.
+                        </p>
+                    </div>
+                    
+                    <div class="video-container">
+                        <div class="video-content">
+                            <div class="chart-image">
+                                <img src="newspic1.jpg" alt="industrial Chart" style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px;" 
+                                     onerror="this.style.display='none';">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
