@@ -534,12 +534,13 @@
         .stock-logo {
             width: 40px;
             height: 40px;
-            margin-bottom: 8px;
+            margin-bottom: -5px;
             border-radius: 8px;
             object-fit: contain;
             background: transparent;
             display: block;
         }
+        
 
         .stock-icon-fallback {
             width: 40px;
@@ -624,6 +625,45 @@
                 margin-left: 0;
             }
         }
+
+        .message-dropdown {
+            position: absolute;
+            top: 60px;
+            right: 60px;
+            background: #ecebeb;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            min-width: 320px;
+            min-height: 380px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .message-dropdown-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            padding: 60px 0 0 0;
+        }
+        .message-dropdown-content svg {
+            margin-bottom: 30px;
+        }
+        .message-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .message-subtext {
+            font-size: 1.1rem;
+            color: #555;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -672,9 +712,6 @@
                         </div>
                     </div>
 
-                    <!-- Market Status -->
-                    <span class="market-status" id="marketStatus">Market Closed</span>
-
                     <!-- Refresh stocks button -->
                     <button class="refresh-stocks-btn" onclick="refreshStockData()" title="Refresh stock data">
                         <i class="fas fa-sync-alt"></i>
@@ -682,7 +719,20 @@
                     </button>
                     
                     <a href="pro.html" class="pro-badge">Pro</a>
-                    <i class="fas fa-bell" style="color: white;"></i>
+                    <i class="fas fa-bell" id="notificationBell" style="color: white; cursor: pointer;"></i>
+                    <div id="messageDropdown" class="message-dropdown" style="display: none;">
+                        <div class="message-dropdown-content">
+                            <svg width="90" height="90" viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="45" cy="45" r="45" fill="#444"/>
+                                <ellipse cx="45" cy="45" rx="30" ry="22" fill="#444"/>
+                                <circle cx="34" cy="50" r="4" fill="#fff"/>
+                                <circle cx="45" cy="50" r="4" fill="#fff"/>
+                                <circle cx="56" cy="50" r="4" fill="#fff"/>
+                            </svg>
+                            <div class="message-title">No Notices Right Now!</div>
+                            <div class="message-subtext">You are up to date!</div>
+                        </div>
+                    </div>
                     <div class="user-avatar" onclick="toggleProfileModal()">
                         <img src="accountLogo.jpg" alt="User">
                     </div>
@@ -826,19 +876,7 @@
     </div>
 
     <script>
-        // Define sample stocksData so loadPortfolioStocks works
-        const stocksData = [
-          { symbol: 'AAPL', change: '+2.3%', logo: 'Apple.png', fallback: 'AP' },
-          { symbol: 'TSLA', change: '+1.2%', logo: 'Tesla.png', fallback: 'T' },
-          { symbol: 'NVDA', change: '+3.1%', logo: 'nvidia.jpg', fallback: 'N' },
-          { symbol: 'AMZN', change: '-0.5%', logo: 'amazon_.png', fallback: 'A' },
-          { symbol: 'META', change: '+0.8%', logo: 'Meta.png', fallback: 'f' },
-          { symbol: 'GOOGL', change: '+1.7%', logo: 'Google.jpg', fallback: 'G' },
-          { symbol: 'NFLX', change: '+2.0%', logo: 'netflix.png', fallback: 'N' },
-          { symbol: 'AMD', change: '+1.5%', logo: 'AMD.jpg', fallback: 'AMD' }
-        ];
-
-        // --- BEGIN: SimpleLocationService (copied from dashboard.html) ---
+        
         class SimpleLocationService {
             constructor() {
                 this.currentLocation = this.loadLocationSettings();
@@ -957,11 +995,16 @@
                 }
             }
         }
-        // --- END: SimpleLocationService ---
+        -
 
-        // --- BEGIN: Refresh function ---
+        
         function refreshStockData() {
-            // You can implement real refresh logic here if needed
+            // Call the portfolio API refresh function
+            if (portfolioFinnhubAPI) {
+                portfolioFinnhubAPI.refreshStockData();
+            }
+            
+            // Show loading animation
             const btn = document.querySelector('.refresh-stocks-btn');
             if (btn) {
                 btn.classList.add('loading');
@@ -972,15 +1015,14 @@
                 }, 1000);
             }
         }
-        // --- END: Refresh function ---
+       
 
-        // --- BEGIN: Profile menu handler ---
+        
         function handleMenuClick(action) {
             console.log('Menu action:', action);
             closeProfileModal();
-            // Add specific actions here if needed
         }
-        // --- END: Profile menu handler ---
+        
 
         let portfolioChart = null;
 
@@ -1012,38 +1054,21 @@
             }
         };
 
-        // --- BEGIN: Portfolio API Integration ---
-        class PortfolioAPI {
+        // --- BEGIN: LocationAwareFinnhubAPI (same as dashboard.html) ---
+        class LocationAwareFinnhubAPI {
             constructor() {
                 this.apiKey = 'ctrlpb1r01qglao4qp80ctrlpb1r01qglao4qp8g';
                 this.baseUrl = 'https://finnhub.io/api/v1';
                 this.cache = new Map();
-                this.cacheExpiry = 5 * 60 * 1000; // 5 minutes cache
-                this.rateLimitDelay = 1000; // 1 second between requests
+                this.isLoading = false;
+                this.rateLimitDelay = 1000;
                 this.lastRequestTime = 0;
                 
-                // Portfolio stock symbols
-                this.portfolioSymbols = [
+                this.stockSymbols = [
                     'TSLA', 'AAPL', 'NVDA', 'AMD', 'META', 'AMZN', 'GOOGL', 'NFLX'
                 ];
-
-                this.initializePortfolioData();
-            }
-
-            async initializePortfolioData() {
-                try {
-                    console.log('Initializing portfolio data...');
-                    
-                    // Load cached data first
-                    this.loadCachedData();
-                    
-                    // Fetch fresh data
-                    await this.fetchAllPortfolioData();
-                    
-                } catch (error) {
-                    console.error('Error initializing portfolio data:', error);
-                    this.showError('Failed to load portfolio data');
-                }
+                
+                console.log('Enhanced FinnhubAPI initialized for portfolio page');
             }
 
             async waitForRateLimit() {
@@ -1062,6 +1087,8 @@
                 try {
                     await this.waitForRateLimit();
                     
+                    console.log(`Fetching real price for ${symbol}...`);
+                    
                     const url = `${this.baseUrl}/quote?symbol=${symbol}&token=${this.apiKey}`;
                     const response = await fetch(url);
                     
@@ -1075,6 +1102,7 @@
                         throw new Error(`No quote data found for ${symbol}`);
                     }
                     
+                    console.log(`Got real price for ${symbol}: ${data.c}`);
                     return data;
                     
                 } catch (error) {
@@ -1083,11 +1111,32 @@
                 }
             }
 
-            async fetchAllPortfolioData() {
+            async initializeStockService() {
                 try {
-                    console.log('Fetching all portfolio data...');
+                    console.log('Initializing Location-Aware Stock Service for portfolio...');
+                    this.loadCachedData();
+                    await this.fetchAllStockData();
+                    this.startPeriodicUpdates();
+                } catch (error) {
+                    console.error('Error initializing stock service:', error);
+                    this.handleAPIError(error);
+                }
+            }
+
+            async fetchAllStockData() {
+                if (this.isLoading) {
+                    console.log('Already loading stock data...');
+                    return;
+                }
+
+                this.isLoading = true;
+                
+                try {
+                    const currency = window.locationService?.currentLocation?.currency || 'USD';
+                    console.log(`Fetching stock data (displaying in ${currency})...`);
+                    this.showLoadingIndicator();
                     
-                    const stockPromises = this.portfolioSymbols.map(async (symbol) => {
+                    const stockPromises = this.stockSymbols.map(async (symbol) => {
                         try {
                             const quoteData = await this.fetchStockQuote(symbol);
                             return { symbol, data: quoteData, success: true };
@@ -1099,47 +1148,55 @@
 
                     const results = await Promise.all(stockPromises);
                     
-                    // Process results
-                    const stockData = [];
+                    const stockData = {};
                     let successCount = 0;
                     
                     results.forEach(result => {
                         if (result.success && result.data) {
-                            stockData.push(this.processStockData(result.data, result.symbol));
+                            stockData[result.symbol] = this.processStockData(result.data, result.symbol);
                             successCount++;
                         } else {
-                            // Use fallback data
-                            stockData.push(this.processStockData(this.getFallbackQuote(result.symbol), result.symbol));
+                            stockData[result.symbol] = this.getFallbackData(result.symbol);
                         }
                     });
 
-                    console.log(`Successfully fetched data for ${successCount}/${this.portfolioSymbols.length} stocks`);
+                    console.log(`Successfully fetched data for ${successCount}/${this.stockSymbols.length} stocks`);
                     
-                    // Update UI
-                    this.updatePortfolioDisplay(stockData);
+                    this.updateStockDisplays(stockData);
+                    this.updatePortfolioValue(stockData);
+                    this.hideLoadingIndicator();
+                    this.updateLastUpdatedTime();
                     
                 } catch (error) {
-                    console.error('Error fetching portfolio data:', error);
-                    this.showError('Failed to fetch portfolio data');
+                    console.error('Error fetching stock data:', error);
+                    this.handleAPIError(error);
+                } finally {
+                    this.isLoading = false;
                 }
             }
 
             processStockData(rawData, symbol) {
                 try {
-                    const currentPrice = rawData.c;
-                    const change = rawData.d;
-                    const changePercent = rawData.dp;
-                    
                     return {
-                        symbol: symbol,
-                        change: change,
-                        changePercent: changePercent,
-                        isLive: rawData.c && rawData.d !== undefined,
-                        lastUpdate: new Date()
+                        symbol: symbol, price: rawData.c, change: rawData.d, 
+                        changePercent: rawData.dp, high: rawData.h, low: rawData.l,
+                        open: rawData.o, previousClose: rawData.pc, 
+                        lastUpdate: new Date(), isLive: true
                     };
                 } catch (error) {
                     console.error(`Error processing data for ${symbol}:`, error);
-                    return this.getFallbackStockData(symbol);
+                    return this.getFallbackData(symbol);
+                }
+            }
+
+            updatePortfolioValue(stockData) {
+                let totalValue = 47892.50; // Base USD value
+                if (window.locationService) {
+                    const formattedValue = window.locationService.formatCurrency(totalValue);
+                    const portfolioValueElement = document.getElementById('portfolioValue');
+                    if (portfolioValueElement) {
+                        portfolioValueElement.textContent = formattedValue;
+                    }
                 }
             }
 
@@ -1154,148 +1211,174 @@
                     'GOOGL': { c: 158.71, d: 2.89, dp: 1.85 },
                     'NFLX': { c: 485.32, d: 6.42, dp: 1.34 }
                 };
-                
                 return fallbackPrices[symbol] || { c: 100, d: 2, dp: 2.04 };
             }
 
-            getFallbackStockData(symbol) {
+            getFallbackData(symbol) {
                 const fallback = this.getFallbackQuote(symbol);
                 return {
-                    symbol: symbol,
-                    change: fallback.d,
-                    changePercent: fallback.dp,
-                    isLive: false,
-                    lastUpdate: new Date()
+                    symbol: symbol, price: fallback.c, change: fallback.d,
+                    changePercent: fallback.dp, isLive: false, lastUpdate: new Date()
                 };
+            }
+
+            updateStockDisplays(stockData) {
+                try {
+                    console.log('Updating portfolio stocks display...');
+                    this.updatePortfolioStocks(stockData);
+                } catch (error) {
+                    console.error('Error updating stock displays:', error);
+                }
+            }
+
+            updatePortfolioStocks(stockData) {
+                const grid = document.getElementById('portfolioStocksGrid');
+                if (grid) {
+                    grid.innerHTML = this.stockSymbols.map(symbol => {
+                        const stock = stockData[symbol];
+                        if (!stock) return '';
+                        
+                        const changeClass = stock.change >= 0 ? 'positive' : 'negative';
+                        const changeSign = stock.change >= 0 ? '+' : '';
+                        
+                        // Use location service for currency formatting if available
+                        const priceFormatted = window.locationService ? 
+                            window.locationService.formatCurrency(stock.price) : 
+                            `$${stock.price.toFixed(2)}`;
+                        
+                        const changeFormatted = `${changeSign}${stock.changePercent.toFixed(2)}%`;
+                        
+                        // Route to specific pages
+                        let clickAction = '';
+                        if (symbol === 'AAPL') {
+                            clickAction = `onclick="console.log('Apple clicked'); window.location.href='apple-stock-detail.html';"`;
+                        } else if (symbol === 'GOOGL') {
+                            clickAction = `onclick="console.log('Google clicked'); window.location.href='stock-detail.html';"`;
+                        } else {
+                            clickAction = `onclick="console.log('${symbol} clicked');"`;
+                        }
+                        
+                        return `
+                            <div class="stock-card ${stock.isLive ? 'live' : 'offline'}" ${clickAction} data-symbol="${symbol}">
+                                <div class="stock-logo-container">
+                                    <div class="stock-icon-fallback ${symbol.toLowerCase()}" id="icon-portfolio-${symbol}">
+                                        <img src="${this.getStockLogo(symbol)}" alt="${symbol}" class="stock-logo" 
+                                             onerror="this.style.display='none'; document.getElementById('icon-portfolio-${symbol}').innerHTML='${this.getStockFallback(symbol)}';"
+                                             onload="this.parentElement.style.background='transparent';">
+                                    </div>
+                                    ${!stock.isLive ? '<div class="offline-indicator">OFF</div>' : ''}
+                                </div>
+                                <div class="stock-symbol">${symbol}</div>
+                                <div class="stock-price">${priceFormatted}</div>
+                                <div class="stock-change ${changeClass}">${changeFormatted}</div>
+                            </div>
+                        `;
+                    }).join('');
+                }
             }
 
             getStockLogo(symbol) {
                 const logos = {
-                    'TSLA': 'Tesla.png',
-                    'AAPL': 'Apple.png',
-                    'NVDA': 'nvidia.jpg',
-                    'AMD': 'AMD.jpg',
-                    'META': 'Meta.png',
-                    'AMZN': 'amazon_.png',
-                    'GOOGL': 'Google.jpg',
-                    'NFLX': 'netflix.png'
+                    'TSLA': 'Tesla.png', 'AAPL': 'Apple.png', 'NVDA': 'nvidia.jpg',
+                    'AMD': 'AMD.jpg', 'META': 'Meta.png', 'AMZN': 'amazon_.png',
+                    'GOOGL': 'Google.jpg', 'NFLX': 'netflix.png'
                 };
                 return logos[symbol] || `${symbol.toLowerCase()}.png`;
             }
 
             getStockFallback(symbol) {
                 const fallbacks = {
-                    'TSLA': 'T',
-                    'AAPL': 'A',
-                    'NVDA': 'N',
-                    'AMD': 'AMD',
-                    'META': 'f',
-                    'AMZN': 'a',
-                    'GOOGL': 'G',
-                    'NFLX': 'N'
+                    'TSLA': 'T', 'AAPL': 'A', 'NVDA': 'N', 'AMD': 'AMD',
+                    'META': 'f', 'AMZN': 'a', 'GOOGL': 'G', 'NFLX': 'N'
                 };
                 return fallbacks[symbol] || symbol.charAt(0);
             }
 
-            updatePortfolioDisplay(stockData) {
-                try {
-                    console.log('Updating portfolio display...');
-                    
-                    // Update portfolio stocks grid
-                    const portfolioGrid = document.getElementById('portfolioStocksGrid');
-                    if (portfolioGrid && stockData.length > 0) {
-                        // Sort by symbol for consistency
-                        stockData.sort((a, b) => a.symbol.localeCompare(b.symbol));
+            showLoadingIndicator() {
+                const stockCards = document.querySelectorAll('.stock-card');
+                stockCards.forEach(card => card.classList.add('loading'));
 
-                        portfolioGrid.innerHTML = stockData.map(stock => {
-                            const changeClass = stock.change >= 0 ? 'positive' : 'negative';
-                            const changeSign = stock.change >= 0 ? '+' : '';
-                            const changeFormatted = `${changeSign}${stock.changePercent.toFixed(1)}%`;
-                            
-                            return `
-                                <div class="stock-card ${stock.isLive ? 'live' : 'offline'}" onclick="showStockDetail('${stock.symbol}')" data-symbol="${stock.symbol}">
-                                    <div class="stock-logo-container">
-                                        <div class="stock-icon-fallback ${stock.symbol.toLowerCase()}" id="portfolio-icon-${stock.symbol}">
-                                            <img src="${this.getStockLogo(stock.symbol)}" alt="${stock.symbol}" class="stock-logo" 
-                                                 onerror="this.style.display='none'; document.getElementById('portfolio-icon-${stock.symbol}').innerHTML='${this.getStockFallback(stock.symbol)}';"
-                                                 onload="this.parentElement.style.background='transparent';">
-                                        </div>
-                                        ${!stock.isLive ? '<div class="offline-indicator">OFF</div>' : ''}
-                                    </div>
-                                    <div class="stock-symbol">${stock.symbol}</div>
-                                    <div class="stock-change ${changeClass}">${changeFormatted}</div>
-                                </div>
-                            `;
-                        }).join('');
-                    }
-                } catch (error) {
-                    console.error('Error updating portfolio display:', error);
+                const refreshBtn = document.querySelector('.refresh-stocks-btn');
+                if (refreshBtn) {
+                    refreshBtn.classList.add('loading');
+                    refreshBtn.disabled = true;
                 }
+            }
+
+            hideLoadingIndicator() {
+                const stockCards = document.querySelectorAll('.stock-card');
+                stockCards.forEach(card => card.classList.remove('loading'));
+
+                const refreshBtn = document.querySelector('.refresh-stocks-btn');
+                if (refreshBtn) {
+                    refreshBtn.classList.remove('loading');
+                    refreshBtn.disabled = false;
+                }
+            }
+
+            updateLastUpdatedTime() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('en-US', { 
+                    hour: '2-digit', minute: '2-digit', hour12: true 
+                });
+                const currency = window.locationService?.currentLocation?.currency || 'USD';
+                console.log(`Last updated: ${timeString} (${currency})`);
+            }
+
+            handleAPIError(error) {
+                console.error('API Error:', error);
+                this.hideLoadingIndicator();
+                this.loadCachedData();
             }
 
             loadCachedData() {
                 try {
-                    const stored = localStorage.getItem('alphawave_portfolio_cache');
+                    const stored = localStorage.getItem('alphawave_finnhub_cache');
                     if (stored) {
                         const cacheData = JSON.parse(stored);
-                        const stockData = [];
-                        
-                        this.portfolioSymbols.forEach(symbol => {
+                        const stockData = {};
+                        this.stockSymbols.forEach(symbol => {
                             const cachedQuote = cacheData[symbol];
                             if (cachedQuote) {
-                                stockData.push(this.processStockData(cachedQuote, symbol));
+                                stockData[symbol] = this.processStockData(cachedQuote, symbol);
                             } else {
-                                stockData.push(this.getFallbackStockData(symbol));
+                                stockData[symbol] = this.getFallbackData(symbol);
                             }
                         });
                         
-                        this.updatePortfolioDisplay(stockData);
-                        console.log('Loaded cached portfolio data');
+                        this.updateStockDisplays(stockData);
+                        this.updatePortfolioValue(stockData);
+                        console.log('Loaded cached stock data');
                     }
                 } catch (error) {
                     console.warn('Could not load cached data:', error);
                 }
             }
 
-            saveCacheToStorage(stockData) {
-                try {
-                    const cacheData = {};
-                    stockData.forEach(stock => {
-                        cacheData[stock.symbol] = {
-                            c: stock.price,
-                            d: stock.change,
-                            dp: stock.changePercent
-                        };
-                    });
-                    localStorage.setItem('alphawave_portfolio_cache', JSON.stringify(cacheData));
-                } catch (error) {
-                    console.warn('Could not save cache to storage:', error);
-                }
+            startPeriodicUpdates() {
+                setInterval(() => {
+                    if (!this.isLoading) {
+                        console.log('Performing periodic update...');
+                        this.fetchAllStockData();
+                    }
+                }, 5 * 60 * 1000);
             }
 
-            showError(message) {
-                const portfolioGrid = document.getElementById('portfolioStocksGrid');
-                if (portfolioGrid) {
-                    portfolioGrid.innerHTML = `
-                        <div class="loading-placeholder">
-                            <i class="fas fa-exclamation-triangle" style="font-size: 24px; color: #f44336; margin-bottom: 10px;"></i>
-                            <div>${message}</div>
-                            <button onclick="location.reload()" style="margin-top: 10px; padding: 8px 16px; background: #333; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                                Retry
-                            </button>
-                        </div>
-                    `;
+            async refreshStockData() {
+                if (this.isLoading) {
+                    console.log('Already refreshing...');
+                    return;
                 }
-            }
-
-            refreshData() {
-                this.fetchAllPortfolioData();
+                
+                console.log('Manual refresh requested...');
+                this.cache.clear();
+                await this.fetchAllStockData();
             }
         }
-        // --- END: Portfolio API Integration ---
+        // --- END: LocationAwareFinnhubAPI ---
 
-        // Initialize Portfolio API
-        const portfolioAPI = new PortfolioAPI();
+        // Initialize LocationAwareFinnhubAPI for portfolio page
+        const portfolioFinnhubAPI = new LocationAwareFinnhubAPI();
 
         function loadPortfolioChart(period = '6M') {
             const ctx = document.getElementById('portfolioChart');
@@ -1398,21 +1481,9 @@
         }
 
         function loadPortfolioStocks() {
-            const portfolioStocksGrid = document.getElementById('portfolioStocksGrid');
-            if (portfolioStocksGrid) {
-                portfolioStocksGrid.innerHTML = stocksData.map(stock => `
-                    <div class="stock-card" onclick="showStockDetail('${stock.symbol}')">
-                        <div class="stock-icon-fallback ${stock.symbol.toLowerCase()}" id="icon-portfolio-${stock.symbol}">
-                            <img src="${stock.logo}" alt="${stock.symbol}" class="stock-logo" 
-                                 style="width: 40px; height: 40px; border-radius: 8px;"
-                                 onerror="this.style.display='none'; document.getElementById('icon-portfolio-${stock.symbol}').innerHTML='${stock.fallback}';"
-                                 onload="this.parentElement.style.background='transparent';">
-                        </div>
-                        <div class="stock-symbol">${stock.symbol}</div>
-                        <div class="stock-change positive">${stock.change}</div>
-                    </div>
-                `).join('');
-            }
+            // Portfolio stocks are now handled by PortfolioAPI automatically
+            // No need to manually load them here since the API initializes on page load
+            console.log('Portfolio stocks are handled by PortfolioAPI');
         }
 
         function showStockDetail(symbol) {
@@ -1432,22 +1503,27 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Loading portfolio page...');
+            console.log('Enhanced Portfolio Page with Location Support loading...');
             
-            // Initialize location service
+            // Initialize location service first
             window.locationService = new SimpleLocationService();
             window.locationService.init();
+            
+            // Initialize stock API
+            window.portfolioFinnhubAPI = new LocationAwareFinnhubAPI();
+            window.portfolioFinnhubAPI.initializeStockService();
             
             // Listen for location changes
             window.addEventListener('locationChanged', function(event) {
                 console.log('Location changed event:', event.detail);
-                // Update portfolio value with new currency
-                if (window.locationService) {
-                    window.locationService.updatePortfolioValue();
+                
+                // Refresh stock data with new currency
+                if (window.portfolioFinnhubAPI) {
+                    window.portfolioFinnhubAPI.fetchAllStockData();
                 }
             });
             
-            // Load stocks 
+            // Load stocks (now handled by API)
             loadPortfolioStocks();
             
             // Load chart 
@@ -1458,6 +1534,8 @@
                     console.error('Chart.js not loaded');
                 }
             }, 500);
+            
+            console.log('Portfolio page initialization complete');
         });
 
         //  window resize
@@ -1467,7 +1545,7 @@
             }
         });
 
-        // Location dropdown functions (for dashboard.html only)
+        // Location dropdown functions 
         function toggleLocationDropdown() {
             const dropdown = document.getElementById('locationDropdown');
             if (dropdown) {
@@ -1627,6 +1705,17 @@
         }
         // Make modal functions global
         window.showCurrencySettingsModal = showCurrencySettingsModal;
+
+        // Message dropdown logic
+        const bell = document.getElementById('notificationBell');
+        const dropdown = document.getElementById('messageDropdown');
+        document.addEventListener('click', function(event) {
+            if (bell && bell.contains(event.target)) {
+                dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+            } else if (dropdown && !dropdown.contains(event.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
     </script>
 </body>
 </html>

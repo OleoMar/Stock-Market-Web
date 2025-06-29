@@ -387,7 +387,7 @@
 
         .stocks-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, 106px);
+            grid-template-columns: repeat(auto-fit, 120px);
             gap: 15px;
             position: relative;
             z-index: 1;
@@ -402,8 +402,8 @@
             text-align: center;
             cursor: pointer;
             transition: transform 0.3s;
-            width: 106px;
-            height: 120px;
+            width: 120px;
+            height: 140px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -416,8 +416,8 @@
         }
 
         .stock-logo {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             margin-bottom: 8px;
             border-radius: 8px;
             object-fit: contain;
@@ -426,8 +426,8 @@
         }
 
         .stock-icon-fallback {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             margin-bottom: 8px;
             border-radius: 8px;
             display: flex;
@@ -452,19 +452,71 @@
 
         .stock-symbol {
             font-weight: bold;
-            font-size: 14px;
+            font-size: 15px;
             margin-bottom: 5px;
             font-family: 'Quicksand', sans-serif;
         }
 
         .stock-change {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
             font-family: 'Quicksand', sans-serif;
         }
 
         .stock-change.positive {
             color: #4CAF50;
+        }
+
+        .stock-change.negative {
+            color: #f44336;
+        }
+
+        .stock-price {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .stock-logo-container {
+            position: relative;
+            margin-bottom: -5px;
+        }
+
+        .offline-indicator {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #f44336;
+            color: white;
+            font-size: 8px;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .stock-card.loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .stock-card.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ccc;
+            border-top: 2px solid #4CAF50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
         .section-title {
@@ -591,12 +643,12 @@
             }
                     
             .stocks-grid {
-                grid-template-columns: repeat(auto-fit, 90px);
+                grid-template-columns: repeat(auto-fit, 120px);
             }
             
             .stock-card {
-                width: 100px;
-                height: 120px;
+                width: 120px;
+                height: 140px;
             }
         
             .trending-title {
@@ -662,17 +714,27 @@
                         </div>
                     </div>
 
-                    <!-- Market Status (only for dashboard.html) -->
-                    <span class="market-status" id="marketStatus">Market Closed</span>
-
-                    <!-- Refresh stocks button (only for dashboard.html) -->
-                    <button class="refresh-stocks-btn" onclick="refreshStockData()" title="Refresh stock data">
+                    <!-- Refresh stocks button -->
+                    <button class="refresh-stocks-btn" onclick="refreshTrendingStockData()" title="Refresh stock data">
                         <i class="fas fa-sync-alt"></i>
                         Refresh
                     </button>
                     
                     <a href="pro.html" class="pro-badge">Pro</a>
-                    <i class="fas fa-bell" style="color: white;"></i>
+                    <i class="fas fa-bell" id="notificationBell" style="color: white; cursor: pointer;"></i>
+                    <div id="messageDropdown" class="message-dropdown" style="display: none;">
+                        <div class="message-dropdown-content">
+                            <svg width="90" height="90" viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="45" cy="45" r="45" fill="#444"/>
+                                <ellipse cx="45" cy="45" rx="30" ry="22" fill="#444"/>
+                                <circle cx="34" cy="50" r="4" fill="#fff"/>
+                                <circle cx="45" cy="50" r="4" fill="#fff"/>
+                                <circle cx="56" cy="50" r="4" fill="#fff"/>
+                            </svg>
+                            <div class="message-title">No Notices Right Now!</div>
+                            <div class="message-subtext">You are up to date!</div>
+                        </div>
+                    </div>
                     <div class="user-avatar" onclick="toggleProfileModal()">
                         <img src="accountLogo.jpg" alt="User">
                     </div>
@@ -859,20 +921,340 @@
                     return { isOpen: false };
                 }
             }
+            formatCurrency(amount, currency = null) {
+                const targetCurrency = currency || this.currentLocation.currency || 'USD';
+                const convertedAmount = amount * (this.exchangeRates[targetCurrency] || 1);
+                
+                // Use global formatCurrency function if available
+                if (window.formatCurrency) {
+                    return window.formatCurrency(convertedAmount, targetCurrency);
+                }
+                
+                // Fallback formatting
+                return new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: targetCurrency,
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(convertedAmount);
+            }
         }
         // --- END: SimpleLocationService ---
 
-        // --- BEGIN: Refresh function ---
-        function refreshStockData() {
-            // You can implement real refresh logic here if needed
-            const btn = document.querySelector('.refresh-stocks-btn');
-            if (btn) {
-                btn.classList.add('loading');
-                btn.disabled = true;
-                setTimeout(() => {
-                    btn.classList.remove('loading');
-                    btn.disabled = false;
-                }, 1000);
+        // --- BEGIN: LocationAwareFinnhubAPI (same as dashboard.html) ---
+        class LocationAwareFinnhubAPI {
+            constructor() {
+                this.apiKey = 'ctrlpb1r01qglao4qp80ctrlpb1r01qglao4qp8g';
+                this.baseUrl = 'https://finnhub.io/api/v1';
+                this.cache = new Map();
+                this.isLoading = false;
+                this.rateLimitDelay = 1000;
+                this.lastRequestTime = 0;
+                
+                this.stockSymbols = [
+                    'TSLA', 'AAPL', 'NVDA', 'AMD', 'META', 'AMZN', 'GOOGL', 'NFLX'
+                ];
+                
+                console.log('Enhanced FinnhubAPI initialized for news page');
+            }
+
+            async waitForRateLimit() {
+                const now = Date.now();
+                const timeSinceLastRequest = now - this.lastRequestTime;
+                
+                if (timeSinceLastRequest < this.rateLimitDelay) {
+                    const waitTime = this.rateLimitDelay - timeSinceLastRequest;
+                    await new Promise(resolve => setTimeout(resolve, waitTime));
+                }
+                
+                this.lastRequestTime = Date.now();
+            }
+
+            async fetchStockQuote(symbol) {
+                try {
+                    await this.waitForRateLimit();
+                    
+                    console.log(`Fetching real price for ${symbol}...`);
+                    
+                    const url = `${this.baseUrl}/quote?symbol=${symbol}&token=${this.apiKey}`;
+                    const response = await fetch(url);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (!data.c) {
+                        throw new Error(`No quote data found for ${symbol}`);
+                    }
+                    
+                    console.log(`Got real price for ${symbol}: ${data.c}`);
+                    return data;
+                    
+                } catch (error) {
+                    console.error(`Error fetching quote for ${symbol}:`, error);
+                    return this.getFallbackQuote(symbol);
+                }
+            }
+
+            async initializeStockService() {
+                try {
+                    console.log('Initializing Location-Aware Stock Service for news...');
+                    this.loadCachedData();
+                    await this.fetchAllStockData();
+                    this.startPeriodicUpdates();
+                } catch (error) {
+                    console.error('Error initializing stock service:', error);
+                    this.handleAPIError(error);
+                }
+            }
+
+            async fetchAllStockData() {
+                if (this.isLoading) {
+                    console.log('Already loading stock data...');
+                    return;
+                }
+
+                this.isLoading = true;
+                
+                try {
+                    const currency = window.locationService?.currentLocation?.currency || 'USD';
+                    console.log(`Fetching stock data (displaying in ${currency})...`);
+                    this.showLoadingIndicator();
+                    
+                    const stockPromises = this.stockSymbols.map(async (symbol) => {
+                        try {
+                            const quoteData = await this.fetchStockQuote(symbol);
+                            return { symbol, data: quoteData, success: true };
+                        } catch (error) {
+                            console.error(`Failed to fetch ${symbol}:`, error);
+                            return { symbol, error, success: false };
+                        }
+                    });
+
+                    const results = await Promise.all(stockPromises);
+                    
+                    const stockData = {};
+                    let successCount = 0;
+                    
+                    results.forEach(result => {
+                        if (result.success && result.data) {
+                            stockData[result.symbol] = this.processStockData(result.data, result.symbol);
+                            successCount++;
+                        } else {
+                            stockData[result.symbol] = this.getFallbackData(result.symbol);
+                        }
+                    });
+
+                    console.log(`Successfully fetched data for ${successCount}/${this.stockSymbols.length} stocks`);
+                    
+                    this.updateStockDisplays(stockData);
+                    this.hideLoadingIndicator();
+                    this.updateLastUpdatedTime();
+                    
+                } catch (error) {
+                    console.error('Error fetching stock data:', error);
+                    this.handleAPIError(error);
+                } finally {
+                    this.isLoading = false;
+                }
+            }
+
+            processStockData(rawData, symbol) {
+                try {
+                    return {
+                        symbol: symbol, price: rawData.c, change: rawData.d, 
+                        changePercent: rawData.dp, high: rawData.h, low: rawData.l,
+                        open: rawData.o, previousClose: rawData.pc, 
+                        lastUpdate: new Date(), isLive: true
+                    };
+                } catch (error) {
+                    console.error(`Error processing data for ${symbol}:`, error);
+                    return this.getFallbackData(symbol);
+                }
+            }
+
+            getFallbackQuote(symbol) {
+                const fallbackPrices = {
+                    'TSLA': { c: 245.67, d: 5.35, dp: 2.23 },
+                    'AAPL': { c: 198.85, d: 3.53, dp: 1.81 },
+                    'NVDA': { c: 875.43, d: 15.22, dp: 1.77 },
+                    'AMD': { c: 142.18, d: 3.23, dp: 2.32 },
+                    'META': { c: 485.23, d: 6.56, dp: 1.37 },
+                    'AMZN': { c: 191.10, d: 2.65, dp: 1.41 },
+                    'GOOGL': { c: 158.71, d: 2.89, dp: 1.85 },
+                    'NFLX': { c: 485.32, d: 6.42, dp: 1.34 }
+                };
+                return fallbackPrices[symbol] || { c: 100, d: 2, dp: 2.04 };
+            }
+
+            getFallbackData(symbol) {
+                const fallback = this.getFallbackQuote(symbol);
+                return {
+                    symbol: symbol, price: fallback.c, change: fallback.d,
+                    changePercent: fallback.dp, isLive: false, lastUpdate: new Date()
+                };
+            }
+
+            updateStockDisplays(stockData) {
+                try {
+                    console.log('Updating trending stocks display...');
+                    this.updateTrendingStocks(stockData);
+                } catch (error) {
+                    console.error('Error updating stock displays:', error);
+                }
+            }
+
+            updateTrendingStocks(stockData) {
+                const grid = document.getElementById('trendingStocksGrid');
+                if (grid) {
+                    grid.innerHTML = this.stockSymbols.map(symbol => {
+                        const stock = stockData[symbol];
+                        if (!stock) return '';
+                        
+                        const changeClass = stock.change >= 0 ? 'positive' : 'negative';
+                        const changeSign = stock.change >= 0 ? '+' : '';
+                        
+                        // Use location service for currency formatting if available
+                        const priceFormatted = window.locationService ? 
+                            window.locationService.formatCurrency(stock.price) : 
+                            `$${stock.price.toFixed(2)}`;
+                        
+                        const changeFormatted = `${changeSign}${stock.changePercent.toFixed(2)}%`;
+                        
+                        // Route to specific pages
+                        let clickAction = '';
+                        if (symbol === 'AAPL') {
+                            clickAction = `onclick="console.log('Apple clicked'); window.location.href='apple-stock-detail.html';"`;
+                        } else if (symbol === 'GOOGL') {
+                            clickAction = `onclick="console.log('Google clicked'); window.location.href='stock-detail.html';"`;
+                        } else {
+                            clickAction = `onclick="console.log('${symbol} clicked');"`;
+                        }
+                        
+                        return `
+                            <div class="stock-card ${stock.isLive ? 'live' : 'offline'}" ${clickAction} data-symbol="${symbol}">
+                                <div class="stock-logo-container">
+                                    <div class="stock-icon-fallback ${symbol.toLowerCase()}" id="icon-trending-${symbol}">
+                                        <img src="${this.getStockLogo(symbol)}" alt="${symbol}" class="stock-logo" 
+                                             onerror="this.style.display='none'; document.getElementById('icon-trending-${symbol}').innerHTML='${this.getStockFallback(symbol)}';"
+                                             onload="this.parentElement.style.background='transparent';">
+                                    </div>
+                                    ${!stock.isLive ? '<div class="offline-indicator">OFF</div>' : ''}
+                                </div>
+                                <div class="stock-symbol">${symbol}</div>
+                                <div class="stock-price">${priceFormatted}</div>
+                                <div class="stock-change ${changeClass}">${changeFormatted}</div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            }
+
+            getStockLogo(symbol) {
+                const logos = {
+                    'TSLA': 'Tesla.png', 'AAPL': 'Apple.png', 'NVDA': 'nvidia.jpg',
+                    'AMD': 'AMD.jpg', 'META': 'Meta.png', 'AMZN': 'amazon_.png',
+                    'GOOGL': 'Google.jpg', 'NFLX': 'netflix.png'
+                };
+                return logos[symbol] || `${symbol.toLowerCase()}.png`;
+            }
+
+            getStockFallback(symbol) {
+                const fallbacks = {
+                    'TSLA': 'T', 'AAPL': 'A', 'NVDA': 'N', 'AMD': 'AMD',
+                    'META': 'f', 'AMZN': 'a', 'GOOGL': 'G', 'NFLX': 'N'
+                };
+                return fallbacks[symbol] || symbol.charAt(0);
+            }
+
+            showLoadingIndicator() {
+                const stockCards = document.querySelectorAll('.stock-card');
+                stockCards.forEach(card => card.classList.add('loading'));
+
+                const refreshBtn = document.querySelector('.refresh-stocks-btn');
+                if (refreshBtn) {
+                    refreshBtn.classList.add('loading');
+                    refreshBtn.disabled = true;
+                }
+            }
+
+            hideLoadingIndicator() {
+                const stockCards = document.querySelectorAll('.stock-card');
+                stockCards.forEach(card => card.classList.remove('loading'));
+
+                const refreshBtn = document.querySelector('.refresh-stocks-btn');
+                if (refreshBtn) {
+                    refreshBtn.classList.remove('loading');
+                    refreshBtn.disabled = false;
+                }
+            }
+
+            updateLastUpdatedTime() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('en-US', { 
+                    hour: '2-digit', minute: '2-digit', hour12: true 
+                });
+                const currency = window.locationService?.currentLocation?.currency || 'USD';
+                console.log(`Last updated: ${timeString} (${currency})`);
+            }
+
+            handleAPIError(error) {
+                console.error('API Error:', error);
+                this.hideLoadingIndicator();
+                this.loadCachedData();
+            }
+
+            loadCachedData() {
+                try {
+                    const stored = localStorage.getItem('alphawave_finnhub_cache');
+                    if (stored) {
+                        const cacheData = JSON.parse(stored);
+                        const stockData = {};
+                        this.stockSymbols.forEach(symbol => {
+                            const cachedQuote = cacheData[symbol];
+                            if (cachedQuote) {
+                                stockData[symbol] = this.processStockData(cachedQuote, symbol);
+                            } else {
+                                stockData[symbol] = this.getFallbackData(symbol);
+                            }
+                        });
+                        
+                        this.updateStockDisplays(stockData);
+                        console.log('Loaded cached stock data');
+                    }
+                } catch (error) {
+                    console.warn('Could not load cached data:', error);
+                }
+            }
+
+            startPeriodicUpdates() {
+                setInterval(() => {
+                    if (!this.isLoading) {
+                        console.log('Performing periodic update...');
+                        this.fetchAllStockData();
+                    }
+                }, 5 * 60 * 1000);
+            }
+
+            async refreshStockData() {
+                if (this.isLoading) {
+                    console.log('Already refreshing...');
+                    return;
+                }
+                
+                console.log('Manual refresh requested...');
+                this.cache.clear();
+                await this.fetchAllStockData();
+            }
+        }
+        // --- END: LocationAwareFinnhubAPI ---
+
+        // --- BEGIN: Refresh function for trending stocks ---
+        function refreshTrendingStockData() {
+            if (window.newsFinnhubAPI) {
+                window.newsFinnhubAPI.refreshStockData();
             }
         }
         // --- END: Refresh function ---
@@ -934,16 +1316,17 @@
             }
         });
 
-        const stocksData = [
-            { symbol: 'TSLA', change: '+8.4%', logo: 'Tesla.png', fallback: 'T' },
-            { symbol: 'AAPL', change: '+3.2%', logo: 'Apple.png', fallback: 'AP' },
-            { symbol: 'GOOGL', change: '+5.1%', logo: 'Google.jpg', fallback: 'G' },
-            { symbol: 'NVDA', change: '+5.1%', logo: 'nvidia.jpg', fallback: 'N' },
-            { symbol: 'AMD', change: '+4.8%', logo: 'AMD.jpg', fallback: 'AMD' },
-            { symbol: 'META', change: '+8.4%', logo: 'Meta.png', fallback: 'f' },
-            { symbol: 'AMZN', change: '+3.2%', logo: 'amazon_.png', fallback: 'a' },
-            { symbol: 'NFLX', change: '+4.8%', logo: 'netflix.png', fallback: 'N' }
-        ];
+        // Remove the static stocksData array since we're now using real API data
+        // const stocksData = [
+        //     { symbol: 'TSLA', change: '+8.4%', logo: 'Tesla.png', fallback: 'T' },
+        //     { symbol: 'AAPL', change: '+3.2%', logo: 'Apple.png', fallback: 'AP' },
+        //     { symbol: 'GOOGL', change: '+5.1%', logo: 'Google.jpg', fallback: 'G' },
+        //     { symbol: 'NVDA', change: '+5.1%', logo: 'nvidia.jpg', fallback: 'N' },
+        //     { symbol: 'AMD', change: '+4.8%', logo: 'AMD.jpg', fallback: 'AMD' },
+        //     { symbol: 'META', change: '+8.4%', logo: 'Meta.png', fallback: 'f' },
+        //     { symbol: 'AMZN', change: '+3.2%', logo: 'amazon_.png', fallback: 'a' },
+        //     { symbol: 'NFLX', change: '+4.8%', logo: 'netflix.png', fallback: 'N' }
+        // ];
 
         const allNewsData = [
             {
@@ -1009,22 +1392,8 @@
         ];
 
         function loadNewsPage() {
-            // Load trending stocks with navigation
-            const trendingStocksGrid = document.getElementById('trendingStocksGrid');
-            if (trendingStocksGrid) {
-                trendingStocksGrid.innerHTML = stocksData.map(stock => `
-                    <div class="stock-card" onclick="goToStockDetail('${stock.symbol}')">
-                        <div class="stock-icon-fallback ${stock.symbol.toLowerCase()}" id="icon-${stock.symbol}">
-                            <img src="${stock.logo}" alt="${stock.symbol}" class="stock-logo" 
-                                 style="width: 40px; height: 40px; border-radius: 8px;"
-                                 onerror="this.style.display='none'; document.getElementById('icon-${stock.symbol}').innerHTML='${stock.fallback}';"
-                                 onload="this.parentElement.style.background='transparent';">
-                        </div>
-                        <div class="stock-symbol">${stock.symbol}</div>
-                        <div class="stock-change positive">${stock.change}</div>
-                    </div>
-                `).join('');
-            }
+            // Trending stocks are now handled by TrendingStocksAPI automatically
+            // No need to manually load them here since the API initializes on page load
 
             // Load all news with navigation links
             const allNewsContainer = document.getElementById('allNewsContainer');
@@ -1034,7 +1403,7 @@
                     return `
                         <div class="news-item ${news.categoryType === 'sponsored' ? 'sponsored' : ''}" ${clickHandler}>
                             <div class="news-image">
-                                <img src="${news.image}" alt="${news.title}" onerror="this.style.display='none'; this.parentElement.innerHTML='📰';">
+                                <img src="${news.image}" alt="${news.title}" onerror="this.style.display='none'; this.parentElement.innerHTML='NEWS';">
                             </div>
                             <div class="news-content">
                                 <h5 class="news-title">${news.title}</h5>
@@ -1131,9 +1500,30 @@
 
         // Update: Initialize location service and market status on page load
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Enhanced News Page with Location Support loading...');
+            
+            // Initialize location service first
             window.locationService = new SimpleLocationService();
             window.locationService.init();
+            
+            // Initialize stock API
+            window.newsFinnhubAPI = new LocationAwareFinnhubAPI();
+            window.newsFinnhubAPI.initializeStockService();
+            
+            // Listen for location changes
+            window.addEventListener('locationChanged', function(event) {
+                console.log('Location changed event:', event.detail);
+                
+                // Refresh stock data with new currency
+                if (window.newsFinnhubAPI) {
+                    window.newsFinnhubAPI.fetchAllStockData();
+                }
+            });
+            
+            // Load news content
             loadNewsPage();
+            
+            console.log('News page initialization complete');
         });
 
         // Currency settings logic (shared with dashboard)
@@ -1201,6 +1591,25 @@
         }
         // Make modal functions global
         window.showCurrencySettingsModal = showCurrencySettingsModal;
+
+        // Global currency formatting function (same as dashboard.html)
+        function formatCurrency(amount, currency) {
+            const currencySymbols = {
+                'USD': '$', 'EUR': '€', 'GBP': '£', 'JPY': '¥',
+                'CNY': '¥', 'INR': '₹', 'AUD': 'A$', 'CAD': 'C$'
+            };
+            
+            const symbol = currencySymbols[currency] || '$';
+            const formattedAmount = new Intl.NumberFormat('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(amount);
+            
+            return `${symbol}${formattedAmount}`;
+        }
+        
+        // Make formatCurrency globally available
+        window.formatCurrency = formatCurrency;
     </script>
 </body>
 </html>

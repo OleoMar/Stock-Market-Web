@@ -534,6 +534,12 @@
                 margin-left: 0;
             }
         }
+
+        .message-dropdown {
+            position: absolute;
+            top: 60px;
+            right: 60px;
+            background: #ecebeb;
     </style>
 </head>
 <body>
@@ -583,7 +589,7 @@
                     </div>
 
                     <!-- Market Status -->
-                    <span class="market-status" id="marketStatus">Market Closed</span>
+                    <!-- <span class="market-status" id="marketStatus">Market Closed</span> -->
 
                     <!-- Refresh stocks button -->
                     <button class="refresh-stocks-btn" onclick="refreshWatchlistData()" title="Refresh stock data">
@@ -592,7 +598,20 @@
                     </button>
                     
                     <a href="pro.html" class="pro-badge">Pro</a>
-                    <i class="fas fa-bell" style="color: white;"></i>
+                    <i class="fas fa-bell" id="notificationBell" style="color: white; cursor: pointer;"></i>
+                    <div id="messageDropdown" class="message-dropdown" style="display: none;">
+                        <div class="message-dropdown-content">
+                            <svg width="90" height="90" viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="45" cy="45" r="45" fill="#444"/>
+                                <ellipse cx="45" cy="45" rx="30" ry="22" fill="#444"/>
+                                <circle cx="34" cy="50" r="4" fill="#fff"/>
+                                <circle cx="45" cy="50" r="4" fill="#fff"/>
+                                <circle cx="56" cy="50" r="4" fill="#fff"/>
+                            </svg>
+                            <div class="message-title">No Notices Right Now!</div>
+                            <div class="message-subtext">You are up to date!</div>
+                        </div>
+                    </div>
                     <div class="user-avatar" onclick="toggleProfileModal()">
                         <img src="accountLogo.jpg" alt="User">
                     </div>
@@ -719,7 +738,7 @@
             </div>
         </div>
     </div>
-
+    
     <script>
         // Profile Modal Functions
         function toggleProfileModal() {
@@ -759,9 +778,9 @@
                     break;
                     
                 case 'delete-account':
-                    closeProfileModal();
+                closeProfileModal();
                     setTimeout(() => {
-                        showDeleteModal();
+                showDeleteModal();
                     }, 300);
                     break;
                     
@@ -791,7 +810,7 @@
                     break;
                     
                 default:
-                    closeProfileModal();
+            closeProfileModal();
             }
         }
 
@@ -1025,18 +1044,18 @@
 
             getStockFallback(symbol) {
                 const fallbacks = {
-                    'AAPL': 'A',
-                    'GOOGL': 'G',
-                    'TSLA': 'T',
-                    'AMZN': 'a',
-                    'NFLX': 'N',
-                    'META': 'f',
-                    'NVDA': 'N',
-                    'AMD': 'AMD',
-                    'TEAM': 'T',
-                    'TSM': 'T',
-                    'LLY': 'L'
-                };
+                'AAPL': 'A',
+                'GOOGL': 'G',
+                'TSLA': 'T',
+                'AMZN': 'a',
+                'NFLX': 'N',
+                'META': 'f',
+                'NVDA': 'N',
+                'AMD': 'AMD',
+                'TEAM': 'T',
+                'TSM': 'T',
+                'LLY': 'L'
+            };
                 return fallbacks[symbol] || symbol.charAt(0);
             }
 
@@ -1054,7 +1073,7 @@
             }
 
             updateWatchlistDisplay(stockData) {
-                const container = document.getElementById('watchlistContainer');
+            const container = document.getElementById('watchlistContainer');
                 const countElement = document.querySelector('.companies-count');
                 
                 if (container && stockData.length > 0) {
@@ -1075,20 +1094,20 @@
                         return `
                             <div class="stock-list-item ${!stock.isLive ? 'offline' : ''}" onclick="showStockDetail('${stock.symbol}')">
                                 ${!stock.isLive ? '<div class="offline-indicator">📡 Offline</div>' : ''}
-                                <div class="stock-logo ${stock.symbol.toLowerCase()}" id="watchlist-logo-${stock.symbol}">
+                        <div class="stock-logo ${stock.symbol.toLowerCase()}" id="watchlist-logo-${stock.symbol}">
                                     <img src="${this.getStockLogo(stock.symbol)}" alt="${stock.symbol}" 
                                          onerror="this.style.display='none'; document.getElementById('watchlist-logo-${stock.symbol}').innerHTML='${this.getStockFallback(stock.symbol)}';"
                                          onload="console.log('Loaded: ${this.getStockLogo(stock.symbol)}');">
-                                </div>
-                                <div class="stock-info">
-                                    <h5>${stock.symbol}</h5>
-                                    <p>${stock.name}</p>
-                                </div>
-                                <div class="stock-price">
+                        </div>
+                        <div class="stock-info">
+                            <h5>${stock.symbol}</h5>
+                            <p>${stock.name}</p>
+                        </div>
+                        <div class="stock-price">
                                     <div class="price">${priceFormatted}</div>
                                     <div class="change ${changeClass}">${changeFormatted}</div>
-                                </div>
-                            </div>
+                        </div>
+                    </div>
                         `;
                     }).join('');
                 } else {
@@ -1204,39 +1223,39 @@
             }
         }
 
-        // Location dropdown functions (for dashboard.html only)
-        function toggleLocationDropdown() {
-            const dropdown = document.getElementById('locationDropdown');
-            if (dropdown) {
-                dropdown.classList.toggle('show');
-            }
-        }
+// Location dropdown functions 
+function toggleLocationDropdown() {
+    const dropdown = document.getElementById('locationDropdown');
+    if (dropdown) {
+        dropdown.classList.toggle('show');
+    }
+}
 
-        function changeLocation(country, label, currency) {
-            // Update active selection
-            const options = document.querySelectorAll('.location-option');
-            options.forEach(option => option.classList.remove('active'));
-            if (event && event.target) {
-                event.target.classList.add('active');
-            }
-            
-            // Close dropdown
-            toggleLocationDropdown();
-            
-            // Update location (only works if locationService exists)
-            if (window.locationService) {
-                window.locationService.setLocation(country, label, currency);
-                
-                // Show updating indicator
-                const selector = document.getElementById('currentLocation');
-                const originalText = selector.textContent;
-                selector.textContent = 'Updating...';
-                
-                setTimeout(() => {
-                    selector.textContent = label;
-                }, 1000);
-            }
-        }
+function changeLocation(country, label, currency) {
+    // Update active selection
+    const options = document.querySelectorAll('.location-option');
+    options.forEach(option => option.classList.remove('active'));
+    if (event && event.target) {
+        event.target.classList.add('active');
+    }
+    
+    // Close dropdown
+    toggleLocationDropdown();
+    
+    // Update location (only works if locationService exists)
+    if (window.locationService) {
+        window.locationService.setLocation(country, label, currency);
+        
+        // Show updating indicator
+        const selector = document.getElementById('currentLocation');
+        const originalText = selector.textContent;
+        selector.textContent = 'Updating...';
+        
+        setTimeout(() => {
+            selector.textContent = label;
+        }, 1000);
+    }
+}
 
         // Close dropdown when clicking outside
         document.addEventListener('click', function(event) {

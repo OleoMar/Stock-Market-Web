@@ -896,6 +896,45 @@
                 margin-left: 0;
             }
         }
+
+        .message-dropdown {
+            position: absolute;
+            top: 60px;
+            right: 60px;
+            background: #ecebeb;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            min-width: 320px;
+            min-height: 380px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .message-dropdown-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            padding: 60px 0 0 0;
+        }
+        .message-dropdown-content svg {
+            margin-bottom: 30px;
+        }
+        .message-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .message-subtext {
+            font-size: 1.1rem;
+            color: #555;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -946,7 +985,7 @@
                     </div>
 
                     <!-- Market Status -->
-                    <span class="market-status" id="marketStatus">Market Closed</span>
+                    <!-- <span class="market-status" id="marketStatus">Market Closed</span> -->
 
                     <!-- Refresh stocks button -->
                     <button class="refresh-stocks-btn" onclick="refreshStockData()" title="Refresh stock data">
@@ -955,7 +994,20 @@
                     </button>
                     
                     <a href="pro.html" class="pro-badge">Pro</a>
-                    <i class="fas fa-bell" style="color: white;"></i>
+                    <i class="fas fa-bell" id="notificationBell" style="color: white; cursor: pointer;"></i>
+                    <div id="messageDropdown" class="message-dropdown" style="display: none;">
+                        <div class="message-dropdown-content">
+                            <svg width="90" height="90" viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="45" cy="45" r="45" fill="#444"/>
+                                <ellipse cx="45" cy="45" rx="30" ry="22" fill="#444"/>
+                                <circle cx="34" cy="50" r="4" fill="#fff"/>
+                                <circle cx="45" cy="50" r="4" fill="#fff"/>
+                                <circle cx="56" cy="50" r="4" fill="#fff"/>
+                            </svg>
+                            <div class="message-title">No Notices Right Now!</div>
+                            <div class="message-subtext">You are up to date!</div>
+                        </div>
+                    </div>
                     <div class="user-avatar" onclick="toggleProfileModal()">
                         <img src="accountLogo.jpg" alt="User">
                     </div>
@@ -1017,7 +1069,9 @@
                 <div class="news-section">
                     <div id="newsContainer">
                         <div class="news-item" onclick="window.location.href='news-details-1.html'">
-                            <div class="news-image">NEWS</div>
+                            <div class="news-image">
+                                <img src="newspic1.jpg" alt="Federal Reserve News" onerror="this.style.display='none'; this.parentElement.innerHTML='NEWS';">
+                            </div>
                             <div class="news-content">
                                 <div class="news-meta">
                                     <span class="news-source">Bloomberg</span>
@@ -1028,7 +1082,9 @@
                             </div>
                         </div>
                         <div class="news-item">
-                            <div class="news-image">CHART</div>
+                            <div class="news-image">
+                                <img src="newspic6.jpg" alt="Tech Sector News" onerror="this.style.display='none'; this.parentElement.innerHTML='CHART';">
+                            </div>
                             <div class="news-content">
                                 <div class="news-meta">
                                     <span class="news-source">Reuters</span>
@@ -1038,7 +1094,9 @@
                             </div>
                         </div>
                         <div class="news-item sponsored" onclick="window.location.href='news-details-2.html'">
-                            <div class="news-image">BIZ</div>
+                            <div class="news-image">
+                                <img src="newspic3.jpg" alt="Investment Strategies" onerror="this.style.display='none'; this.parentElement.innerHTML='BIZ';">
+                            </div>
                             <div class="news-content">
                                 <div class="news-meta">
                                     <span class="news-source">MarketWatch</span>
@@ -1156,7 +1214,7 @@
             }
 
             init() {
-                console.log('🌍 Location service starting...');
+                console.log('Location service starting...');
                 // Immediately request location using browser's native dialog
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(
@@ -1889,9 +1947,9 @@
 
         // Initialize everything when page loads
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Enhanced Dashboard with Location Support loading...');
+            console.log('Enhanced Dashboard with Location Support loading...');
             
-            // Initialize location service first with location prompt
+            // Initialize location service first
             window.locationService = new SimpleLocationService();
             window.locationService.init();
             
@@ -1909,7 +1967,7 @@
                 }
             });
             
-            console.log('✅ Dashboard initialization complete');
+            console.log('Dashboard initialization complete');
         });
 
         // Close modals when pressing Escape key
@@ -1929,13 +1987,13 @@
             localStorage.removeItem('alphawave_location_denied');
             localStorage.removeItem('alphawave_location_settings');
             localStorage.removeItem('alphawave_location_permission');
-            console.log('🔄 Location prompt reset - refresh page to see prompt again');
+            console.log('Location prompt reset - refresh page to see prompt again');
         }
 
         // Force show location prompt for testing
         function showLocationPromptNow() {
             if (window.locationService) {
-                console.log('🚀 Forcing location prompt to show...');
+                console.log('Forcing location prompt to show...');
                 window.locationService.showLocationPermissionPrompt();
             }
         }
@@ -2435,6 +2493,19 @@
         });
 
         console.log('Currency exchange system loaded successfully');
+    </script>
+
+    <!-- Message dropdown logic -->
+    <script>
+        const bell = document.getElementById('notificationBell');
+        const dropdown = document.getElementById('messageDropdown');
+        document.addEventListener('click', function(event) {
+            if (bell && bell.contains(event.target)) {
+                dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+            } else if (dropdown && !dropdown.contains(event.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
     </script>
 </body>
 </html>

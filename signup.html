@@ -547,7 +547,7 @@
                 
                 // Only redirect away from auth pages if user is actually logged in with valid session
                 if ((currentPage === 'index.html' || currentPage === 'signup.html') && this.isLoggedIn()) {
-                    console.log('✅ User already logged in, redirecting to dashboard...');
+                    console.log('User already logged in, redirecting to dashboard...');
                     // Add a small delay to prevent immediate redirect on page load
                     setTimeout(() => {
                         this.redirectToDashboard();
@@ -626,7 +626,7 @@
                 // Auto login after registration
                 this.setCurrentUser(newUser);
 
-                console.log('✅ User registered successfully:', email);
+                console.log('User registered successfully:', email);
                 this.updateDebugPanel();
                 return { success: true, message: 'Registration successful!' };
             }
@@ -650,7 +650,7 @@
                 
                 this.currentUser = userWithoutPassword;
                 localStorage.setItem('alphawave_current_user', JSON.stringify(userWithoutPassword));
-                console.log('💾 User session saved:', userWithoutPassword.email);
+                console.log('User session saved:', userWithoutPassword.email);
             }
 
             // Simple password hashing (for demo purposes)
@@ -674,7 +674,7 @@
             redirectToLogin() {
                 const currentPage = window.location.pathname.split('/').pop() || 'index.html';
                 if (currentPage !== 'index.html') {
-                    console.log('🔄 Redirecting to login page...');
+                    console.log('Redirecting to login page...');
                     window.location.href = 'index.html';
                 }
             }
@@ -683,7 +683,7 @@
             redirectToDashboard() {
                 const currentPage = window.location.pathname.split('/').pop() || 'index.html';
                 if (currentPage !== 'dashboard.html') {
-                    console.log('🔄 Redirecting to dashboard...');
+                    console.log('Redirecting to dashboard...');
                     window.location.href = 'dashboard.html';
                 }
             }
@@ -871,7 +871,7 @@
             const signUpForm = document.getElementById('signUpForm');
             if (signUpForm) {
                 signUpForm.addEventListener('submit', handleSignUp);
-                console.log('✅ Sign up form handler attached');
+                console.log('Sign up form handler attached');
             }
             
             // Show debug panel in development

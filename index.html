@@ -614,7 +614,7 @@
                 
                 // Only redirect away from auth pages if user is actually logged in with valid session
                 if ((currentPage === 'index.html' || currentPage === 'signup.html') && this.isLoggedIn()) {
-                    console.log('✅ User already logged in, redirecting to dashboard...');
+                    console.log('User already logged in, redirecting to dashboard...');
                     // Add a small delay to prevent immediate redirect on page load
                     setTimeout(() => {
                         this.redirectToDashboard();
@@ -665,7 +665,7 @@
                 // Set current user
                 this.setCurrentUser(user);
 
-                console.log('✅ User logged in successfully:', email);
+                console.log('User logged in successfully:', email);
                 this.updateDebugPanel();
                 return { success: true, message: 'Login successful!' };
             }
@@ -954,7 +954,7 @@
             const signInForm = document.getElementById('signInForm');
             if (signInForm) {
                 signInForm.addEventListener('submit', handleSignIn);
-                console.log('✅ Sign in form handler attached');
+                console.log('Sign in form handler attached');
             }
             
             // Show debug panel in development
