@@ -32,12 +32,30 @@
             background: #1a1a1a;
             padding: 15px 0;
             border-bottom: 1px solid #333;
+            height: 99px;
+            display: flex;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            width: 100%;
+        }
+
+        .navbar .container-fluid {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0 20px;
+            flex-wrap: nowrap;
         }
 
         .navbar-brand {
             color: white !important;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 40px;
             display: flex;
             align-items: center;
             text-decoration: none;
@@ -45,33 +63,36 @@
         }
 
         .navbar .logo-circle {
-            width: 45px;
-            height: 45px;
-            border: 2px solid white;
+            width: 70px;
+            height: 70px;
+            border: 2px solid rgb(103, 103, 103);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 10px;
+            font-size: 12px;
             margin-right: 10px;
-            background: transparent;
-            color: white;
+            background: white;
+            color: rgb(0, 0, 0);
             font-weight: normal;
             font-family: 'Quicksand', sans-serif;
         }
 
         .search-container {
             flex: 1;
-            max-width: 400px;
+            max-width: 469px;
             margin: 0 auto;
             position: relative;
+            z-index: 2;
         }
 
         .search-input {
             width: 100%;
+            max-width: 469px;
+            height: 43px;
             padding: 10px 40px 10px 15px;
             border: 1px solid #444;
-            border-radius: 25px;
+            border-radius: 9px;
             background: white;
             color: #333;
             font-family: 'Quicksand', sans-serif;
@@ -89,17 +110,115 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .location-selector {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 9px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Quicksand', sans-serif;
+            min-width: 80px;
+        }
+
+        .location-selector:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .location-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            min-width: 200px;
+            z-index: 1001;
+            display: none;
+            margin-top: 5px;
+        }
+
+        .location-dropdown.show {
+            display: block;
+        }
+
+        .location-option {
+            padding: 12px 16px;
+            color: #333;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            font-size: 13px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .location-option:last-child {
+            border-bottom: none;
+        }
+
+        .location-option:hover {
+            background: #f8f9fa;
+        }
+
+        .location-option.active {
+            background: #e3f2fd;
+            color: #1976d2;
+            font-weight: 600;
+        }
+
+        .flag {
+            display: inline-block;
+            width: 20px;
+            height: 15px;
+            background: #666;
+            border-radius: 2px;
+            margin-right: 8px;
+            text-align: center;
+            font-size: 10px;
+            line-height: 15px;
+            color: white;
+        }
+
+        .market-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-left: 10px;
+        }
+
+        .market-status.open {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .market-status.closed {
+            background: #f44336;
+            color: white;
         }
 
         .pro-badge {
-            background: #333;
-            color: white;
+            background: #D9D9D9;
+            color: #333;
             padding: 8px 20px;
-            border-radius: 20px;
+            border-radius: 9px;
             text-decoration: none;
             font-weight: 600;
-            border: 1px solid #555;
+            border: none;
             font-family: 'Quicksand', sans-serif;
+            width: 84px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .user-avatar {
@@ -121,217 +240,82 @@
             object-fit: cover;
         }
 
-        
-        .profile-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            display: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .profile-modal-overlay.show {
-            display: flex;
-            opacity: 1;
-        }
-
-        .profile-modal {
-            position: absolute;
-            top: 80px;
-            right: 20px;
-            width: 380px;
-            height: 450px;
-            background: #e8e8e8;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            padding: 20px;
-            font-family: 'Quicksand', sans-serif;
-            transform: translateY(-20px);
-            transition: transform 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .profile-modal-overlay.show .profile-modal {
-            transform: translateY(0);
-        }
-
-        .profile-menu-item {
-            display: flex;
-            align-items: center;
-            padding: 8px 0;
-            cursor: pointer;
-            transition: background 0.3s ease;
-            border-radius: 8px;
-            margin-bottom: 2px;
-        }
-
-        .profile-menu-item:hover {
-            background: rgba(0, 0, 0, 0.1);
-            padding-left: 10px;
-        }
-
-        .profile-menu-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .profile-menu-icon {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            background: #666;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 10px;
+        .navbar-right i.fa-bell {
             color: white;
-            font-size: 14px;
-            flex-shrink: 0;
+            font-size: 16px;
         }
 
-        .profile-menu-text {
-            font-size: 14px;
-            font-weight: 500;
-            color: #333;
-            font-family: 'Quicksand', sans-serif;
-        }
-
-        
-        .delete-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.6);
-            z-index: 2000;
-            display: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .delete-modal-overlay.show {
-            display: flex;
-            opacity: 1;
-        }
-
-        .delete-modal {
-            width: 363px;
-            height: 181px;
-            background: #e8e8e8;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            padding: 20px;
-            font-family: 'Quicksand', sans-serif;
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-
-        .delete-modal-overlay.show .delete-modal {
-            transform: scale(1);
-        }
-
-        .delete-warning-icon {
-            margin-bottom: 15px;
-        }
-
-        .delete-warning-triangle {
-            width: 0;
-            height: 0;
-            border-left: 20px solid transparent;
-            border-right: 20px solid transparent;
-            border-bottom: 35px solid #333;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto;
-            position: relative;
-        }
-
-        .delete-warning-triangle::before {
-            content: '!';
-            font-size: 20px;
-            font-weight: bold;
-            color: white;
-            position: absolute;
-            bottom: -28px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-family: 'Quicksand', sans-serif;
-        }
-
-        .delete-message {
-            font-size: 20px;
-            color: #333;
-            margin-bottom: 20px;
-            line-height: 1.3;
-            font-family: 'Quicksand', sans-serif;
-            font-weight: 400;
-        }
-
-        .delete-message strong {
-            font-weight: 600;
-            font-family: 'Quicksand', sans-serif;
-        }
-
-        .delete-buttons {
-            display: flex;
-            gap: 20px;
-        }
-
-        .delete-btn {
-            width: 96px;
-            height: 32px;
-            border: 2px solid #333;
-            border-radius: 8px;
-            background: #e8e8e8;
-            color: #333;
-            font-size: 20px;
-            font-weight: 500;
-            font-family: 'Quicksand', sans-serif;
+        .refresh-stocks-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ccc;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
             cursor: pointer;
             transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            margin-right: 8px;
+            font-family: 'Quicksand', sans-serif;
         }
 
-        .delete-btn:hover {
-            background: #d8d8d8;
+        .refresh-stocks-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .refresh-stocks-btn.loading {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .refresh-stocks-btn i {
+            margin-right: 3px;
+        }
+
+        .refresh-stocks-btn.loading i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+       
+        @media (max-width: 768px) {
+            .search-input {
+                width: 300px;
+            }
+            
+            .navbar-brand {
+                font-size: 24px;
+            }
+
+            .location-selector {
+                display: none;
+            }
         }
 
         .main-layout {
             display: flex;
+            margin-top: 99px;
         }
 
        .sidebar {
             width: 200px;
             background: white;
-            height: calc(100vh - 99px); 
+            height: calc(100vh - 99px);
             padding: 30px 0;
             border-right: 1px solid #333;
             position: fixed;
             left: 0;
-            top: 99px; 
+            top: 86px;
             background-image: url('SideGradient.png');
             background-size: 100%;
-            background-position: center top;
+            background-position: center bottom;
             background-repeat: no-repeat;
             z-index: 10;
-        }  
+        }
 
         .sidebar-nav {
             list-style: none;
@@ -624,13 +608,6 @@
                 height: auto;
                 min-height: 100px;
             }
-
-            .profile-modal {
-                right: 10px;
-                width: 350px;
-                height: 420px;
-                top: 70px;
-            }
         }
         @media (max-width: 576px) {
             .content {
@@ -640,7 +617,6 @@
     </style>
 </head>
 <body>
-    <div class="dashboard-page">
         <nav class="navbar">
             <div class="container-fluid">
                 <a class="navbar-brand" href="dashboard.html">
@@ -648,10 +624,53 @@
                     AlphaWave
                 </a>
                 <div class="search-container">
-                    <input type="text" class="search-input" placeholder="Search">
+                    <input type="text" class="search-input" placeholder="Search stocks...">
                     <i class="fas fa-search search-icon"></i>
                 </div>
                 <div class="navbar-right">
+                    <!-- Location Selector (only for dashboard.html) -->
+                    <div class="location-selector-container" style="position: relative;">
+                        <button class="location-selector" id="locationSelector" onclick="toggleLocationDropdown()">
+                            <span id="currentLocation">Global</span>
+                            <i class="fas fa-chevron-down" style="margin-left: 5px; font-size: 10px;"></i>
+                        </button>
+                        <div class="location-dropdown" id="locationDropdown">
+                            <div class="location-option" onclick="changeLocation('US', 'United States', 'USD')">
+                                <span class="flag">US</span> United States (USD)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('EU', 'Europe', 'EUR')">
+                                <span class="flag">EU</span> Europe (EUR)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('GB', 'United Kingdom', 'GBP')">
+                                <span class="flag">GB</span> United Kingdom (GBP)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('JP', 'Japan', 'JPY')">
+                                <span class="flag">JP</span> Japan (JPY)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('CN', 'China', 'CNY')">
+                                <span class="flag">CN</span> China (CNY)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('IN', 'India', 'INR')">
+                                <span class="flag">IN</span> India (INR)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('AU', 'Australia', 'AUD')">
+                                <span class="flag">AU</span> Australia (AUD)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('CA', 'Canada', 'CAD')">
+                                <span class="flag">CA</span> Canada (CAD)
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Market Status (only for dashboard.html) -->
+                    <span class="market-status" id="marketStatus">Market Closed</span>
+
+                    <!-- Refresh stocks button (only for dashboard.html) -->
+                    <button class="refresh-stocks-btn" onclick="refreshStockData()" title="Refresh stock data">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                    
                     <a href="pro.html" class="pro-badge">Pro</a>
                     <i class="fas fa-bell" style="color: white;"></i>
                     <div class="user-avatar" onclick="toggleProfileModal()">
@@ -674,7 +693,7 @@
                 <div class="trending-header">
                     <div class="trending-title">Trending Stocks</div>
                     <div class="stocks-grid" id="trendingStocksGrid">
-                        <!-- Trending stocks  -->
+                        <!-- Trending stocks will be loaded here -->
                     </div>
                 </div>
 
@@ -683,87 +702,184 @@
                 </div>
 
                 <div class="news-container" id="allNewsContainer">
-                    <!-- All news items  -->
+                    <!-- All news items will be loaded here -->
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Profile Modal Overlay -->
-    <div class="profile-modal-overlay" id="profileModalOverlay" onclick="closeProfileModal(event)">
-        <div class="profile-modal" onclick="event.stopPropagation()">
-            <div class="profile-menu-item" onclick="handleMenuClick('personal-info')">
-                <div class="profile-menu-icon">
+    <div class="profile-modal-overlay" id="profileModalOverlay" onclick="closeProfileModal(event)" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s ease;">
+        <div class="profile-modal" onclick="event.stopPropagation()" style="position: absolute; top: 80px; right: 20px; width: 380px; height: 450px; background: #e8e8e8; border-radius: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); padding: 20px; font-family: 'Quicksand', sans-serif; transform: translateY(-20px); transition: transform 0.3s ease; display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="profile-menu-item" onclick="handleMenuClick('personal-info')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
                     <i class="fas fa-user"></i>
                 </div>
-                <div class="profile-menu-text">Personal info</div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Personal info</div>
             </div>
 
-            <div class="profile-menu-item" onclick="handleMenuClick('logout')">
-                <div class="profile-menu-icon">
+            <div class="profile-menu-item" onclick="handleMenuClick('logout')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
                     <i class="fas fa-door-open"></i>
                 </div>
-                <div class="profile-menu-text">Logout</div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Logout</div>
             </div>
 
-            <div class="profile-menu-item" onclick="handleMenuClick('currency')">
-                <div class="profile-menu-icon">
+            <div class="profile-menu-item" onclick="handleMenuClick('currency')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
                     <i class="fas fa-dollar-sign"></i>
                 </div>
-                <div class="profile-menu-text">Currency</div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Currency</div>
             </div>
 
-            <div class="profile-menu-item" onclick="handleMenuClick('theme')">
-                <div class="profile-menu-icon">
+            <div class="profile-menu-item" onclick="handleMenuClick('theme')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
                     <i class="fas fa-sun"></i>
                 </div>
-                <div class="profile-menu-text">Theme</div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Theme</div>
             </div>
 
-            <div class="profile-menu-item" onclick="handleMenuClick('help')">
-                <div class="profile-menu-icon">
+            <div class="profile-menu-item" onclick="handleMenuClick('help')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
                     <i class="fas fa-question-circle"></i>
                 </div>
-                <div class="profile-menu-text">Help & Support</div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Help & Support</div>
             </div>
 
-            <div class="profile-menu-item" onclick="handleMenuClick('terms')">
-                <div class="profile-menu-icon">
+            <div class="profile-menu-item" onclick="handleMenuClick('terms')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
                     <i class="fas fa-file-contract"></i>
                 </div>
-                <div class="profile-menu-text">Terms of Service</div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Terms of Service</div>
             </div>
 
-            <div class="profile-menu-item" onclick="handleMenuClick('delete-account')">
-                <div class="profile-menu-icon">
+            <div class="profile-menu-item" onclick="handleMenuClick('delete-account')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
                     <i class="fas fa-user-times"></i>
                 </div>
-                <div class="profile-menu-text">Delete your account</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Delete Account Confirmation Modal -->
-    <div class="delete-modal-overlay" id="deleteModalOverlay" onclick="closeDeleteModal(event)">
-        <div class="delete-modal" onclick="event.stopPropagation()">
-            <div class="delete-warning-icon">
-                <div class="delete-warning-triangle"></div>
-            </div>
-            <div class="delete-message">
-                Are you sure that you<br>want to <strong>delete</strong> your account?
-            </div>
-            <div class="delete-buttons">
-                <button class="delete-btn" onclick="confirmDelete()">Yes</button>
-                <button class="delete-btn" onclick="closeDeleteModal()">No</button>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Delete your account</div>
             </div>
         </div>
     </div>
     
+    <!-- Currency Settings Modal -->
+    <div class="currency-modal-overlay" id="currencyModalOverlay" onclick="closeCurrencyModal(event)" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s ease;">
+        <div class="currency-modal" onclick="event.stopPropagation()" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; background: #fff; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); padding: 32px 28px; font-family: 'Quicksand', sans-serif; color: #111;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 style="margin: 0; color: #111; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">Currency Settings</h2>
+                <button onclick="closeCurrencyModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #111; padding: 5px;">&times;</button>
+            </div>
+            <div style="margin-bottom: 0;">
+                <label for="preferredCurrency" style="display: block; margin-bottom: 10px; color: #111; font-size: 16px; font-weight: 600;">Preferred Currency</label>
+                <select id="preferredCurrency" onchange="saveCurrencySettings()" style="width: 100%; padding: 14px; border: 2px solid #111; border-radius: 7px; font-size: 16px; font-family: 'Quicksand', sans-serif; background: #fff; color: #111; font-weight: 500; outline: none;">
+                    <option value="USD">USD - US Dollar</option>
+                    <option value="EUR">EUR - Euro</option>
+                    <option value="GBP">GBP - British Pound</option>
+                    <option value="JPY">JPY - Japanese Yen</option>
+                    <option value="CNY">CNY - Chinese Yuan</option>
+                    <option value="INR">INR - Indian Rupee</option>
+                    <option value="AUD">AUD - Australian Dollar</option>
+                    <option value="CAD">CAD - Canadian Dollar</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
     <script>
-        
+        // --- BEGIN: SimpleLocationService (copied from dashboard.html) ---
+        class SimpleLocationService {
+            constructor() {
+                this.currentLocation = this.loadLocationSettings();
+                this.hasAskedForLocation = false;
+                this.exchangeRates = {
+                    'USD': 1, 'EUR': 0.85, 'GBP': 0.73, 'JPY': 110,
+                    'CNY': 6.45, 'INR': 74.5, 'AUD': 1.35, 'CAD': 1.25
+                };
+            }
+            init() {
+                this.updateLocationDisplay();
+                this.updateMarketStatus();
+                setInterval(() => this.updateMarketStatus(), 60000);
+            }
+            loadLocationSettings() {
+                const stored = localStorage.getItem('alphawave_location_settings');
+                if (stored) {
+                    try { return JSON.parse(stored); } catch (e) {}
+                }
+                return { country: 'US', currency: 'USD', label: 'Global' };
+            }
+            saveLocationSettings() {
+                localStorage.setItem('alphawave_location_settings', JSON.stringify(this.currentLocation));
+            }
+            setLocation(country, label, currency) {
+                this.currentLocation = { country, currency, label };
+                this.saveLocationSettings();
+                this.updateLocationDisplay();
+                this.updateMarketStatus();
+                window.dispatchEvent(new CustomEvent('locationChanged', { detail: this.currentLocation }));
+            }
+            updateLocationDisplay() {
+                const locationElement = document.getElementById('currentLocation');
+                if (locationElement) {
+                    locationElement.textContent = this.currentLocation.label;
+                }
+            }
+            updateMarketStatus() {
+                const timezone = this.getTimezoneForCountry(this.currentLocation.country);
+                const status = this.getMarketStatus(timezone);
+                const statusElement = document.getElementById('marketStatus');
+                if (statusElement) {
+                    statusElement.textContent = status.isOpen ? 'Market Open' : 'Market Closed';
+                    statusElement.className = `market-status ${status.isOpen ? 'open' : 'closed'}`;
+                }
+            }
+            getTimezoneForCountry(country) {
+                const timezones = {
+                    'US': 'America/New_York', 'EU': 'Europe/London', 'GB': 'Europe/London',
+                    'JP': 'Asia/Tokyo', 'CN': 'Asia/Shanghai', 'IN': 'Asia/Kolkata',
+                    'AU': 'Australia/Sydney', 'CA': 'America/Toronto'
+                };
+                return timezones[country] || 'America/New_York';
+            }
+            getMarketStatus(timezone) {
+                try {
+                    const now = new Date();
+                    const marketTime = new Intl.DateTimeFormat('en-US', {
+                        timeZone: timezone, hour: 'numeric', minute: 'numeric', hour12: false
+                    }).formatToParts(now);
+                    const hour = parseInt(marketTime.find(part => part.type === 'hour').value);
+                    const minute = parseInt(marketTime.find(part => part.type === 'minute').value);
+                    const currentTime = hour * 60 + minute;
+                    const marketOpen = 9 * 60 + 30; // 9:30 AM
+                    const marketClose = 16 * 60; // 4:00 PM
+                    const isWeekday = now.getDay() >= 1 && now.getDay() <= 5;
+                    const isOpen = isWeekday && currentTime >= marketOpen && currentTime < marketClose;
+                    return { isOpen };
+                } catch (error) {
+                    return { isOpen: false };
+                }
+            }
+        }
+        // --- END: SimpleLocationService ---
+
+        // --- BEGIN: Refresh function ---
+        function refreshStockData() {
+            // You can implement real refresh logic here if needed
+            const btn = document.querySelector('.refresh-stocks-btn');
+            if (btn) {
+                btn.classList.add('loading');
+                btn.disabled = true;
+                setTimeout(() => {
+                    btn.classList.remove('loading');
+                    btn.disabled = false;
+                }, 1000);
+            }
+        }
+        // --- END: Refresh function ---
+
         function toggleProfileModal() {
             const overlay = document.getElementById('profileModalOverlay');
-            if (overlay.classList.contains('show')) {
+            if (overlay.style.display === 'flex') {
                 closeProfileModal();
             } else {
                 openProfileModal();
@@ -772,7 +888,8 @@
 
         function openProfileModal() {
             const overlay = document.getElementById('profileModalOverlay');
-            overlay.classList.add('show');
+            overlay.style.display = 'flex';
+            overlay.style.opacity = '1';
             document.body.style.overflow = 'hidden';
         }
 
@@ -782,51 +899,38 @@
             }
             
             const overlay = document.getElementById('profileModalOverlay');
-            overlay.classList.remove('show');
+            overlay.style.display = 'none';
+            overlay.style.opacity = '0';
             document.body.style.overflow = 'auto';
         }
 
         function handleMenuClick(action) {
             console.log('Menu action:', action);
-            
-            
-            if (action === 'delete-account') {
-                closeProfileModal();
-                showDeleteModal();
-                return;
-            }
-            
-           
             closeProfileModal();
         }
 
-       
-        function showDeleteModal() {
-            const overlay = document.getElementById('deleteModalOverlay');
-            overlay.classList.add('show');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeDeleteModal(event) {
-            if (event && event.target !== event.currentTarget) {
-                return;
+        // Stock navigation functions
+        function goToStockDetail(symbol) {
+            console.log(`Navigating to ${symbol} stock detail`);
+            if (symbol === 'AAPL') {
+                window.location.href = 'apple-stock-detail.html';
+            } else if (symbol === 'GOOGL') {
+                window.location.href = 'stock-detail.html';
+            } else {
+                console.log(`No specific page for ${symbol}`);
             }
-            
-            const overlay = document.getElementById('deleteModalOverlay');
-            overlay.classList.remove('show');
-            document.body.style.overflow = 'auto';
         }
 
-        function confirmDelete() {
-            console.log('Account deletion confirmed - no action taken');
-            closeDeleteModal();
+        // News navigation functions
+        function goToNewsDetail(url) {
+            console.log('Navigating to news detail:', url);
+            window.location.href = url;
         }
 
-       
+        // Close modal with Escape key
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 closeProfileModal();
-                closeDeleteModal();
             }
         });
 
@@ -848,7 +952,8 @@
                 time: '2h ago',
                 category: 'Top Story',
                 categoryType: 'top',
-                image: 'newspic1.jpg'
+                image: 'newspic1.jpg',
+                link: 'news-details-1.html'
             },
             {
                 title: 'Tech Sector Leads Market Rally',
@@ -864,7 +969,8 @@
                 time: '5h ago',
                 category: 'Sponsored',
                 categoryType: 'sponsored',
-                image: 'newspic3.jpg'
+                image: 'newspic3.jpg',
+                link: 'news-details-2.html'
             },
             {
                 title: 'Global Markets React to Asian Trading Updates',
@@ -880,7 +986,8 @@
                 time: '2h ago',
                 category: 'Top Story',
                 categoryType: 'top',
-                image: 'newspic5.jpg'
+                image: 'newspic5.jpg',
+                link: 'news-details-1.html'
             },
             {
                 title: 'Tech Sector Leads Market Rally',
@@ -896,16 +1003,17 @@
                 time: '5h ago',
                 category: 'Sponsored',
                 categoryType: 'sponsored',
-                image: 'newspic1.jpg'
+                image: 'newspic1.jpg',
+                link: 'news-details-2.html'
             }
         ];
 
         function loadNewsPage() {
-            
+            // Load trending stocks with navigation
             const trendingStocksGrid = document.getElementById('trendingStocksGrid');
             if (trendingStocksGrid) {
                 trendingStocksGrid.innerHTML = stocksData.map(stock => `
-                    <div class="stock-card" onclick="showStockDetail('${stock.symbol}')">
+                    <div class="stock-card" onclick="goToStockDetail('${stock.symbol}')">
                         <div class="stock-icon-fallback ${stock.symbol.toLowerCase()}" id="icon-${stock.symbol}">
                             <img src="${stock.logo}" alt="${stock.symbol}" class="stock-logo" 
                                  style="width: 40px; height: 40px; border-radius: 8px;"
@@ -918,35 +1026,181 @@
                 `).join('');
             }
 
-            // Load all news
+            // Load all news with navigation links
             const allNewsContainer = document.getElementById('allNewsContainer');
             if (allNewsContainer) {
-                allNewsContainer.innerHTML = allNewsData.map((news, index) => `
-                    <div class="news-item ${news.categoryType === 'sponsored' ? 'sponsored' : ''}">
-                        <div class="news-image">
-                            <img src="${news.image}" alt="${news.title}" onerror="this.style.display='none'; this.parentElement.innerHTML='📰';">
-                        </div>
-                        <div class="news-content">
-                            <h5 class="news-title">${news.title}</h5>
-                            <div class="news-meta">
-                                <span class="news-source">${news.source}</span>
-                                <span class="news-time">${news.time}</span>
-                                ${news.category ? `<span class="news-category ${news.categoryType === 'sponsored' ? 'sponsored' : ''}">${news.category}</span>` : ''}
+                allNewsContainer.innerHTML = allNewsData.map((news, index) => {
+                    const clickHandler = news.link ? `onclick="goToNewsDetail('${news.link}')"` : '';
+                    return `
+                        <div class="news-item ${news.categoryType === 'sponsored' ? 'sponsored' : ''}" ${clickHandler}>
+                            <div class="news-image">
+                                <img src="${news.image}" alt="${news.title}" onerror="this.style.display='none'; this.parentElement.innerHTML='📰';">
+                            </div>
+                            <div class="news-content">
+                                <h5 class="news-title">${news.title}</h5>
+                                <div class="news-meta">
+                                    <span class="news-source">${news.source}</span>
+                                    <span class="news-time">${news.time}</span>
+                                    ${news.category ? `<span class="news-category ${news.categoryType === 'sponsored' ? 'sponsored' : ''}">${news.category}</span>` : ''}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
+            }
+        }
+                // Location dropdown functions (for dashboard.html only)
+        function toggleLocationDropdown() {
+            const dropdown = document.getElementById('locationDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('show');
             }
         }
 
-        function showStockDetail(symbol) {
-            window.location.href = `stock-detail.html?symbol=${symbol}`;
+        function changeLocation(country, label, currency) {
+            // Update active selection
+            const options = document.querySelectorAll('.location-option');
+            options.forEach(option => option.classList.remove('active'));
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+            
+            // Close dropdown
+            toggleLocationDropdown();
+            
+            // Update location (only works if locationService exists)
+            if (window.locationService) {
+                window.locationService.setLocation(country, label, currency);
+                
+                // Show updating indicator
+                const selector = document.getElementById('currentLocation');
+                const originalText = selector.textContent;
+                selector.textContent = 'Updating...';
+                
+                setTimeout(() => {
+                    selector.textContent = label;
+                }, 1000);
+            }
         }
 
-        // Load news content on page load
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('locationDropdown');
+            const selector = document.getElementById('locationSelector');
+            
+            if (dropdown && selector && 
+                !dropdown.contains(event.target) && 
+                !selector.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Profile modal functions (add to all pages)
+        function toggleProfileModal() {
+            const overlay = document.getElementById('profileModalOverlay');
+            if (overlay) {
+                if (overlay.style.display === 'flex') {
+                    closeProfileModal();
+                } else {
+                    openProfileModal();
+                }
+            }
+        }
+
+        function openProfileModal() {
+            const overlay = document.getElementById('profileModalOverlay');
+            if (overlay) {
+                overlay.style.display = 'flex';
+                overlay.style.opacity = '1';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeProfileModal(event) {
+            if (event && event.target !== event.currentTarget) {
+                return;
+            }
+            
+            const overlay = document.getElementById('profileModalOverlay');
+            if (overlay) {
+                overlay.style.display = 'none';
+                overlay.style.opacity = '0';
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // Update: Initialize location service and market status on page load
         document.addEventListener('DOMContentLoaded', function() {
+            window.locationService = new SimpleLocationService();
+            window.locationService.init();
             loadNewsPage();
         });
+
+        // Currency settings logic (shared with dashboard)
+        let currencySettings = {
+            preferredCurrency: 'USD',
+            exchangeRates: {
+                'USD': 1,
+                'EUR': 0.85,
+                'GBP': 0.73,
+                'JPY': 110,
+                'CNY': 6.45,
+                'INR': 74.5,
+                'AUD': 1.35,
+                'CAD': 1.25
+            }
+        };
+        function loadCurrencySettings() {
+            const stored = localStorage.getItem('alphawave_currency_settings');
+            if (stored) {
+                try {
+                    const settings = JSON.parse(stored);
+                    currencySettings = { ...currencySettings, ...settings };
+                } catch (error) {
+                    console.warn('Error loading currency settings:', error);
+                }
+            }
+        }
+        function saveCurrencySettingsToStorage() {
+            localStorage.setItem('alphawave_currency_settings', JSON.stringify(currencySettings));
+        }
+        function showCurrencySettingsModal() {
+            loadCurrencySettings();
+            document.getElementById('preferredCurrency').value = currencySettings.preferredCurrency;
+            const modal = document.getElementById('currencyModalOverlay');
+            modal.style.display = 'block';
+            setTimeout(() => {
+                modal.style.opacity = '1';
+            }, 10);
+        }
+        function closeCurrencyModal(event) {
+            if (event && event.target.id !== 'currencyModalOverlay') {
+                return;
+            }
+            const modal = document.getElementById('currencyModalOverlay');
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+        function saveCurrencySettings() {
+            const preferredCurrency = document.getElementById('preferredCurrency').value;
+            currencySettings.preferredCurrency = preferredCurrency;
+            saveCurrencySettingsToStorage();
+            // Update location service if it exists
+            if (window.locationService) {
+                window.locationService.currentLocation.currency = preferredCurrency;
+                window.locationService.saveLocationSettings();
+                window.locationService.updatePortfolioValue && window.locationService.updatePortfolioValue();
+            }
+            // Show a message (optional)
+            if (window.authSystem && window.authSystem.showMessage) {
+                window.authSystem.showMessage('Currency settings saved!', 'success');
+            }
+            closeCurrencyModal();
+        }
+        // Make modal functions global
+        window.showCurrencySettingsModal = showCurrencySettingsModal;
     </script>
 </body>
 </html>

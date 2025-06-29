@@ -32,6 +32,15 @@
             background: #1a1a1a;
             padding: 15px 0;
             border-bottom: 1px solid #333;
+            height: 99px;
+            display: flex;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            width: 100%;
         }
 
         .navbar-brand {
@@ -121,7 +130,6 @@
             object-fit: cover;
         }
 
-        
         .profile-modal-overlay {
             position: fixed;
             top: 0;
@@ -202,8 +210,6 @@
             font-family: 'Quicksand', sans-serif;
         }
 
-      
-        
         .delete-modal-overlay {
             position: fixed;
             top: 0;
@@ -321,19 +327,18 @@
         .sidebar {
             width: 200px;
             background: white;
-            height: calc(100vh - 99px); 
-            
+            height: calc(100vh - 99px);
             padding: 30px 0;
             border-right: 1px solid #333;
             position: fixed;
             left: 0;
-            top: 99px; 
+            top: 80px;
             background-image: url('SideGradient.png');
             background-size: 100%;
-            background-position: center top;
+            background-position: center bottom;
             background-repeat: no-repeat;
             z-index: 10;
-        }  
+        }
 
         .sidebar-nav {
             list-style: none;
@@ -367,7 +372,7 @@
             color: #333;
             min-height: calc(100vh - 99px);
             font-family: 'Quicksand', sans-serif;
-            margin-left: 200px; 
+            margin-left: 200px;
         }
 
         .stocks-header {
@@ -420,7 +425,8 @@
             padding: 20px;
             border-bottom: 1px solid #f0f0f0;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            position: relative;
         }
 
         .stock-list-item:hover {
@@ -429,6 +435,25 @@
 
         .stock-list-item:last-child {
             border-bottom: none;
+        }
+
+        .stock-list-item.loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .stock-list-item.loading::after {
+            content: '';
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #333;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
 
         .stock-logo {
@@ -461,9 +486,6 @@
         .stock-logo.meta { background: #1877f2; }
         .stock-logo.nvda { background: #76b900; }
         .stock-logo.amd { background: #ed1c24; }
-        .stock-logo.team { background: #0052cc; }
-        .stock-logo.tsm { background: #ff6600; }
-        .stock-logo.lly { background: #cc0000; }
 
         .stock-info {
             flex: 1;
@@ -505,6 +527,161 @@
             color: #4CAF50;
         }
 
+        .stock-price .change.negative {
+            color: #f44336;
+        }
+
+        .offline-indicator {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 10px;
+            color: #999;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .loading-placeholder {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #333;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        
+        .location-selector {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 9px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Quicksand', sans-serif;
+            min-width: 80px;
+        }
+
+        .location-selector:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .location-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 9px;
+            padding: 8px 0;
+            margin-top: 5px;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .location-dropdown.show {
+            display: block;
+        }
+
+        .location-option {
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            font-size: 12px;
+            color: #ccc;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .location-option:hover {
+            background: #3a3a3a;
+            color: white;
+        }
+
+        .location-option.active {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .flag {
+            display: inline-block;
+            width: 20px;
+            height: 15px;
+            background: #666;
+            border-radius: 2px;
+            margin-right: 8px;
+            text-align: center;
+            font-size: 10px;
+            line-height: 15px;
+            color: white;
+        }
+
+        .market-status {
+            color: #ccc;
+            font-size: 12px;
+            font-family: 'Quicksand', sans-serif;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .market-status.open {
+            color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .market-status.closed {
+            color: #f44336;
+            background: rgba(244, 67, 54, 0.1);
+        }
+
+        .refresh-stocks-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ccc;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 8px;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .refresh-stocks-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .refresh-stocks-btn.loading {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .refresh-stocks-btn i {
+            margin-right: 3px;
+        }
+
+        .refresh-stocks-btn.loading i {
+            animation: spin 1s linear infinite;
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
@@ -521,6 +698,8 @@
 
             .main-layout {
                 flex-direction: column;
+                display: flex;
+                margin-top: 99px; 
             }
 
             .stocks-header {
@@ -566,6 +745,49 @@
                     <i class="fas fa-search search-icon"></i>
                 </div>
                 <div class="navbar-right">
+                    <!-- Location Selector -->
+                    <div class="location-selector-container" style="position: relative;">
+                        <button class="location-selector" id="locationSelector" onclick="toggleLocationDropdown()">
+                            <span id="currentLocation">Global</span>
+                            <i class="fas fa-chevron-down" style="margin-left: 5px; font-size: 10px;"></i>
+                        </button>
+                        <div class="location-dropdown" id="locationDropdown">
+                            <div class="location-option" onclick="changeLocation('US', 'United States', 'USD')">
+                                <span class="flag">US</span> United States (USD)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('EU', 'Europe', 'EUR')">
+                                <span class="flag">EU</span> Europe (EUR)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('GB', 'United Kingdom', 'GBP')">
+                                <span class="flag">GB</span> United Kingdom (GBP)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('JP', 'Japan', 'JPY')">
+                                <span class="flag">JP</span> Japan (JPY)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('CN', 'China', 'CNY')">
+                                <span class="flag">CN</span> China (CNY)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('IN', 'India', 'INR')">
+                                <span class="flag">IN</span> India (INR)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('AU', 'Australia', 'AUD')">
+                                <span class="flag">AU</span> Australia (AUD)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('CA', 'Canada', 'CAD')">
+                                <span class="flag">CA</span> Canada (CAD)
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Market Status -->
+                    <span class="market-status" id="marketStatus">Market Closed</span>
+
+                    <!-- Refresh stocks button -->
+                    <button class="refresh-stocks-btn" onclick="refreshStockData()" title="Refresh stock data">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                    
                     <a href="pro.html" class="pro-badge">Pro</a>
                     <i class="fas fa-bell" style="color: white;"></i>
                     <div class="user-avatar" onclick="toggleProfileModal()">
@@ -575,7 +797,7 @@
             </div>
         </nav>
 
-        <div class="main-layout">
+        <div class="main-layout" style="margin-top: 99px;">
             <div class="sidebar">
                 <ul class="sidebar-nav">
                     <li><a href="dashboard.html">Dashboard</a></li>
@@ -589,14 +811,17 @@
                     <div class="stocks-title">
                         <div class="stocks-title-left">
                             <h2>My Stocks</h2>
-                            <div class="companies-count">12 Companies</div>
+                            <div class="companies-count" id="companiesCount">Loading...</div>
                         </div>
                         <div class="sort-option">Recently <i class="fas fa-chevron-up"></i><i class="fas fa-chevron-down"></i></div>
                     </div>
                 </div>
 
                 <div class="stock-list" id="stocksContainer">
-                    <!-- Stocks items will be loaded here -->
+                    <div class="loading-placeholder">
+                        <div class="loading-spinner"></div>
+                        Loading stock data...
+                    </div>
                 </div>
             </div>
         </div>
@@ -672,7 +897,362 @@
         </div>
     </div>
 
+    <!-- Currency Settings Modal -->
+    <div class="currency-modal-overlay" id="currencyModalOverlay" onclick="closeCurrencyModal(event)" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s ease;">
+        <div class="currency-modal" onclick="event.stopPropagation()" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; background: #fff; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); padding: 32px 28px; font-family: 'Quicksand', sans-serif; color: #111;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 style="margin: 0; color: #111; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">Currency Settings</h2>
+                <button onclick="closeCurrencyModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #111; padding: 5px;">&times;</button>
+            </div>
+            <div style="margin-bottom: 0;">
+                <label for="preferredCurrency" style="display: block; margin-bottom: 10px; color: #111; font-size: 16px; font-weight: 600;">Preferred Currency</label>
+                <select id="preferredCurrency" onchange="saveCurrencySettings()" style="width: 100%; padding: 14px; border: 2px solid #111; border-radius: 7px; font-size: 16px; font-family: 'Quicksand', sans-serif; background: #fff; color: #111; font-weight: 500; outline: none;">
+                    <option value="USD">USD - US Dollar</option>
+                    <option value="EUR">EUR - Euro</option>
+                    <option value="GBP">GBP - British Pound</option>
+                    <option value="JPY">JPY - Japanese Yen</option>
+                    <option value="CNY">CNY - Chinese Yuan</option>
+                    <option value="INR">INR - Indian Rupee</option>
+                    <option value="AUD">AUD - Australian Dollar</option>
+                    <option value="CAD">CAD - Canadian Dollar</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Finnhub API Integration for Stocks List
+        class FinnhubStocksAPI {
+            constructor() {
+                this.apiKey = 'ctrlpb1r01qglao4qp80ctrlpb1r01qglao4qp8g';
+                this.baseUrl = 'https://finnhub.io/api/v1';
+                this.cache = new Map();
+                this.cacheExpiry = 5 * 60 * 1000; // 5 minutes cache
+                this.rateLimitDelay = 1000; // 1 second between requests
+                this.lastRequestTime = 0;
+                
+                // Stock symbols
+                this.stockSymbols = [
+                    'AAPL', 'GOOGL', 'TSLA', 'AMZN', 'NFLX', 'META', 'NVDA', 'AMD'
+                ];
+
+                this.initializeStocksData();
+            }
+
+            async initializeStocksData() {
+                try {
+                    console.log('Initializing stocks data...');
+                    
+                    // Load cached data first
+                    this.loadCachedData();
+                    
+                    // Fetch fresh data
+                    await this.fetchAllStockData();
+                    
+                } catch (error) {
+                    console.error('Error initializing stocks data:', error);
+                    this.showError('Failed to load stock data');
+                }
+            }
+
+            async waitForRateLimit() {
+                const now = Date.now();
+                const timeSinceLastRequest = now - this.lastRequestTime;
+                
+                if (timeSinceLastRequest < this.rateLimitDelay) {
+                    const waitTime = this.rateLimitDelay - timeSinceLastRequest;
+                    await new Promise(resolve => setTimeout(resolve, waitTime));
+                }
+                
+                this.lastRequestTime = Date.now();
+            }
+
+            async fetchStockQuote(symbol) {
+                try {
+                    await this.waitForRateLimit();
+                    
+                    const url = `${this.baseUrl}/quote?symbol=${symbol}&token=${this.apiKey}`;
+                    const response = await fetch(url);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (!data.c) {
+                        throw new Error(`No quote data found for ${symbol}`);
+                    }
+                    
+                    return data;
+                    
+                } catch (error) {
+                    console.error(`Error fetching quote for ${symbol}:`, error);
+                    return this.getFallbackQuote(symbol);
+                }
+            }
+
+            async fetchAllStockData() {
+                try {
+                    console.log('Fetching all stock data...');
+                    
+                    const stockPromises = this.stockSymbols.map(async (symbol) => {
+                        try {
+                            const quoteData = await this.fetchStockQuote(symbol);
+                            return { symbol, data: quoteData, success: true };
+                        } catch (error) {
+                            console.error(`Failed to fetch ${symbol}:`, error);
+                            return { symbol, error, success: false };
+                        }
+                    });
+
+                    const results = await Promise.all(stockPromises);
+                    
+                    // Process results
+                    const stockData = [];
+                    let successCount = 0;
+                    
+                    results.forEach(result => {
+                        if (result.success && result.data) {
+                            stockData.push(this.processStockData(result.data, result.symbol));
+                            successCount++;
+                        } else {
+                            // Use fallback data
+                            stockData.push(this.processStockData(this.getFallbackQuote(result.symbol), result.symbol));
+                        }
+                    });
+
+                    console.log(`Successfully fetched data for ${successCount}/${this.stockSymbols.length} stocks`);
+                    
+                    // Update UI
+                    this.updateStocksList(stockData);
+                    
+                } catch (error) {
+                    console.error('Error fetching stock data:', error);
+                    this.showError('Failed to fetch stock data');
+                }
+            }
+
+            processStockData(rawData, symbol) {
+                try {
+                    const currentPrice = rawData.c;
+                    const change = rawData.d;
+                    const changePercent = rawData.dp;
+                    
+                    return {
+                        symbol: symbol,
+                        name: this.getCompanyName(symbol),
+                        price: currentPrice,
+                        change: change,
+                        changePercent: changePercent,
+                        isLive: rawData.c && rawData.d !== undefined,
+                        lastUpdate: new Date()
+                    };
+                } catch (error) {
+                    console.error(`Error processing data for ${symbol}:`, error);
+                    return this.getFallbackStockData(symbol);
+                }
+            }
+
+            getFallbackQuote(symbol) {
+                const fallbackPrices = {
+                    'TSLA': { c: 245.67, d: 5.35, dp: 2.23 },
+                    'AAPL': { c: 198.85, d: 3.53, dp: 1.81 },
+                    'NVDA': { c: 875.43, d: 15.22, dp: 1.77 },
+                    'AMD': { c: 142.18, d: 3.23, dp: 2.32 },
+                    'META': { c: 485.23, d: 6.56, dp: 1.37 },
+                    'AMZN': { c: 191.10, d: 2.65, dp: 1.41 },
+                    'GOOGL': { c: 158.71, d: 2.89, dp: 1.85 },
+                    'NFLX': { c: 485.32, d: 6.42, dp: 1.34 }
+                };
+                
+                return fallbackPrices[symbol] || { c: 100, d: 2, dp: 2.04 };
+            }
+
+            getFallbackStockData(symbol) {
+                const fallback = this.getFallbackQuote(symbol);
+                return {
+                    symbol: symbol,
+                    name: this.getCompanyName(symbol),
+                    price: fallback.c,
+                    change: fallback.d,
+                    changePercent: fallback.dp,
+                    isLive: false,
+                    lastUpdate: new Date()
+                };
+            }
+
+            getCompanyName(symbol) {
+                const names = {
+                    'AAPL': 'Apple Inc',
+                    'GOOGL': 'Alphabet Inc',
+                    'TSLA': 'Tesla Inc',
+                    'AMZN': 'Amazon.com Inc',
+                    'NFLX': 'Netflix Inc',
+                    'META': 'Meta Platforms Inc',
+                    'NVDA': 'NVIDIA Corporation',
+                    'AMD': 'Advanced Micro Devices'
+                };
+                return names[symbol] || `${symbol} Inc`;
+            }
+
+            getStockLogo(symbol) {
+                const logos = {
+                    'TSLA': 'TeslaBigLogo.png',
+                    'AAPL': 'AppleBigLogo.png',
+                    'NVDA': 'nvidia.jpg',
+                    'AMD': 'AMD.jpg',
+                    'META': 'Meta.png',
+                    'AMZN': 'AmazonBigLogo.png',
+                    'GOOGL': 'Google.jpg',
+                    'NFLX': 'netflix.png'
+                };
+                return logos[symbol] || `${symbol.toLowerCase()}.png`;
+            }
+
+            getStockFallback(symbol) {
+                const fallbacks = {
+                    'TSLA': 'T',
+                    'AAPL': 'A',
+                    'NVDA': 'N',
+                    'AMD': 'AMD',
+                    'META': 'f',
+                    'AMZN': 'a',
+                    'GOOGL': 'G',
+                    'NFLX': 'N'
+                };
+                return fallbacks[symbol] || symbol.charAt(0);
+            }
+
+            formatCurrency(amount) {
+                // Get the selected currency, default to USD
+                const currency = this.currentLocation?.currency || 'USD';
+                // Get the exchange rate, default to 1
+                const rate = (this.exchangeRates && this.exchangeRates[currency]) ? this.exchangeRates[currency] : 1;
+                // Convert the amount
+                const converted = amount * rate;
+                // Format the converted amount
+                return new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: currency,
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(converted);
+            }
+
+            updateStocksList(stockData) {
+                const container = document.getElementById('stocksContainer');
+                const countElement = document.getElementById('companiesCount');
+                
+                if (container && stockData.length > 0) {
+                    // Update count
+                    if (countElement) {
+                        countElement.textContent = `${stockData.length} Companies`;
+                    }
+
+                    // Sort by symbol for consistency
+                    stockData.sort((a, b) => a.symbol.localeCompare(b.symbol));
+
+                    container.innerHTML = stockData.map(stock => {
+                        const changeClass = stock.change >= 0 ? 'positive' : 'negative';
+                        const changeSign = stock.change >= 0 ? '+' : '';
+                        // const priceFormatted = this.formatCurrency(stock.price);
+                        const priceFormatted = window.locationService && window.locationService.formatCurrency ? window.locationService.formatCurrency(stock.price) : this.formatCurrency(stock.price);
+                        const changeFormatted = `${changeSign}${stock.changePercent.toFixed(2)}%`;
+                        
+                        return `
+                            <div class="stock-list-item ${!stock.isLive ? 'offline' : ''}" onclick="showStockDetail('${stock.symbol}')">
+                                ${!stock.isLive ? '<div class="offline-indicator">📡 Offline</div>' : ''}
+                                <div class="stock-logo ${stock.symbol.toLowerCase()}" id="logo-${stock.symbol}">
+                                    <img src="${this.getStockLogo(stock.symbol)}" alt="${stock.symbol}" 
+                                         onerror="this.style.display='none'; document.getElementById('logo-${stock.symbol}').innerHTML='${this.getStockFallback(stock.symbol)}';"
+                                         onload="console.log('Loaded: ${this.getStockLogo(stock.symbol)}');">
+                                </div>
+                                <div class="stock-info">
+                                    <h5>${stock.symbol}</h5>
+                                    <p>${stock.name}</p>
+                                </div>
+                                <div class="stock-price">
+                                    <div class="price">${priceFormatted}</div>
+                                    <div class="change ${changeClass}">${changeFormatted}</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    container.innerHTML = '<div class="loading-placeholder">No stock data available</div>';
+                    if (countElement) {
+                        countElement.textContent = '0 Companies';
+                    }
+                }
+            }
+
+            loadCachedData() {
+                try {
+                    const stored = localStorage.getItem('alphawave_stocks_cache');
+                    if (stored) {
+                        const cacheData = JSON.parse(stored);
+                        const stockData = [];
+                        
+                        this.stockSymbols.forEach(symbol => {
+                            const cachedQuote = cacheData[symbol];
+                            if (cachedQuote) {
+                                stockData.push(this.processStockData(cachedQuote, symbol));
+                            } else {
+                                stockData.push(this.getFallbackStockData(symbol));
+                            }
+                        });
+                        
+                        this.updateStocksList(stockData);
+                        console.log('Loaded cached stocks data');
+                    }
+                } catch (error) {
+                    console.warn('Could not load cached data:', error);
+                }
+            }
+
+            saveCacheToStorage(stockData) {
+                try {
+                    const cacheData = {};
+                    stockData.forEach(stock => {
+                        cacheData[stock.symbol] = {
+                            c: stock.price,
+                            d: stock.change,
+                            dp: stock.changePercent
+                        };
+                    });
+                    localStorage.setItem('alphawave_stocks_cache', JSON.stringify(cacheData));
+                } catch (error) {
+                    console.warn('Could not save cache to storage:', error);
+                }
+            }
+
+            showError(message) {
+                const container = document.getElementById('stocksContainer');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="loading-placeholder">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 24px; color: #f44336; margin-bottom: 10px;"></i>
+                            <div>${message}</div>
+                            <button onclick="location.reload()" style="margin-top: 10px; padding: 8px 16px; background: #333; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                Retry
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+
+            // Add method to refresh stock display with current currency
+            refreshStockDisplay() {
+                // Reload cached data and update display with new currency
+                this.loadCachedData();
+            }
+        }
+
+        // Initialize Finnhub API
+        const finnhubStocksAPI = new FinnhubStocksAPI();
+        window.finnhubStocksAPI = finnhubStocksAPI; // Make it globally accessible
+
         // Profile Modal Functions
         function toggleProfileModal() {
             const overlay = document.getElementById('profileModalOverlay');
@@ -702,18 +1282,51 @@
         function handleMenuClick(action) {
             console.log('Menu action:', action);
             
-            //delete account specially
-            if (action === 'delete-account') {
-                closeProfileModal();
-                showDeleteModal();
-                return;
+            switch(action) {
+                case 'logout':
+                    closeProfileModal();
+                    setTimeout(() => {
+                        window.authSystem.logout();
+                    }, 300);
+                    break;
+                    
+                case 'delete-account':
+                    closeProfileModal();
+                    setTimeout(() => {
+                        showDeleteModal();
+                    }, 300);
+                    break;
+                    
+                case 'personal-info':
+                    window.authSystem.showMessage('Personal info page not implemented yet', 'info');
+                    closeProfileModal();
+                    break;
+                    
+                case 'currency':
+                    showCurrencySettingsModal();
+                    closeProfileModal();
+                    break;
+                    
+                case 'theme':
+                    window.authSystem.showMessage('Theme settings not implemented yet', 'info');
+                    closeProfileModal();
+                    break;
+                    
+                case 'help':
+                    window.authSystem.showMessage('Help & Support not implemented yet', 'info');
+                    closeProfileModal();
+                    break;
+                    
+                case 'terms':
+                    window.authSystem.showMessage('Terms of Service not implemented yet', 'info');
+                    closeProfileModal();
+                    break;
+                    
+                default:
+                    closeProfileModal();
             }
-            
-            
-            closeProfileModal();
         }
 
-        
         function showDeleteModal() {
             const overlay = document.getElementById('deleteModalOverlay');
             overlay.classList.add('show');
@@ -735,7 +1348,11 @@
             closeDeleteModal();
         }
 
-        
+        function showStockDetail(symbol) {
+            window.location.href = `stock-detail.html?symbol=${symbol}`;
+        }
+
+        // Event listeners
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 closeProfileModal();
@@ -743,68 +1360,247 @@
             }
         });
 
-        
-        const stocksData = [
-            { symbol: 'AAPL', name: 'Apple Inc', price: '198.85', change: '+15.33%', logo: 'AppleBigLogo.png', fallback: '🍎' },
-            { symbol: 'GOOGL', name: 'Alphabet Inc', price: '158.71', change: '+9.68%', logo: 'Google.jpg', fallback: 'G' },
-            { symbol: 'TSLA', name: 'Tesla Inc', price: '272.20', change: '+22.69%', logo: 'TeslaBigLogo.png', fallback: 'T' },
-            { symbol: 'AMZN', name: 'Amazon.com Inc', price: '191.10', change: '+11.98%', logo: 'AmazonBigLogo.png', fallback: 'a' },
-            { symbol: 'NFLX', name: 'Netflix Inc', price: '945.47', change: '+8.62%', logo: 'netflix.png', fallback: 'N' },
-            { symbol: 'META', name: 'Meta Platforms Inc', price: '555.87', change: '+2.32%', logo: 'Meta.png', fallback: 'f' },
-            { symbol: 'NVDA', name: 'NVIDIA Corporation', price: '122.49', change: '+2.98%', logo: 'nvidia.jpg', fallback: 'N' },
-            { symbol: 'AMD', name: 'Advanced Micro Devices', price: '753.71', change: '+3.78%', logo: 'AMD.jpg', fallback: 'AMD' },
-            { symbol: 'TEAM', name: 'Atlassian Corporation', price: '209.62', change: '+4.02%', logo: 'TEAMBigLogo.png', fallback: 'T' },
-            { symbol: 'TSM', name: 'Taiwan Semiconductor Manu', price: '158.75', change: '+12.29%', logo: 'TsmcBigLogo.png', fallback: 'T' },
-            { symbol: 'LLY', name: 'Eli Lilly and Company', price: '753.71', change: '+3.78%', logo: 'LLYBigLogo.jpg', fallback: 'L' }
-        ];
+        // Load stocks content on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Stocks page loaded with Finnhub API');
+            
+            // Initialize location service
+            window.locationService = new SimpleLocationService();
+            window.locationService.init();
+        });
 
-        function getStockIcon(symbol) {
-            const icons = {
-                'AAPL': 'A',
-                'GOOGL': 'G',
-                'TSLA': 'T',
-                'AMZN': 'a',
-                'NFLX': 'N',
-                'META': 'f',
-                'NVDA': 'N',
-                'AMD': 'AMD',
-                'SPOT': 'S',
-                'TSM': 'T'
-            };
-            return icons[symbol] || symbol.charAt(0);
+        // --- BEGIN: SimpleLocationService (copied from dashboard.html) ---
+        class SimpleLocationService {
+            constructor() {
+                this.currentLocation = this.loadLocationSettings();
+                this.hasAskedForLocation = false;
+                this.exchangeRates = {
+                    'USD': 1, 'EUR': 0.85, 'GBP': 0.73, 'JPY': 110,
+                    'CNY': 6.45, 'INR': 74.5, 'AUD': 1.35, 'CAD': 1.25
+                };
+            }
+            init() {
+                this.updateLocationDisplay();
+                this.updateMarketStatus();
+                setInterval(() => this.updateMarketStatus(), 60000);
+            }
+            loadLocationSettings() {
+                const stored = localStorage.getItem('alphawave_location_settings');
+                if (stored) {
+                    try { return JSON.parse(stored); } catch (e) {}
+                }
+                return { country: 'US', currency: 'USD', label: 'Global' };
+            }
+            saveLocationSettings() {
+                localStorage.setItem('alphawave_location_settings', JSON.stringify(this.currentLocation));
+            }
+            setLocation(country, label, currency) {
+                this.currentLocation = { country, currency, label };
+                this.saveLocationSettings();
+                this.updateLocationDisplay();
+                this.updateMarketStatus();
+                window.dispatchEvent(new CustomEvent('locationChanged', { detail: this.currentLocation }));
+            }
+            updateLocationDisplay() {
+                const locationElement = document.getElementById('currentLocation');
+                if (locationElement) {
+                    locationElement.textContent = this.currentLocation.label;
+                }
+            }
+            updateMarketStatus() {
+                const timezone = this.getTimezoneForCountry(this.currentLocation.country);
+                const status = this.getMarketStatus(timezone);
+                const statusElement = document.getElementById('marketStatus');
+                if (statusElement) {
+                    statusElement.textContent = status.isOpen ? 'Market Open' : 'Market Closed';
+                    statusElement.className = `market-status ${status.isOpen ? 'open' : 'closed'}`;
+                }
+            }
+            getTimezoneForCountry(country) {
+                const timezones = {
+                    'US': 'America/New_York', 'EU': 'Europe/London', 'GB': 'Europe/London',
+                    'JP': 'Asia/Tokyo', 'CN': 'Asia/Shanghai', 'IN': 'Asia/Kolkata',
+                    'AU': 'Australia/Sydney', 'CA': 'America/Toronto'
+                };
+                return timezones[country] || 'America/New_York';
+            }
+            getMarketStatus(timezone) {
+                try {
+                    const now = new Date();
+                    const marketTime = new Intl.DateTimeFormat('en-US', {
+                        timeZone: timezone, hour: 'numeric', minute: 'numeric', hour12: false
+                    }).formatToParts(now);
+                    const hour = parseInt(marketTime.find(part => part.type === 'hour').value);
+                    const minute = parseInt(marketTime.find(part => part.type === 'minute').value);
+                    const currentTime = hour * 60 + minute;
+                    const marketOpen = 9 * 60 + 30; // 9:30 AM
+                    const marketClose = 16 * 60; // 4:00 PM
+                    const isWeekday = now.getDay() >= 1 && now.getDay() <= 5;
+                    const isOpen = isWeekday && currentTime >= marketOpen && currentTime < marketClose;
+                    return { isOpen };
+                } catch (error) {
+                    return { isOpen: false };
+                }
+            }
+            formatCurrency(amount) {
+                // Get the selected currency, default to USD
+                const currency = this.currentLocation?.currency || 'USD';
+                // Get the exchange rate, default to 1
+                const rate = (this.exchangeRates && this.exchangeRates[currency]) ? this.exchangeRates[currency] : 1;
+                // Convert the amount
+                const converted = amount * rate;
+                // Format the converted amount
+                return new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: currency,
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(converted);
+            }
         }
+        // --- END: SimpleLocationService ---
 
-        function showStockDetail(symbol) {
-            window.location.href = `stock-detail.html?symbol=${symbol}`;
-        }
-
-        function loadStocksPage() {
-            const container = document.getElementById('stocksContainer');
-            if (container) {
-                container.innerHTML = stocksData.map(stock => `
-                    <div class="stock-list-item" onclick="showStockDetail('${stock.symbol}')">
-                        <div class="stock-logo ${stock.symbol.toLowerCase()}" id="logo-${stock.symbol}">
-                            <img src="${stock.logo}" alt="${stock.symbol}" 
-                                 onerror="this.style.display='none'; document.getElementById('logo-${stock.symbol}').innerHTML='${stock.fallback}';"
-                                 onload="console.log('Loaded: ${stock.logo}');">
-                        </div>
-                        <div class="stock-info">
-                            <h5>${stock.symbol}</h5>
-                            <p>${stock.name}</p>
-                        </div>
-                        <div class="stock-price">
-                            <div class="price">${stock.price}</div>
-                            <div class="change positive">${stock.change}</div>
-                        </div>
-                    </div>
-                `).join('');
+        // Location dropdown functions
+        function toggleLocationDropdown() {
+            const dropdown = document.getElementById('locationDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('show');
             }
         }
 
-        // Load stocks content on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            loadStocksPage();
+        function changeLocation(country, label, currency) {
+            // Update active selection
+            const options = document.querySelectorAll('.location-option');
+            options.forEach(option => option.classList.remove('active'));
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+            
+            // Close dropdown
+            toggleLocationDropdown();
+            
+            // Update location
+            if (window.locationService) {
+                window.locationService.setLocation(country, label, currency);
+                
+                // Show updating indicator
+                const selector = document.getElementById('currentLocation');
+                const originalText = selector.textContent;
+                selector.textContent = 'Updating...';
+                
+                setTimeout(() => {
+                    selector.textContent = label;
+                }, 1000);
+            }
+        }
+
+        // Refresh function
+        function refreshStockData() {
+            // You can implement real refresh logic here if needed
+            const btn = document.querySelector('.refresh-stocks-btn');
+            if (btn) {
+                btn.classList.add('loading');
+                btn.disabled = true;
+                setTimeout(() => {
+                    btn.classList.remove('loading');
+                    btn.disabled = false;
+                }, 1000);
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('locationDropdown');
+            const selector = document.getElementById('locationSelector');
+            
+            if (dropdown && selector && 
+                !dropdown.contains(event.target) && 
+                !selector.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
         });
+
+        // Close modals when pressing Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeProfileModal();
+                const dropdown = document.getElementById('locationDropdown');
+                if (dropdown) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        });
+
+        // Currency settings logic (shared with dashboard)
+        let currencySettings = {
+            preferredCurrency: 'USD',
+            exchangeRates: {
+                'USD': 1,
+                'EUR': 0.85,
+                'GBP': 0.73,
+                'JPY': 110,
+                'CNY': 6.45,
+                'INR': 74.5,
+                'AUD': 1.35,
+                'CAD': 1.25
+            }
+        };
+        function loadCurrencySettings() {
+            const stored = localStorage.getItem('alphawave_currency_settings');
+            if (stored) {
+                try {
+                    const settings = JSON.parse(stored);
+                    currencySettings = { ...currencySettings, ...settings };
+                } catch (error) {
+                    console.warn('Error loading currency settings:', error);
+                }
+            }
+        }
+        function saveCurrencySettingsToStorage() {
+            localStorage.setItem('alphawave_currency_settings', JSON.stringify(currencySettings));
+        }
+        function showCurrencySettingsModal() {
+            loadCurrencySettings();
+            document.getElementById('preferredCurrency').value = currencySettings.preferredCurrency;
+            const modal = document.getElementById('currencyModalOverlay');
+            modal.style.display = 'block';
+            setTimeout(() => {
+                modal.style.opacity = '1';
+            }, 10);
+        }
+        function closeCurrencyModal(event) {
+            if (event && event.target.id !== 'currencyModalOverlay') {
+                return;
+            }
+            const modal = document.getElementById('currencyModalOverlay');
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+        function saveCurrencySettings() {
+            const preferredCurrency = document.getElementById('preferredCurrency').value;
+            currencySettings.preferredCurrency = preferredCurrency;
+            saveCurrencySettingsToStorage();
+            // Update location service if it exists
+            if (window.locationService) {
+                window.locationService.currentLocation.currency = preferredCurrency;
+                window.locationService.saveLocationSettings();
+                window.locationService.updatePortfolioValue && window.locationService.updatePortfolioValue();
+            }
+            // Refresh stock display with new currency
+            if (window.finnhubStocksAPI) {
+                window.finnhubStocksAPI.refreshStockDisplay();
+            }
+            // Show a message (optional)
+            if (window.authSystem && window.authSystem.showMessage) {
+                window.authSystem.showMessage('Currency settings saved!', 'success');
+            }
+            // Reload the page to ensure all data and UI update
+            window.location.reload();
+        }
+        // Make modal functions global
+        window.showCurrencySettingsModal = showCurrencySettingsModal;
     </script>
 </body>
 </html>

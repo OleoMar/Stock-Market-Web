@@ -1,27 +1,357 @@
-// Sample data 
-const stocksData = [
-    { symbol: 'TSLA', name: 'Tesla Inc', change: '+8.4%', logo: 'tsla' },
-    { symbol: 'AAPL', name: 'Apple Inc', change: '+3.2%', logo: 'aapl' },
-    { symbol: 'NVDA', name: 'NVIDIA Corp', change: '+5.1%', logo: 'nvda' },
-    { symbol: 'AMD', name: 'AMD Inc', change: '+4.8%', logo: 'amd' },
-    { symbol: 'META', name: 'Meta Platforms', change: '+8.4%', logo: 'meta' },
-    { symbol: 'AMZN', name: 'Amazon.com Inc', change: '+3.2%', logo: 'amzn' },
-    { symbol: 'GOOGL', name: 'Alphabet Inc', change: '+5.1%', logo: 'googl' },
-    { symbol: 'NFLX', name: 'Netflix Inc', change: '+4.8%', logo: 'nflx' }
-];
+// --- BEGIN: Script.js API Integration ---
+class ScriptAPI {
+    constructor() {
+        this.apiKey = 'ctrlpb1r01qglao4qp80ctrlpb1r01qglao4qp8g';
+        this.baseUrl = 'https://finnhub.io/api/v1';
+        this.cache = new Map();
+        this.cacheExpiry = 5 * 60 * 1000; // 5 minutes cache
+        this.rateLimitDelay = 1000; // 1 second between requests
+        this.lastRequestTime = 0;
+        
+        // Stock symbols for different sections
+        this.stocksSymbols = ['TSLA', 'AAPL', 'NVDA', 'AMD', 'META', 'AMZN', 'GOOGL', 'NFLX'];
+        this.watchlistSymbols = ['AAPL', 'GOOGL', 'TSLA', 'AMZN', 'NFLX', 'SPOT', 'PFE', 'LLY', 'TEAM', 'TSM'];
 
-const watchlistData = [
-    { symbol: 'AAPL', name: 'Apple Inc', price: '198.85', change: '+13.33%', logo: 'aapl' },
-    { symbol: 'GOOGL', name: 'Alphabet Inc', price: '158.71', change: '+9.68%', logo: 'googl' },
-    { symbol: 'TSLA', name: 'Tesla Inc', price: '272.20', change: '+22.69%', logo: 'tsla' },
-    { symbol: 'AMZN', name: 'Amazon.com Inc', price: '191.10', change: '+11.98%', logo: 'amzn' },
-    { symbol: 'NFLX', name: 'Netflix Inc', price: '945.47', change: '+8.62%', logo: 'nflx' },
-    { symbol: 'SPOT', name: 'Microsoft Corp', price: '555.87', change: '+2.32%', logo: 'meta' },
-    { symbol: 'PFE', name: 'Pfizer Inc', price: '122.49', change: '+2.98%', logo: 'nvda' },
-    { symbol: 'LLY', name: 'Eli Lilly and Company', price: '753.71', change: '+3.78%', logo: 'amd' },
-    { symbol: 'TEAM', name: 'Atlassian Corporation', price: '209.62', change: '+4.02%', logo: 'aapl' },
-    { symbol: 'TSM', name: 'Taiwan Semiconductor Manu', price: '158.75', change: '+12.29%', logo: 'tsla' }
-];
+        this.initializeScriptAPI();
+    }
+
+    async initializeScriptAPI() {
+        try {
+            console.log('Initializing Script API...');
+            
+            // Load cached data first
+            this.loadCachedData();
+            
+            // Fetch fresh data
+            await this.fetchAllScriptData();
+            
+        } catch (error) {
+            console.error('Error initializing Script API:', error);
+            this.showError('Failed to load stock data');
+        }
+    }
+
+    async waitForRateLimit() {
+        const now = Date.now();
+        const timeSinceLastRequest = now - this.lastRequestTime;
+        
+        if (timeSinceLastRequest < this.rateLimitDelay) {
+            const waitTime = this.rateLimitDelay - timeSinceLastRequest;
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+        }
+        
+        this.lastRequestTime = Date.now();
+    }
+
+    async fetchStockQuote(symbol) {
+        try {
+            await this.waitForRateLimit();
+            
+            const url = `${this.baseUrl}/quote?symbol=${symbol}&token=${this.apiKey}`;
+            const response = await fetch(url);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (!data.c) {
+                throw new Error(`No quote data found for ${symbol}`);
+            }
+            
+            return data;
+            
+        } catch (error) {
+            console.error(`Error fetching quote for ${symbol}:`, error);
+            return this.getFallbackQuote(symbol);
+        }
+    }
+
+    async fetchAllScriptData() {
+        try {
+            console.log('Fetching all script data...');
+            
+            // Fetch stocks data
+            const stocksPromises = this.stocksSymbols.map(async (symbol) => {
+                try {
+                    const quoteData = await this.fetchStockQuote(symbol);
+                    return { symbol, data: quoteData, success: true };
+                } catch (error) {
+                    console.error(`Failed to fetch ${symbol}:`, error);
+                    return { symbol, error, success: false };
+                }
+            });
+
+            const stocksResults = await Promise.all(stocksPromises);
+            
+            // Process stocks results
+            const stocksData = [];
+            stocksResults.forEach(result => {
+                if (result.success && result.data) {
+                    stocksData.push(this.processStockData(result.data, result.symbol));
+                } else {
+                    stocksData.push(this.processStockData(this.getFallbackQuote(result.symbol), result.symbol));
+                }
+            });
+
+            // Fetch watchlist data
+            const watchlistPromises = this.watchlistSymbols.map(async (symbol) => {
+                try {
+                    const quoteData = await this.fetchStockQuote(symbol);
+                    return { symbol, data: quoteData, success: true };
+                } catch (error) {
+                    console.error(`Failed to fetch ${symbol}:`, error);
+                    return { symbol, error, success: false };
+                }
+            });
+
+            const watchlistResults = await Promise.all(watchlistPromises);
+            
+            // Process watchlist results
+            const watchlistData = [];
+            watchlistResults.forEach(result => {
+                if (result.success && result.data) {
+                    watchlistData.push(this.processWatchlistData(result.data, result.symbol));
+                } else {
+                    watchlistData.push(this.processWatchlistData(this.getFallbackQuote(result.symbol), result.symbol));
+                }
+            });
+
+            console.log(`Successfully fetched data for ${stocksData.length} stocks and ${watchlistData.length} watchlist items`);
+            
+            // Update global variables
+            window.stocksData = stocksData;
+            window.watchlistData = watchlistData;
+            
+            // Update UI if functions are called
+            if (typeof loadDashboardContent === 'function') {
+                loadDashboardContent();
+            }
+            if (typeof loadPortfolioChart === 'function') {
+                loadPortfolioChart();
+            }
+            
+        } catch (error) {
+            console.error('Error fetching script data:', error);
+            this.showError('Failed to fetch stock data');
+        }
+    }
+
+    processStockData(rawData, symbol) {
+        try {
+            const changePercent = rawData.dp;
+            const changeSign = changePercent >= 0 ? '+' : '';
+            const changeFormatted = `${changeSign}${changePercent.toFixed(1)}%`;
+            
+            return {
+                symbol: symbol,
+                name: this.getCompanyName(symbol),
+                change: changeFormatted,
+                logo: symbol.toLowerCase(),
+                isLive: rawData.c && rawData.d !== undefined
+            };
+        } catch (error) {
+            console.error(`Error processing stock data for ${symbol}:`, error);
+            return this.getFallbackStockData(symbol);
+        }
+    }
+
+    processWatchlistData(rawData, symbol) {
+        try {
+            const currentPrice = rawData.c;
+            const changePercent = rawData.dp;
+            const changeSign = changePercent >= 0 ? '+' : '';
+            const changeFormatted = `${changeSign}${changePercent.toFixed(2)}%`;
+            
+            return {
+                symbol: symbol,
+                name: this.getCompanyName(symbol),
+                price: this.formatCurrency(currentPrice),
+                change: changeFormatted,
+                logo: symbol.toLowerCase(),
+                isLive: rawData.c && rawData.d !== undefined
+            };
+        } catch (error) {
+            console.error(`Error processing watchlist data for ${symbol}:`, error);
+            return this.getFallbackWatchlistData(symbol);
+        }
+    }
+
+    getFallbackQuote(symbol) {
+        const fallbackPrices = {
+            'TSLA': { c: 245.67, d: 5.35, dp: 2.23 },
+            'AAPL': { c: 198.85, d: 3.53, dp: 1.81 },
+            'NVDA': { c: 875.43, d: 15.22, dp: 1.77 },
+            'AMD': { c: 142.18, d: 3.23, dp: 2.32 },
+            'META': { c: 485.23, d: 6.56, dp: 1.37 },
+            'AMZN': { c: 191.10, d: 2.65, dp: 1.41 },
+            'GOOGL': { c: 158.71, d: 2.89, dp: 1.85 },
+            'NFLX': { c: 485.32, d: 6.42, dp: 1.34 },
+            'SPOT': { c: 555.87, d: 2.32, dp: 0.42 },
+            'PFE': { c: 122.49, d: 2.98, dp: 2.49 },
+            'LLY': { c: 753.71, d: 3.78, dp: 0.50 },
+            'TEAM': { c: 209.62, d: 4.02, dp: 1.96 },
+            'TSM': { c: 158.75, d: 12.29, dp: 8.40 }
+        };
+        
+        return fallbackPrices[symbol] || { c: 100, d: 2, dp: 2.04 };
+    }
+
+    getFallbackStockData(symbol) {
+        const fallback = this.getFallbackQuote(symbol);
+        const changeSign = fallback.dp >= 0 ? '+' : '';
+        const changeFormatted = `${changeSign}${fallback.dp.toFixed(1)}%`;
+        
+        return {
+            symbol: symbol,
+            name: this.getCompanyName(symbol),
+            change: changeFormatted,
+            logo: symbol.toLowerCase(),
+            isLive: false
+        };
+    }
+
+    getFallbackWatchlistData(symbol) {
+        const fallback = this.getFallbackQuote(symbol);
+        const changeSign = fallback.dp >= 0 ? '+' : '';
+        const changeFormatted = `${changeSign}${fallback.dp.toFixed(2)}%`;
+        
+        return {
+            symbol: symbol,
+            name: this.getCompanyName(symbol),
+            price: this.formatCurrency(fallback.c),
+            change: changeFormatted,
+            logo: symbol.toLowerCase(),
+            isLive: false
+        };
+    }
+
+    getCompanyName(symbol) {
+        const names = {
+            'TSLA': 'Tesla Inc',
+            'AAPL': 'Apple Inc',
+            'NVDA': 'NVIDIA Corp',
+            'AMD': 'AMD Inc',
+            'META': 'Meta Platforms',
+            'AMZN': 'Amazon.com Inc',
+            'GOOGL': 'Alphabet Inc',
+            'NFLX': 'Netflix Inc',
+            'SPOT': 'Spotify Technology',
+            'PFE': 'Pfizer Inc',
+            'LLY': 'Eli Lilly and Company',
+            'TEAM': 'Atlassian Corporation',
+            'TSM': 'Taiwan Semiconductor Manufacturing'
+        };
+        return names[symbol] || `${symbol} Inc`;
+    }
+
+    formatCurrency(amount) {
+        if (window.locationService) {
+            return window.locationService.formatCurrency(amount);
+        } else {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(amount);
+        }
+    }
+
+    loadCachedData() {
+        try {
+            const storedStocks = localStorage.getItem('alphawave_script_stocks_cache');
+            const storedWatchlist = localStorage.getItem('alphawave_script_watchlist_cache');
+            
+            if (storedStocks) {
+                const cacheData = JSON.parse(storedStocks);
+                const stocksData = [];
+                
+                this.stocksSymbols.forEach(symbol => {
+                    const cachedQuote = cacheData[symbol];
+                    if (cachedQuote) {
+                        stocksData.push(this.processStockData(cachedQuote, symbol));
+                    } else {
+                        stocksData.push(this.getFallbackStockData(symbol));
+                    }
+                });
+                
+                window.stocksData = stocksData;
+                console.log('Loaded cached stocks data');
+            }
+            
+            if (storedWatchlist) {
+                const cacheData = JSON.parse(storedWatchlist);
+                const watchlistData = [];
+                
+                this.watchlistSymbols.forEach(symbol => {
+                    const cachedQuote = cacheData[symbol];
+                    if (cachedQuote) {
+                        watchlistData.push(this.processWatchlistData(cachedQuote, symbol));
+                    } else {
+                        watchlistData.push(this.getFallbackWatchlistData(symbol));
+                    }
+                });
+                
+                window.watchlistData = watchlistData;
+                console.log('Loaded cached watchlist data');
+            }
+        } catch (error) {
+            console.warn('Could not load cached data:', error);
+        }
+    }
+
+    saveCacheToStorage() {
+        try {
+            // Save stocks cache
+            const stocksCacheData = {};
+            if (window.stocksData) {
+                window.stocksData.forEach(stock => {
+                    const fallback = this.getFallbackQuote(stock.symbol);
+                    stocksCacheData[stock.symbol] = {
+                        c: fallback.c,
+                        d: fallback.d,
+                        dp: fallback.dp
+                    };
+                });
+                localStorage.setItem('alphawave_script_stocks_cache', JSON.stringify(stocksCacheData));
+            }
+            
+            // Save watchlist cache
+            const watchlistCacheData = {};
+            if (window.watchlistData) {
+                window.watchlistData.forEach(stock => {
+                    const fallback = this.getFallbackQuote(stock.symbol);
+                    watchlistCacheData[stock.symbol] = {
+                        c: fallback.c,
+                        d: fallback.d,
+                        dp: fallback.dp
+                    };
+                });
+                localStorage.setItem('alphawave_script_watchlist_cache', JSON.stringify(watchlistCacheData));
+            }
+        } catch (error) {
+            console.warn('Could not save cache to storage:', error);
+        }
+    }
+
+    showError(message) {
+        console.error('Script API Error:', message);
+    }
+
+    refreshData() {
+        this.fetchAllScriptData();
+    }
+}
+// --- END: Script.js API Integration ---
+
+// Initialize Script API
+const scriptAPI = new ScriptAPI();
+
+// Sample data (now populated by API)
+let stocksData = [];
+let watchlistData = [];
 
 const newsData = [
     {
@@ -405,7 +735,7 @@ function loadNewsPage() {
 // Get stock icon
 function getStockIcon(symbol) {
     const icons = {
-        'AAPL': '🍎',
+        'AAPL': 'A',
         'GOOGL': 'G',
         'TSLA': 'T',
         'AMZN': 'a',

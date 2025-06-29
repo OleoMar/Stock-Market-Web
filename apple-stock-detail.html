@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlphaWave - Google Stock Detail</title>
+    <title>AlphaWave - Apple Stock Detail</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -133,15 +133,16 @@
         .location-dropdown {
             position: absolute;
             top: 100%;
+            left: 0;
             right: 0;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            min-width: 200px;
-            z-index: 1001;
-            display: none;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 9px;
+            padding: 8px 0;
             margin-top: 5px;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
         .location-dropdown.show {
@@ -149,20 +150,17 @@
         }
 
         .location-option {
-            padding: 12px 16px;
-            color: #333;
+            padding: 8px 12px;
             cursor: pointer;
             transition: background 0.2s ease;
-            font-size: 13px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .location-option:last-child {
-            border-bottom: none;
+            font-size: 12px;
+            color: #ccc;
+            font-family: 'Quicksand', sans-serif;
         }
 
         .location-option:hover {
-            background: #f8f9fa;
+            background: #3a3a3a;
+            color: white;
         }
 
         .location-option.active {
@@ -171,24 +169,36 @@
             font-weight: 600;
         }
 
-        .market-status {
+        .flag {
             display: inline-block;
-            padding: 4px 8px;
-            border-radius: 12px;
+            width: 20px;
+            height: 15px;
+            background: #666;
+            border-radius: 2px;
+            margin-right: 8px;
+            text-align: center;
+            font-size: 10px;
+            line-height: 15px;
+            color: white;
+        }
+
+        .market-status {
+            color: #ccc;
             font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            margin-left: 10px;
+            font-family: 'Quicksand', sans-serif;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .market-status.open {
-            background: #4CAF50;
-            color: white;
+            color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
         }
 
         .market-status.closed {
-            background: #f44336;
-            color: white;
+            color: #f44336;
+            background: rgba(244, 67, 54, 0.1);
         }
 
         .pro-badge {
@@ -267,7 +277,7 @@
             100% { transform: rotate(360deg); }
         }
 
-    
+       
         @media (max-width: 768px) {
             .search-input {
                 width: 300px;
@@ -284,7 +294,7 @@
 
         .main-layout {
             display: flex;
-            margin-top: 99px
+            margin-top: 99px;
         }
 
         .sidebar {
@@ -385,11 +395,6 @@
         .price-change.negative {
             color: #f44336;
             background: rgba(244, 67, 54, 0.1);
-        }
-
-        .market-status {
-            font-size: 12px;
-            color: #666;
         }
 
         .stock-detail-actions {
@@ -567,6 +572,121 @@
             font-family: 'Quicksand', sans-serif;
         }
 
+        /* Currency Modal Styles */
+        .currency-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .currency-modal.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .currency-modal-content {
+            background: #e8e8e8;
+            border-radius: 15px;
+            padding: 30px;
+            width: 400px;
+            max-height: 500px;
+            overflow-y: auto;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .currency-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .currency-modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .currency-close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .currency-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .currency-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .currency-option:hover {
+            background: #f0f0f0;
+        }
+
+        .currency-option.selected {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .currency-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .currency-flag {
+            font-size: 20px;
+        }
+
+        .currency-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .currency-code {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .currency-name {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .currency-rate {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
@@ -599,6 +719,11 @@
                 width: 100%;
                 justify-content: space-between;
             }
+
+            .currency-modal-content {
+                width: 90%;
+                margin: 20px;
+            }
         }
         @media (max-width: 576px) {
             .content {
@@ -609,70 +734,70 @@
 </head>
 <body>
     <div class="dashboard-page">
-    <nav class="navbar">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="dashboard.html">
-                <div class="logo-circle">AlphaWave</div>
-                AlphaWave
-            </a>
-            <div class="search-container">
-                <input type="text" class="search-input" placeholder="Search stocks...">
-                <i class="fas fa-search search-icon"></i>
-            </div>
-            <div class="navbar-right">
-                <!-- Location Selector -->
-                <div class="location-selector-container" style="position: relative;">
-                    <button class="location-selector" id="locationSelector" onclick="toggleLocationDropdown()">
-                        <span id="currentLocation">Global</span>
-                        <i class="fas fa-chevron-down" style="margin-left: 5px; font-size: 10px;"></i>
-                    </button>
-                    <div class="location-dropdown" id="locationDropdown">
-                        <div class="location-option" onclick="changeLocation('US', 'United States', 'USD')">
-                            <span class="flag">US</span> United States (USD)
-                        </div>
-                        <div class="location-option" onclick="changeLocation('EU', 'Europe', 'EUR')">
-                            <span class="flag">EU</span> Europe (EUR)
-                        </div>
-                        <div class="location-option" onclick="changeLocation('GB', 'United Kingdom', 'GBP')">
-                            <span class="flag">GB</span> United Kingdom (GBP)
-                        </div>
-                        <div class="location-option" onclick="changeLocation('JP', 'Japan', 'JPY')">
-                            <span class="flag">JP</span> Japan (JPY)
-                        </div>
-                        <div class="location-option" onclick="changeLocation('CN', 'China', 'CNY')">
-                            <span class="flag">CN</span> China (CNY)
-                        </div>
-                        <div class="location-option" onclick="changeLocation('IN', 'India', 'INR')">
-                            <span class="flag">IN</span> India (INR)
-                        </div>
-                        <div class="location-option" onclick="changeLocation('AU', 'Australia', 'AUD')">
-                            <span class="flag">AU</span> Australia (AUD)
-                        </div>
-                        <div class="location-option" onclick="changeLocation('CA', 'Canada', 'CAD')">
-                            <span class="flag">CA</span> Canada (CAD)
+        <nav class="navbar">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#" onclick="goToDashboard()">
+                    <div class="logo-circle">AlphaWave</div>
+                    AlphaWave
+                </a>
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Search">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+                <div class="navbar-right">
+                    <!-- Location Selector -->
+                    <div class="location-selector-container" style="position: relative;">
+                        <button class="location-selector" id="locationSelector" onclick="toggleLocationDropdown()">
+                            <span id="currentLocation">Global</span>
+                            <i class="fas fa-chevron-down" style="margin-left: 5px; font-size: 10px;"></i>
+                        </button>
+                        <div class="location-dropdown" id="locationDropdown">
+                            <div class="location-option" onclick="changeLocation('US', 'United States', 'USD')">
+                                <span class="flag">US</span> United States (USD)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('EU', 'Europe', 'EUR')">
+                                <span class="flag">EU</span> Europe (EUR)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('GB', 'United Kingdom', 'GBP')">
+                                <span class="flag">GB</span> United Kingdom (GBP)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('JP', 'Japan', 'JPY')">
+                                <span class="flag">JP</span> Japan (JPY)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('CN', 'China', 'CNY')">
+                                <span class="flag">CN</span> China (CNY)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('IN', 'India', 'INR')">
+                                <span class="flag">IN</span> India (INR)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('AU', 'Australia', 'AUD')">
+                                <span class="flag">AU</span> Australia (AUD)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('CA', 'Canada', 'CAD')">
+                                <span class="flag">CA</span> Canada (CAD)
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Market Status -->
-                <span class="market-status" id="marketStatus">Market Closed</span>
+                    <!-- Market Status -->
+                    <span class="market-status" id="marketStatus">Market Closed</span>
 
-                <!-- Refresh stocks button -->
-                <button class="refresh-stocks-btn" onclick="refreshStockData()" title="Refresh stock data">
-                    <i class="fas fa-sync-alt"></i>
-                    Refresh
-                </button>
-                
-                <a href="pro.html" class="pro-badge">Pro</a>
-                <i class="fas fa-bell" style="color: white;"></i>
-                <div class="user-avatar" onclick="toggleProfileModal()">
-                    <img src="accountLogo.jpg" alt="User">
+                    <!-- Refresh stocks button -->
+                    <button class="refresh-stocks-btn" onclick="refreshStockData()" title="Refresh stock data">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                    
+                    <a href="#" class="pro-badge">Pro</a>
+                    <i class="fas fa-bell" style="color: white;"></i>
+                    <div class="user-avatar" onclick="toggleProfileModal()">
+                        <img src="accountLogo.jpg" alt="User">
+                    </div>
                 </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-         <div class="main-layout">
+        <div class="main-layout">
             <div class="sidebar">
                 <ul class="sidebar-nav">
                     <li><a href="dashboard.html">Dashboard</a></li>
@@ -684,16 +809,16 @@
             <div class="content">
                 <div class="stock-detail-header">
                     <div class="stock-title-section">
-                        <div class="stock-title" id="stockTitle">Alphabet Inc (GOOGL)</div>
+                        <div class="stock-title" id="stockTitle">Apple Inc (AAPL)</div>
                         <div class="stock-price-info">
-                            <div class="current-price" id="currentPrice">$158.71</div>
-                            <div class="price-change positive" id="priceChange">+$2.89 (+1.85%)</div>
+                            <div class="current-price" id="currentPrice">$198.85</div>
+                            <div class="price-change positive" id="priceChange">+$3.53 (+1.81%)</div>
                         </div>
                         <div class="market-status" id="marketStatus">Market Closed</div>
                     </div>
                     <div class="stock-detail-actions">
                         <a href="#" class="btn-sell">Sell</a>
-                        <button class="btn-buy" onclick="goToGooglePayment()">Buy</button>
+                        <a href="payment-apple.html" class="btn-buy">Buy</a>
                         <div class="heart-container">
                             <i class="fas fa-heart"></i>
                         </div>
@@ -723,7 +848,7 @@
                             <i class="fas fa-clock"></i>
                         </div>
                         <div class="metric-info">
-                            <div class="metric-value" id="dayRange">$154.20 - $160.45</div>
+                            <div class="metric-value" id="dayRange">$194.20 - $200.45</div>
                             <div class="metric-label">Day range</div>
                         </div>
                     </div>
@@ -732,7 +857,7 @@
                             <i class="fas fa-history"></i>
                         </div>
                         <div class="metric-info">
-                            <div class="metric-value" id="previousClose">$155.82</div>
+                            <div class="metric-value" id="previousClose">$195.32</div>
                             <div class="metric-label">Previous close</div>
                         </div>
                     </div>
@@ -741,7 +866,7 @@
                             <i class="fas fa-chart-line"></i>
                         </div>
                         <div class="metric-info">
-                            <div class="metric-value" id="openPrice">$157.35</div>
+                            <div class="metric-value" id="openPrice">$196.78</div>
                             <div class="metric-label">Open</div>
                         </div>
                     </div>
@@ -750,7 +875,7 @@
                             <i class="fas fa-arrow-up"></i>
                         </div>
                         <div class="metric-info">
-                            <div class="metric-value" id="highPrice">$160.45</div>
+                            <div class="metric-value" id="highPrice">$200.45</div>
                             <div class="metric-label">Day High</div>
                         </div>
                     </div>
@@ -759,7 +884,7 @@
                             <i class="fas fa-arrow-down"></i>
                         </div>
                         <div class="metric-info">
-                            <div class="metric-value" id="lowPrice">$154.20</div>
+                            <div class="metric-value" id="lowPrice">$194.20</div>
                             <div class="metric-label">Day Low</div>
                         </div>
                     </div>
@@ -768,21 +893,21 @@
                             <i class="fas fa-building"></i>
                         </div>
                         <div class="metric-info">
-                            <div class="metric-value" id="marketCap">$1.93T</div>
+                            <div class="metric-value" id="marketCap">$3.23T</div>
                             <div class="metric-label">Market Cap</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="company-profile">
-                    <h3 id="companyProfileTitle">Alphabet Inc Company Profile</h3>
+                    <h3 id="companyProfileTitle">Apple Inc Company Profile</h3>
                     <div id="companyProfileContent">
-                        <p>Alphabet Inc. operates as a holding company for Google and other subsidiaries. The company provides web-based search, advertisements, maps, software applications, mobile operating systems, consumer content, enterprise solutions, commerce, and hardware products.</p>
+                        <p>Apple Inc. designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories worldwide. The company offers iPhone, a line of smartphones; Mac, a line of personal computers; iPad, a line of tablets; and wearables, home, and accessories.</p>
                     </div>
                     
                     <div class="basic-info" id="basicInfo">
                         <h5>Basic Info</h5>
-                        <p id="industry">Industry: Technology Services</p>
+                        <p id="industry">Industry: Technology Hardware & Equipment</p>
                         <p id="country">Country: United States</p>
                         <p id="exchange">Exchange: NASDAQ</p>
                         <p id="currency">Currency: USD</p>
@@ -809,7 +934,7 @@
                 <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Logout</div>
             </div>
 
-            <div class="profile-menu-item" onclick="handleMenuClick('currency')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+            <div class="profile-menu-item" onclick="openCurrencyModal()" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
                 <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
                     <i class="fas fa-dollar-sign"></i>
                 </div>
@@ -845,7 +970,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Currency Settings Modal -->
     <div class="currency-modal-overlay" id="currencyModalOverlay" onclick="closeCurrencyModal(event)" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s ease;">
         <div class="currency-modal" onclick="event.stopPropagation()" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; background: #fff; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); padding: 32px 28px; font-family: 'Quicksand', sans-serif; color: #111;">
@@ -871,46 +996,130 @@
 
     <script>
         let stockChart = null;
-        const currentSymbol = 'GOOGL';
+        const currentSymbol = 'AAPL';
+        let currentCurrency = localStorage.getItem('selectedCurrency') || 'USD';
+
+        // Currency configuration
+        const currencies = {
+            'USD': { name: 'US Dollar', flag: '🇺🇸', rate: 1.0 },
+            'EUR': { name: 'Euro', flag: '🇪🇺', rate: 0.85 },
+            'GBP': { name: 'British Pound', flag: '🇬🇧', rate: 0.73 },
+            'JPY': { name: 'Japanese Yen', flag: '🇯🇵', rate: 110.0 },
+            'CAD': { name: 'Canadian Dollar', flag: '🇨🇦', rate: 1.25 },
+            'AUD': { name: 'Australian Dollar', flag: '🇦🇺', rate: 1.35 },
+            'CHF': { name: 'Swiss Franc', flag: '🇨🇭', rate: 0.92 },
+            'CNY': { name: 'Chinese Yuan', flag: '🇨🇳', rate: 6.45 },
+            'INR': { name: 'Indian Rupee', flag: '🇮🇳', rate: 74.5 }
+        };
+
+        // Currency Functions
+        function formatCurrency(amount, currency = currentCurrency) {
+            const convertedAmount = amount * currencies[currency].rate;
+            
+            const formatOptions = {
+                style: 'currency',
+                currency: currency,
+                minimumFractionDigits: currency === 'JPY' ? 0 : 2,
+                maximumFractionDigits: currency === 'JPY' ? 0 : 2
+            };
+
+            return new Intl.NumberFormat('en-US', formatOptions).format(convertedAmount);
+        }
+
+        function updatePriceDisplay() {
+            const basePrice = 198.85;
+            const baseChange = 3.53;
+            const baseChangePercent = 1.81;
+
+            document.getElementById('currentPrice').textContent = formatCurrency(basePrice);
+            document.getElementById('priceChange').textContent = `+${formatCurrency(baseChange)} (+${baseChangePercent}%)`;
+            
+            // Update other price elements
+            document.getElementById('dayRange').textContent = `${formatCurrency(194.20)} - ${formatCurrency(200.45)}`;
+            document.getElementById('previousClose').textContent = formatCurrency(195.32);
+            document.getElementById('openPrice').textContent = formatCurrency(196.78);
+            document.getElementById('highPrice').textContent = formatCurrency(200.45);
+            document.getElementById('lowPrice').textContent = formatCurrency(194.20);
+        }
+
+        function openCurrencyModal() {
+            closeProfileModal();
+            const modal = document.getElementById('currencyModal');
+            const currencyList = document.getElementById('currencyList');
+            
+            currencyList.innerHTML = Object.entries(currencies).map(([code, details]) => `
+                <div class="currency-option ${code === currentCurrency ? 'selected' : ''}" onclick="selectCurrency('${code}')">
+                    <div class="currency-info">
+                        <span class="currency-flag">${details.flag}</span>
+                        <div class="currency-details">
+                            <span class="currency-code">${code}</span>
+                            <span class="currency-name">${details.name}</span>
+                        </div>
+                    </div>
+                    <span class="currency-rate">Rate: ${details.rate}</span>
+                </div>
+            `).join('');
+            
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCurrencyModal(event) {
+            if (event && event.target.id !== 'currencyModalOverlay') {
+                return;
+            }
+            const modal = document.getElementById('currencyModalOverlay');
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+
+        function selectCurrency(currencyCode) {
+            currentCurrency = currencyCode;
+            localStorage.setItem('selectedCurrency', currencyCode);
+            
+            // Update price displays
+            updatePriceDisplay();
+            
+            // Close the modal
+            closeCurrencyModal();
+            
+            console.log(`Currency changed to: ${currencyCode}`);
+        }
 
         // Proper chart data generator for each time period
         function generateChartData(period) {
             const now = new Date();
-            const basePrice = 158.71;
+            const basePrice = 198.85;
             
             const configs = {
                 '1D': {
-                    // Today only - hourly from market open to close
                     labels: ['9:30 AM', '10:30 AM', '11:30 AM', '12:30 PM', '1:30 PM', '2:30 PM', '3:30 PM', '4:00 PM'],
                     points: 8,
                     generatePrice: (i) => basePrice + (Math.random() - 0.5) * 8
                 },
                 '1W': {
-                    // This week - day by day (last 7 days)
                     labels: [],
                     points: 7,
                     generatePrice: (i) => basePrice + (Math.random() - 0.5) * 15
                 },
                 '1M': {
-                    // This month - every 5 days (6 data points)
                     labels: [],
                     points: 6,
                     generatePrice: (i) => basePrice + (Math.random() - 0.5) * 25
                 },
                 '3M': {
-                    // 3 months - weekly samples (12 weeks)
                     labels: [],
                     points: 12,
                     generatePrice: (i) => basePrice + (Math.random() - 0.5) * 35
                 },
                 '6M': {
-                    // 6 months - bi-weekly samples (12 data points)
                     labels: [],
                     points: 12,
                     generatePrice: (i) => basePrice + (Math.random() - 0.5) * 45
                 },
                 '1Y': {
-                    // 1 year - month by month (12 months)
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                     points: 12,
                     generatePrice: (i) => basePrice + (Math.random() - 0.5) * 60
@@ -921,28 +1130,24 @@
             
             // Generate labels for periods that need them
             if (period === '1W') {
-                // Generate last 7 days
                 for (let i = 6; i >= 0; i--) {
                     const date = new Date(now);
                     date.setDate(date.getDate() - i);
                     config.labels.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
                 }
             } else if (period === '1M') {
-                // Generate 6 data points for this month (every 5 days)
                 for (let i = 0; i < 6; i++) {
                     const date = new Date(now);
                     date.setDate(date.getDate() - (25 - i * 5));
                     config.labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
                 }
             } else if (period === '3M') {
-                // Generate 12 weekly labels for 3 months
                 for (let i = 0; i < 12; i++) {
                     const date = new Date(now);
                     date.setDate(date.getDate() - (84 - i * 7));
                     config.labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
                 }
             } else if (period === '6M') {
-                // Generate 12 bi-weekly labels for 6 months
                 for (let i = 0; i < 12; i++) {
                     const date = new Date(now);
                     date.setDate(date.getDate() - (168 - i * 14));
@@ -953,7 +1158,7 @@
             // Generate price data
             const data = [];
             for (let i = 0; i < config.points; i++) {
-                data.push(Math.max(config.generatePrice(i), 50)); // Ensure positive prices
+                data.push(Math.max(config.generatePrice(i), 50));
             }
 
             return {
@@ -975,7 +1180,7 @@
                     stockChart = null;
                 }
 
-                console.log(`Loading Google chart for period: ${period}`);
+                console.log(`Loading Apple chart for period: ${period}`);
                 const chartData = generateChartData(period);
                 console.log(`Generated ${chartData.labels.length} data points for ${period}:`, chartData.labels);
 
@@ -1016,7 +1221,7 @@
                                 borderWidth: 1,
                                 callbacks: {
                                     label: function(context) {
-                                        return `Price: $${context.parsed.y.toFixed(2)}`;
+                                        return `Price: ${formatCurrency(context.parsed.y)}`;
                                     }
                                 }
                             }
@@ -1030,7 +1235,7 @@
                                 ticks: {
                                     color: '#ccc',
                                     callback: function(value) {
-                                        return '$' + value.toFixed(2);
+                                        return formatCurrency(value);
                                     }
                                 }
                             },
@@ -1048,10 +1253,10 @@
                     }
                 });
 
-                console.log(`Google chart loaded successfully for ${period}`);
+                console.log(`Apple chart loaded successfully for ${period}`);
 
             } catch (error) {
-                console.error('Error loading Google chart:', error);
+                console.error('Error loading Apple chart:', error);
             }
         }
 
@@ -1062,41 +1267,109 @@
 
             button.classList.add('active');
 
-            console.log(`Google chart time period changed to: ${period}`);
+            console.log(`Apple chart time period changed to: ${period}`);
             loadStockChart(period);
+        }
+
+        // Profile Modal Functions
+        function toggleProfileModal() {
+            const overlay = document.getElementById('profileModalOverlay');
+            if (overlay.style.display === 'flex') {
+                closeProfileModal();
+            } else {
+                openProfileModal();
+            }
+        }
+
+        function openProfileModal() {
+            const overlay = document.getElementById('profileModalOverlay');
+            overlay.style.display = 'flex';
+            overlay.style.opacity = '1';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeProfileModal(event) {
+            if (event && event.target !== event.currentTarget) {
+                return;
+            }
+            
+            const overlay = document.getElementById('profileModalOverlay');
+            overlay.style.display = 'none';
+            overlay.style.opacity = '0';
+            document.body.style.overflow = 'auto';
+        }
+
+        function handleMenuClick(action) {
+            console.log('Menu action:', action);
+            
+            switch(action) {
+                case 'logout':
+                    closeProfileModal();
+                    setTimeout(() => {
+                        window.authSystem.logout();
+                    }, 300);
+                    break;
+                    
+                case 'delete-account':
+                    closeProfileModal();
+                    setTimeout(() => {
+                        showDeleteModal();
+                    }, 300);
+                    break;
+                    
+                case 'personal-info':
+                    window.authSystem.showMessage('Personal info page not implemented yet', 'info');
+                    closeProfileModal();
+                    break;
+                    
+                case 'currency':
+                    showCurrencySettingsModal();
+                    closeProfileModal();
+                    break;
+                    
+                case 'theme':
+                    window.authSystem.showMessage('Theme settings not implemented yet', 'info');
+                    closeProfileModal();
+                    break;
+                    
+                case 'help':
+                    window.authSystem.showMessage('Help & Support not implemented yet', 'info');
+                    closeProfileModal();
+                    break;
+                    
+                case 'terms':
+                    window.authSystem.showMessage('Terms of Service not implemented yet', 'info');
+                    closeProfileModal();
+                    break;
+                    
+                default:
+                    closeProfileModal();
+            }
         }
 
         // Navigation functions
         function goToDashboard() {
-            console.log('Navigating to dashboard');
             window.location.href = 'dashboard.html';
-        }
-
-        function goToPortfolio() {
-            console.log('Navigating to portfolio');
-            window.location.href = 'portfolio.html';
-        }
-
-        function goToNews() {
-            console.log('Navigating to news');
-            window.location.href = 'news.html';
-        }
-
-        // NEW: Payment redirect function for Google stock
-        function goToGooglePayment() {
-            console.log('Redirecting to Google payment page...');
-            window.location.href = 'payment-google.html';
         }
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Google stock detail page loaded');
+            console.log('Apple stock detail page loaded');
             
             // Initialize location service
             window.locationService = new SimpleLocationService();
             window.locationService.init();
             
-            loadStockChart('1M'); // Start with 1M view
+            updatePriceDisplay();
+            loadStockChart('1M');
+        });
+
+        // Close modals with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeProfileModal();
+                closeCurrencyModal();
+            }
         });
 
         // Handle window resize
@@ -1287,58 +1560,8 @@
         }
         // --- END: SimpleLocationService ---
 
-        // --- BEGIN: Profile menu handler ---
-        function handleMenuClick(action) {
-            console.log('Menu action:', action);
-            
-            switch(action) {
-                case 'logout':
-                    closeProfileModal();
-                    setTimeout(() => {
-                        window.authSystem.logout();
-                    }, 300);
-                    break;
-                    
-                case 'delete-account':
-                    closeProfileModal();
-                    setTimeout(() => {
-                        showDeleteModal();
-                    }, 300);
-                    break;
-                    
-                case 'personal-info':
-                    window.authSystem.showMessage('Personal info page not implemented yet', 'info');
-                    closeProfileModal();
-                    break;
-                    
-                case 'currency':
-                    showCurrencySettingsModal();
-                    closeProfileModal();
-                    break;
-                    
-                case 'theme':
-                    window.authSystem.showMessage('Theme settings not implemented yet', 'info');
-                    closeProfileModal();
-                    break;
-                    
-                case 'help':
-                    window.authSystem.showMessage('Help & Support not implemented yet', 'info');
-                    closeProfileModal();
-                    break;
-                    
-                case 'terms':
-                    window.authSystem.showMessage('Terms of Service not implemented yet', 'info');
-                    closeProfileModal();
-                    break;
-                    
-                default:
-                    closeProfileModal();
-            }
-        }
-        // --- END: Profile menu handler ---
-
-        // --- BEGIN: Stock Detail API Integration ---
-        class StockDetailAPI {
+        // --- BEGIN: Apple Stock Detail API Integration ---
+        class AppleStockDetailAPI {
             constructor() {
                 this.apiKey = 'ctrlpb1r01qglao4qp80ctrlpb1r01qglao4qp8g';
                 this.baseUrl = 'https://finnhub.io/api/v1';
@@ -1346,28 +1569,24 @@
                 this.cacheExpiry = 5 * 60 * 1000; // 5 minutes cache
                 this.rateLimitDelay = 1000; // 1 second between requests
                 this.lastRequestTime = 0;
-                this.currentSymbol = null;
+                this.symbol = 'AAPL';
 
-                this.initializeStockDetail();
+                this.initializeAppleStockDetail();
             }
 
-            async initializeStockDetail() {
+            async initializeAppleStockDetail() {
                 try {
-                    // Get symbol from URL parameter
-                    const urlParams = new URLSearchParams(window.location.search);
-                    this.currentSymbol = urlParams.get('symbol') || 'GOOGL';
-                    
-                    console.log(`Initializing stock detail for ${this.currentSymbol}...`);
+                    console.log('Initializing Apple stock detail...');
                     
                     // Load cached data first
                     this.loadCachedData();
                     
                     // Fetch fresh data
-                    await this.fetchStockDetailData();
+                    await this.fetchAppleStockData();
                     
                 } catch (error) {
-                    console.error('Error initializing stock detail:', error);
-                    this.showError('Failed to load stock data');
+                    console.error('Error initializing Apple stock detail:', error);
+                    this.showError('Failed to load Apple stock data');
                 }
             }
 
@@ -1404,25 +1623,25 @@
                     
                 } catch (error) {
                     console.error(`Error fetching quote for ${symbol}:`, error);
-                    return this.getFallbackQuote(symbol);
+                    return this.getFallbackQuote();
                 }
             }
 
-            async fetchStockDetailData() {
+            async fetchAppleStockData() {
                 try {
-                    console.log(`Fetching stock detail data for ${this.currentSymbol}...`);
+                    console.log('Fetching Apple stock data...');
                     
-                    const quoteData = await this.fetchStockQuote(this.currentSymbol);
+                    const quoteData = await this.fetchStockQuote(this.symbol);
                     
                     if (quoteData) {
                         const stockData = this.processStockData(quoteData);
-                        this.updateStockDetailDisplay(stockData);
+                        this.updateAppleStockDisplay(stockData);
                         this.updateChartData(stockData);
                     }
                     
                 } catch (error) {
-                    console.error('Error fetching stock detail data:', error);
-                    this.showError('Failed to fetch stock data');
+                    console.error('Error fetching Apple stock data:', error);
+                    this.showError('Failed to fetch Apple stock data');
                 }
             }
 
@@ -1437,8 +1656,8 @@
                     const previousClose = rawData.pc;
                     
                     return {
-                        symbol: this.currentSymbol,
-                        name: this.getCompanyName(this.currentSymbol),
+                        symbol: this.symbol,
+                        name: 'Apple Inc',
                         price: currentPrice,
                         change: change,
                         changePercent: changePercent,
@@ -1450,31 +1669,23 @@
                         lastUpdate: new Date()
                     };
                 } catch (error) {
-                    console.error(`Error processing data for ${this.currentSymbol}:`, error);
+                    console.error('Error processing Apple stock data:', error);
                     return this.getFallbackStockData();
                 }
             }
 
-            getFallbackQuote(symbol) {
-                const fallbackPrices = {
-                    'GOOGL': { c: 158.71, d: 2.89, dp: 1.85, h: 160.45, l: 154.20, o: 157.35, pc: 155.82 },
-                    'AAPL': { c: 198.85, d: 3.53, dp: 1.81, h: 200.45, l: 194.20, o: 196.78, pc: 195.32 },
-                    'TSLA': { c: 245.67, d: 5.35, dp: 2.23, h: 250.20, l: 240.10, o: 242.50, pc: 240.32 },
-                    'AMZN': { c: 191.10, d: 2.65, dp: 1.41, h: 193.50, l: 188.20, o: 190.15, pc: 188.45 },
-                    'NFLX': { c: 485.32, d: 6.42, dp: 1.34, h: 490.10, l: 480.50, o: 482.30, pc: 478.90 },
-                    'META': { c: 485.23, d: 6.56, dp: 1.37, h: 490.00, l: 480.80, o: 483.20, pc: 478.67 },
-                    'NVDA': { c: 875.43, d: 15.22, dp: 1.77, h: 880.50, l: 870.20, o: 872.80, pc: 860.21 },
-                    'AMD': { c: 142.18, d: 3.23, dp: 2.32, h: 145.30, l: 140.10, o: 141.50, pc: 138.95 }
+            getFallbackQuote() {
+                return { 
+                    c: 198.85, d: 3.53, dp: 1.81, 
+                    h: 200.45, l: 194.20, o: 196.78, pc: 195.32 
                 };
-                
-                return fallbackPrices[symbol] || { c: 100, d: 2, dp: 2.04, h: 102, l: 98, o: 99, pc: 98 };
             }
 
             getFallbackStockData() {
-                const fallback = this.getFallbackQuote(this.currentSymbol);
+                const fallback = this.getFallbackQuote();
                 return {
-                    symbol: this.currentSymbol,
-                    name: this.getCompanyName(this.currentSymbol),
+                    symbol: this.symbol,
+                    name: 'Apple Inc',
                     price: fallback.c,
                     change: fallback.d,
                     changePercent: fallback.dp,
@@ -1485,20 +1696,6 @@
                     isLive: false,
                     lastUpdate: new Date()
                 };
-            }
-
-            getCompanyName(symbol) {
-                const names = {
-                    'GOOGL': 'Alphabet Inc',
-                    'AAPL': 'Apple Inc',
-                    'TSLA': 'Tesla Inc',
-                    'AMZN': 'Amazon.com Inc',
-                    'NFLX': 'Netflix Inc',
-                    'META': 'Meta Platforms Inc',
-                    'NVDA': 'NVIDIA Corporation',
-                    'AMD': 'Advanced Micro Devices'
-                };
-                return names[symbol] || `${symbol} Inc`;
             }
 
             formatCurrency(amount) {
@@ -1514,15 +1711,9 @@
                 }
             }
 
-            updateStockDetailDisplay(stockData) {
+            updateAppleStockDisplay(stockData) {
                 try {
-                    console.log('Updating stock detail display...');
-                    
-                    // Update stock title
-                    const stockTitle = document.getElementById('stockTitle');
-                    if (stockTitle) {
-                        stockTitle.textContent = `${stockData.name} (${stockData.symbol})`;
-                    }
+                    console.log('Updating Apple stock display...');
                     
                     // Update current price
                     const currentPrice = document.getElementById('currentPrice');
@@ -1541,16 +1732,6 @@
                     }
                     
                     // Update metrics
-                    const dayRange = document.getElementById('dayRange');
-                    if (dayRange) {
-                        dayRange.textContent = `${this.formatCurrency(stockData.low)} - ${this.formatCurrency(stockData.high)}`;
-                    }
-                    
-                    const previousClose = document.getElementById('previousClose');
-                    if (previousClose) {
-                        previousClose.textContent = this.formatCurrency(stockData.previousClose);
-                    }
-                    
                     const openPrice = document.getElementById('openPrice');
                     if (openPrice) {
                         openPrice.textContent = this.formatCurrency(stockData.open);
@@ -1574,7 +1755,7 @@
                     }
                     
                 } catch (error) {
-                    console.error('Error updating stock detail display:', error);
+                    console.error('Error updating Apple stock display:', error);
                 }
             }
 
@@ -1603,12 +1784,12 @@
 
             loadCachedData() {
                 try {
-                    const stored = localStorage.getItem(`alphawave_stock_detail_${this.currentSymbol}`);
+                    const stored = localStorage.getItem('alphawave_apple_stock_detail');
                     if (stored) {
                         const cacheData = JSON.parse(stored);
                         const stockData = this.processStockData(cacheData);
-                        this.updateStockDetailDisplay(stockData);
-                        console.log(`Loaded cached stock detail data for ${this.currentSymbol}`);
+                        this.updateAppleStockDisplay(stockData);
+                        console.log('Loaded cached Apple stock detail data');
                     }
                 } catch (error) {
                     console.warn('Could not load cached data:', error);
@@ -1626,7 +1807,7 @@
                         o: stockData.open,
                         pc: stockData.previousClose
                     };
-                    localStorage.setItem(`alphawave_stock_detail_${this.currentSymbol}`, JSON.stringify(cacheData));
+                    localStorage.setItem('alphawave_apple_stock_detail', JSON.stringify(cacheData));
                 } catch (error) {
                     console.warn('Could not save cache to storage:', error);
                 }
@@ -1648,13 +1829,13 @@
             }
 
             refreshData() {
-                this.fetchStockDetailData();
+                this.fetchAppleStockData();
             }
         }
-        // --- END: Stock Detail API Integration ---
+        // --- END: Apple Stock Detail API Integration ---
 
-        // Initialize Stock Detail API
-        const stockDetailAPI = new StockDetailAPI();
+        // Initialize Apple Stock Detail API
+        const appleStockDetailAPI = new AppleStockDetailAPI();
 
         // Currency settings logic (shared with dashboard)
         let currencySettings = {
@@ -1692,16 +1873,6 @@
             setTimeout(() => {
                 modal.style.opacity = '1';
             }, 10);
-        }
-        function closeCurrencyModal(event) {
-            if (event && event.target.id !== 'currencyModalOverlay') {
-                return;
-            }
-            const modal = document.getElementById('currencyModalOverlay');
-            modal.style.opacity = '0';
-            setTimeout(() => {
-                modal.style.display = 'none';
-            }, 300);
         }
         function saveCurrencySettings() {
             const preferredCurrency = document.getElementById('preferredCurrency').value;

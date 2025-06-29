@@ -1,50 +1,80 @@
-
+// Enhanced Authentication System with Fixed Session Management
 class AuthSystem {
     constructor() {
         this.users = JSON.parse(localStorage.getItem('alphawave_users') || '[]');
-        this.currentUser = JSON.parse(localStorage.getItem('alphawave_current_user') || 'null');
+        this.currentUser = this.loadCurrentUser();
         this.initializeAuth();
+    }
+
+    // Safely load current user with validation
+    loadCurrentUser() {
+        try {
+            const stored = localStorage.getItem('alphawave_current_user');
+            if (!stored || stored === 'null' || stored === 'undefined') {
+                return null;
+            }
+            
+            const user = JSON.parse(stored);
+            
+            // Validate user object has required properties
+            if (!user || !user.id || !user.email) {
+                console.warn('Invalid user session detected, clearing...');
+                localStorage.removeItem('alphawave_current_user');
+                return null;
+            }
+            
+            return user;
+        } catch (error) {
+            console.error('Error loading current user:', error);
+            localStorage.removeItem('alphawave_current_user');
+            return null;
+        }
     }
 
     // Initialize authentication system
     initializeAuth() {
-        
         const protectedPages = ['dashboard.html', 'portfolio.html', 'news.html', 'stocks.html', 'watchlist.html', 'pro.html'];
         const currentPage = window.location.pathname.split('/').pop() || 'index.html';
         
+        console.log('🔐 Auth check - Page:', currentPage, 'Logged in:', this.isLoggedIn());
+        
+        // Check if user should be on protected page but isn't logged in
         if (protectedPages.includes(currentPage) && !this.isLoggedIn()) {
+            console.log('❌ Protected page access denied, redirecting to login...');
             this.redirectToLogin();
+            return;
         }
         
-        
+        // Only redirect away from auth pages if user is actually logged in with valid session
         if ((currentPage === 'index.html' || currentPage === 'signup.html') && this.isLoggedIn()) {
+            console.log('✅ User logged in, redirecting to dashboard...');
             this.redirectToDashboard();
         }
     }
 
-    // email format
+    // Email validation
     validateEmail(email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     }
 
-    // password 
+    // Password validation
     validatePassword(password) {
         return password && password.length >= 6;
     }
 
-    // phone number 
+    // Phone validation
     validatePhone(phone) {
         const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
         return phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''));
     }
 
-    //  if user exists
+    // Check if user exists
     userExists(email) {
         return this.users.some(user => user.email.toLowerCase() === email.toLowerCase());
     }
 
-    // register  new user
+    // Register new user
     register(userData) {
         const { email, password, confirmPassword, fullName, phone, gender, dateOfBirth } = userData;
 
@@ -73,7 +103,7 @@ class AuthSystem {
             throw new Error('Please enter a valid phone number');
         }
 
-        // create new user
+        // Create new user
         const newUser = {
             id: Date.now().toString(),
             email: email.toLowerCase(),
@@ -83,20 +113,21 @@ class AuthSystem {
             gender: gender || '',
             dateOfBirth: dateOfBirth || '',
             createdAt: new Date().toISOString(),
-            lastLogin: null
+            lastLogin: new Date().toISOString()
         };
 
-        // save user
+        // Save user
         this.users.push(newUser);
         this.saveUsers();
 
-        // auto login 
+        // Auto login after registration
         this.setCurrentUser(newUser);
 
+        console.log('✅ User registered successfully:', email);
         return { success: true, message: 'Registration successful!' };
     }
 
-    // login user
+    // Login user
     login(email, password) {
         if (!email || !password) {
             throw new Error('Email and password are required');
@@ -116,46 +147,80 @@ class AuthSystem {
             throw new Error('Incorrect password');
         }
 
-        // last login
+        // Update last login
         user.lastLogin = new Date().toISOString();
         this.saveUsers();
 
-        // current user
+        // Set current user
         this.setCurrentUser(user);
 
+        console.log('✅ User logged in successfully:', email);
         return { success: true, message: 'Login successful!' };
     }
 
-    // logout user
+    // Logout user
     logout() {
+        console.log('🚪 Logging out user:', this.currentUser?.email);
+        this.clearSession();
+        this.showMessage('You have been logged out successfully', 'success');
+        
+        // Redirect after showing message
+        setTimeout(() => {
+            this.redirectToLogin();
+        }, 1000);
+    }
+
+    // Clear user session
+    clearSession() {
         localStorage.removeItem('alphawave_current_user');
         this.currentUser = null;
-        this.redirectToLogin();
+        console.log('🧹 User session cleared');
     }
 
-    // if user is logged in
+    // Check if user is logged in
     isLoggedIn() {
-        return this.currentUser !== null;
+        return this.currentUser !== null && 
+               this.currentUser.id && 
+               this.currentUser.email;
     }
 
-    
+    // Get current user
     getCurrentUser() {
         return this.currentUser;
     }
 
-    
+    // Set current user (without password)
     setCurrentUser(user) {
-        
         const userWithoutPassword = { ...user };
         delete userWithoutPassword.password;
         
         this.currentUser = userWithoutPassword;
         localStorage.setItem('alphawave_current_user', JSON.stringify(userWithoutPassword));
+        console.log('💾 User session saved:', userWithoutPassword.email);
     }
 
-    // Simple password hashing
+    // Delete account
+    deleteAccount() {
+        if (!this.isLoggedIn()) {
+            throw new Error('You must be logged in to delete your account');
+        }
+
+        const userEmail = this.currentUser.email;
+        console.log('🗑️ Deleting account for user:', userEmail);
+        
+        // Remove user from users array
+        this.users = this.users.filter(u => u.id !== this.currentUser.id);
+        this.saveUsers();
+        
+        // Clear session
+        this.clearSession();
+        
+        console.log('✅ Account deleted successfully for:', userEmail);
+        return { success: true, message: 'Account deleted successfully!' };
+    }
+
+    // Simple password hashing (for demo purposes)
     hashPassword(password) {
-    
         let hash = 0;
         for (let i = 0; i < password.length; i++) {
             const char = password.charCodeAt(i);
@@ -165,7 +230,7 @@ class AuthSystem {
         return hash.toString();
     }
 
-    // verify password
+    // Verify password
     verifyPassword(password, hashedPassword) {
         return this.hashPassword(password) === hashedPassword;
     }
@@ -175,270 +240,402 @@ class AuthSystem {
         localStorage.setItem('alphawave_users', JSON.stringify(this.users));
     }
 
-    // Redirect to login
+    // Redirect to login page
     redirectToLogin() {
-        if (window.location.pathname.split('/').pop() !== 'index.html') {
+        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+        if (currentPage !== 'index.html') {
+            console.log('🔄 Redirecting to login page...');
             window.location.href = 'index.html';
         }
     }
 
     // Redirect to dashboard
     redirectToDashboard() {
-        if (window.location.pathname.split('/').pop() !== 'dashboard.html') {
+        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+        if (currentPage !== 'dashboard.html') {
+            console.log('🔄 Redirecting to dashboard...');
             window.location.href = 'dashboard.html';
         }
     }
 
-    // Update user profile
-    updateProfile(updates) {
-        if (!this.isLoggedIn()) {
-            throw new Error('You must be logged in to update your profile');
+    // Show message to user
+    showMessage(message, type = 'info') {
+        // Remove existing messages
+        const existingMessage = document.querySelector('.auth-message');
+        if (existingMessage) {
+            existingMessage.remove();
         }
-
-        const userIndex = this.users.findIndex(u => u.id === this.currentUser.id);
-        if (userIndex === -1) {
-            throw new Error('User not found');
-        }
-
-        // Update user data
-        Object.assign(this.users[userIndex], updates);
-        this.saveUsers();
-
-        // Update current user
-        this.setCurrentUser(this.users[userIndex]);
-
-        return { success: true, message: 'Profile updated successfully!' };
+        
+        // Create message element
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `auth-message auth-message-${type}`;
+        messageDiv.textContent = message;
+        
+        // Style the message
+        messageDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 500;
+            z-index: 10000;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            ${type === 'success' ? 'background: #4CAF50;' : ''}
+            ${type === 'error' ? 'background: #f44336;' : ''}
+            ${type === 'info' ? 'background: #2196F3;' : ''}
+            ${type === 'warning' ? 'background: #ff9800;' : ''}
+        `;
+        
+        document.body.appendChild(messageDiv);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (messageDiv && messageDiv.parentNode) {
+                messageDiv.style.opacity = '0';
+                messageDiv.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (messageDiv && messageDiv.parentNode) {
+                        messageDiv.remove();
+                    }
+                }, 300);
+            }
+        }, 5000);
     }
 
-    // Change password
-    changePassword(currentPassword, newPassword) {
-        if (!this.isLoggedIn()) {
-            throw new Error('You must be logged in to change your password');
-        }
-
-        const user = this.users.find(u => u.id === this.currentUser.id);
-        if (!user) {
-            throw new Error('User not found');
-        }
-
-        if (!this.verifyPassword(currentPassword, user.password)) {
-            throw new Error('Current password is incorrect');
-        }
-
-        if (!this.validatePassword(newPassword)) {
-            throw new Error('New password must be at least 6 characters long');
-        }
-
-        user.password = this.hashPassword(newPassword);
-        this.saveUsers();
-
-        return { success: true, message: 'Password changed successfully!' };
+    // Debug function to clear all data
+    clearAllData() {
+        localStorage.clear();
+        console.log('🧹 All localStorage data cleared');
+        this.users = [];
+        this.currentUser = null;
+        this.showMessage('All data cleared. Please refresh the page.', 'warning');
+        setTimeout(() => {
+            window.location.reload();
+        }, 2000);
     }
 
-    // Delete account
-    deleteAccount() {
-        if (!this.isLoggedIn()) {
-            throw new Error('You must be logged in to delete your account');
-        }
-
-        this.users = this.users.filter(u => u.id !== this.currentUser.id);
-        this.saveUsers();
-        this.logout();
-
-        return { success: true, message: 'Account deleted successfully!' };
+    // Debug function to get session info
+    getSessionInfo() {
+        return {
+            isLoggedIn: this.isLoggedIn(),
+            currentUser: this.currentUser,
+            totalUsers: this.users.length,
+            localStorage: {
+                users: localStorage.getItem('alphawave_users'),
+                currentUser: localStorage.getItem('alphawave_current_user')
+            }
+        };
     }
 }
 
 // Initialize global auth system
 window.authSystem = new AuthSystem();
 
-// Form handlers for Sign In page
+// ============================================
+// FORM HANDLERS FOR SIGN IN/UP PAGES
+// ============================================
+
+// Handle sign in form submission
 function handleSignIn(event) {
     event.preventDefault();
     
-    const email = document.querySelector('input[type="email"]').value;
-    const password = document.querySelector('input[type="password"]').value;
+    const formData = new FormData(event.target);
+    const email = formData.get('email');
+    const password = formData.get('password');
+    
+    const submitBtn = document.getElementById('signInBtn');
+    const errorDiv = document.getElementById('errorMessage');
+    const successDiv = document.getElementById('successMessage');
+    
+    // Clear previous messages
+    if (errorDiv) errorDiv.style.display = 'none';
+    if (successDiv) successDiv.style.display = 'none';
+    
+    // Show loading state
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Signing in...';
+    }
     
     try {
         const result = window.authSystem.login(email, password);
-        showMessage(result.message, 'success');
+        
+        if (successDiv) {
+            successDiv.textContent = result.message;
+            successDiv.style.display = 'block';
+        }
+        
+        window.authSystem.showMessage(result.message, 'success');
         
         // Redirect to dashboard after short delay
         setTimeout(() => {
             window.location.href = 'dashboard.html';
         }, 1000);
+        
     } catch (error) {
-        showMessage(error.message, 'error');
+        if (errorDiv) {
+            errorDiv.textContent = error.message;
+            errorDiv.style.display = 'block';
+        }
+        
+        window.authSystem.showMessage(error.message, 'error');
+        
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Sign in';
+        }
     }
 }
 
-// Form handlers for Sign Up page
+// Handle sign up form submission
 function handleSignUp(event) {
     event.preventDefault();
     
     const formData = new FormData(event.target);
     const userData = {
-        email: formData.get('email') || document.querySelector('input[type="email"]').value,
-        password: formData.get('password') || document.querySelectorAll('input[type="password"]')[0].value,
-        confirmPassword: formData.get('confirmPassword') || document.querySelectorAll('input[type="password"]')[1].value,
-        fullName: formData.get('fullName') || document.querySelector('input[placeholder*="full name"]').value,
-        phone: formData.get('phone') || document.querySelector('input[type="tel"]').value,
-        gender: formData.get('gender') || document.querySelector('select').value,
-        dateOfBirth: formData.get('dateOfBirth') || document.querySelector('input[placeholder*="DD/MM/YYYY"]').value
+        email: formData.get('email'),
+        password: formData.get('password'),
+        confirmPassword: formData.get('confirmPassword'),
+        fullName: formData.get('fullName'),
+        phone: formData.get('phone'),
+        gender: formData.get('gender'),
+        dateOfBirth: formData.get('dateOfBirth')
     };
+    
+    const submitBtn = document.getElementById('signUpBtn');
+    const errorDiv = document.getElementById('errorMessage');
+    const successDiv = document.getElementById('successMessage');
+    
+    // Clear previous messages
+    if (errorDiv) errorDiv.style.display = 'none';
+    if (successDiv) successDiv.style.display = 'none';
+    
+    // Show loading state
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Creating Account...';
+        submitBtn.classList.add('loading');
+    }
     
     try {
         const result = window.authSystem.register(userData);
-        showMessage(result.message, 'success');
+        
+        if (successDiv) {
+            successDiv.textContent = result.message;
+            successDiv.style.display = 'block';
+        }
+        
+        window.authSystem.showMessage(result.message, 'success');
         
         // Redirect to dashboard after short delay
         setTimeout(() => {
             window.location.href = 'dashboard.html';
         }, 1000);
+        
     } catch (error) {
-        showMessage(error.message, 'error');
-    }
-}
-
-// Show message to user
-function showMessage(message, type = 'info') {
-    // Remove existing messages
-    const existingMessage = document.querySelector('.auth-message');
-    if (existingMessage) {
-        existingMessage.remove();
-    }
-    
-    // Create message element
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `auth-message auth-message-${type}`;
-    messageDiv.textContent = message;
-    
-    // Style the message
-    messageDiv.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 20px;
-        border-radius: 8px;
-        color: white;
-        font-family: 'Quicksand', sans-serif;
-        font-weight: 500;
-        z-index: 10000;
-        max-width: 300px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        transition: all 0.3s ease;
-        ${type === 'success' ? 'background: #4CAF50;' : ''}
-        ${type === 'error' ? 'background: #f44336;' : ''}
-        ${type === 'info' ? 'background: #2196F3;' : ''}
-    `;
-    
-    document.body.appendChild(messageDiv);
-    
-    // Auto remove after 5 seconds
-    setTimeout(() => {
-        if (messageDiv && messageDiv.parentNode) {
-            messageDiv.style.opacity = '0';
-            messageDiv.style.transform = 'translateX(100%)';
-            setTimeout(() => {
-                if (messageDiv && messageDiv.parentNode) {
-                    messageDiv.remove();
-                }
-            }, 300);
+        if (errorDiv) {
+            errorDiv.textContent = error.message;
+            errorDiv.style.display = 'block';
         }
-    }, 5000);
+        
+        window.authSystem.showMessage(error.message, 'error');
+        
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Sign Up';
+            submitBtn.classList.remove('loading');
+        }
+    }
 }
 
-// Social login handlers (mock implementation)
+// Handle social login (mock implementation)
 function handleSocialLogin(provider) {
-    showMessage(`${provider} login is not implemented in this demo`, 'info');
+    window.authSystem.showMessage(`${provider} login is not implemented in this demo`, 'info');
 }
+
+// ============================================
+// PROFILE MODAL HANDLERS (FOR DASHBOARD)
+// ============================================
+
+// Handle profile menu clicks
+function handleMenuClick(action) {
+    console.log('🎯 Menu action:', action);
+    
+    switch(action) {
+        case 'logout':
+            closeProfileModal();
+            setTimeout(() => {
+                window.authSystem.logout();
+            }, 300);
+            break;
+            
+        case 'delete-account':
+            closeProfileModal();
+            setTimeout(() => {
+                showDeleteConfirmation();
+            }, 300);
+            break;
+            
+        case 'personal-info':
+            window.authSystem.showMessage('Personal info page not implemented yet', 'info');
+            closeProfileModal();
+            break;
+            
+        case 'currency':
+            window.authSystem.showMessage('Currency settings not implemented yet', 'info');
+            closeProfileModal();
+            break;
+            
+        case 'theme':
+            window.authSystem.showMessage('Theme settings not implemented yet', 'info');
+            closeProfileModal();
+            break;
+            
+        case 'help':
+            window.authSystem.showMessage('Help & Support not implemented yet', 'info');
+            closeProfileModal();
+            break;
+            
+        case 'terms':
+            window.authSystem.showMessage('Terms of Service not implemented yet', 'info');
+            closeProfileModal();
+            break;
+            
+        default:
+            closeProfileModal();
+    }
+}
+
+// Show delete account confirmation
+function showDeleteConfirmation() {
+    const confirmed = confirm('⚠️ Do you really want to delete your account?\n\nThis action cannot be undone and you will lose all your data.');
+    
+    if (confirmed) {
+        try {
+            window.authSystem.deleteAccount();
+            window.authSystem.showMessage('Account deleted successfully. Redirecting...', 'success');
+            
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
+            
+        } catch (error) {
+            window.authSystem.showMessage(error.message, 'error');
+        }
+    }
+}
+
+// Profile modal functions (if not already defined)
+function toggleProfileModal() {
+    const overlay = document.getElementById('profileModalOverlay');
+    if (overlay) {
+        if (overlay.classList.contains('show')) {
+            closeProfileModal();
+        } else {
+            openProfileModal();
+        }
+    }
+}
+
+function openProfileModal() {
+    const overlay = document.getElementById('profileModalOverlay');
+    if (overlay) {
+        overlay.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeProfileModal(event) {
+    if (event && event.target !== event.currentTarget) {
+        return;
+    }
+    
+    const overlay = document.getElementById('profileModalOverlay');
+    if (overlay) {
+        overlay.classList.remove('show');
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// ============================================
+// GLOBAL EVENT LISTENERS
+// ============================================
 
 // Initialize form handlers when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    console.log('📄 Page loaded:', currentPage);
     
     // Sign In page
     if (currentPage === 'index.html') {
-        const signInForm = document.querySelector('.auth-form form');
-        const signInButton = document.querySelector('.btn-auth');
-        
-        if (signInButton) {
-            signInButton.onclick = function(event) {
-                event.preventDefault();
-                handleSignIn(event);
-            };
+        const signInForm = document.getElementById('signInForm');
+        if (signInForm) {
+            signInForm.addEventListener('submit', handleSignIn);
+            console.log('✅ Sign in form handler attached');
         }
-        
-        // Social login buttons
-        document.querySelectorAll('.social-btn').forEach(btn => {
-            btn.onclick = function() {
-                const provider = this.querySelector('img').alt;
-                handleSocialLogin(provider);
-            };
-        });
     }
     
     // Sign Up page
     if (currentPage === 'signup.html') {
-        const signUpForm = document.querySelector('.auth-form form');
-        const signUpButton = document.querySelector('.btn-auth');
-        
-        if (signUpButton) {
-            signUpButton.onclick = function(event) {
-                event.preventDefault();
-                handleSignUp(event);
-            };
+        const signUpForm = document.getElementById('signUpForm');
+        if (signUpForm) {
+            signUpForm.addEventListener('submit', handleSignUp);
+            console.log('✅ Sign up form handler attached');
         }
-        
-        // Social login buttons
-        document.querySelectorAll('.social-btn').forEach(btn => {
-            btn.onclick = function() {
-                const provider = this.querySelector('img').alt;
-                handleSocialLogin(provider);
-            };
-        });
     }
     
-    // Add logout functionality to user profile modals
-    const logoutButtons = document.querySelectorAll('[onclick*="logout"]');
+    // Add logout functionality to any logout buttons
+    const logoutButtons = document.querySelectorAll('[data-action="logout"]');
     logoutButtons.forEach(btn => {
-        btn.onclick = function() {
+        btn.addEventListener('click', () => {
             window.authSystem.logout();
-        };
+        });
     });
 });
 
-// Handle logout from profile modal
-function handleMenuClick(action) {
-    console.log('Menu action:', action);
-    
-    if (action === 'logout') {
+// Handle escape key to close modals
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeProfileModal();
+    }
+});
+
+// ============================================
+// DEBUG FUNCTIONS (GLOBAL)
+// ============================================
+
+// Debug function to clear all data
+window.clearAllData = function() {
+    if (window.authSystem) {
+        window.authSystem.clearAllData();
+    }
+};
+
+// Debug function to get session info
+window.getSessionInfo = function() {
+    if (window.authSystem) {
+        console.table(window.authSystem.getSessionInfo());
+        return window.authSystem.getSessionInfo();
+    }
+};
+
+// Debug function to force logout
+window.forceLogout = function() {
+    if (window.authSystem) {
         window.authSystem.logout();
-        return;
     }
-    
-    if (action === 'delete-account') {
-        // Show delete confirmation modal
-        showDeleteModal();
-        return;
-    }
-    
-    // Close modal for other actions
-    closeProfileModal();
-}
+};
 
-// Handle delete account confirmation
-function confirmDelete() {
-    try {
-        window.authSystem.deleteAccount();
-        showMessage('Account deleted successfully', 'success');
-    } catch (error) {
-        showMessage(error.message, 'error');
-    }
-    closeDeleteModal();
-}
+console.log('🔐 Enhanced Auth System loaded successfully');
 
-// Export for use in other files
+// Export for use in other files (if needed)
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = AuthSystem;
 }

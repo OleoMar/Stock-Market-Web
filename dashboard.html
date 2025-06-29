@@ -8,10 +8,10 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Include the location services -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="geolocation-service.js"></script>
-    
+    <script src="location-components.js"></script>
     <style>
         * {
             margin: 0;
@@ -39,6 +39,12 @@
             height: 99px;
             display: flex;
             align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            width: 100%;
         }
 
         .navbar .container-fluid {
@@ -61,17 +67,17 @@
         }
 
         .navbar .logo-circle {
-            width: 45px;
-            height: 45px;
-            border: 2px solid white;
+            width: 70px;
+            height: 70px;
+            border: 2px solid rgb(103, 103, 103);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 10px;
+            font-size: 12px;
             margin-right: 10px;
-            background: transparent;
-            color: white;
+            background: white;
+            color: rgb(0, 0, 0);
             font-weight: normal;
             font-family: 'Quicksand', sans-serif;
         }
@@ -110,6 +116,252 @@
             gap: 15px;
             position: relative;
             z-index: 2;
+        }
+
+        .location-selector {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 9px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Quicksand', sans-serif;
+            min-width: 80px;
+        }
+
+        .location-selector:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .location-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            min-width: 200px;
+            z-index: 1001;
+            display: none;
+            margin-top: 5px;
+        }
+
+        .location-dropdown.show {
+            display: block;
+        }
+
+        .location-option {
+            padding: 12px 16px;
+            color: #333;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            font-size: 13px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .location-option:last-child {
+            border-bottom: none;
+        }
+
+        .location-option:hover {
+            background: #f8f9fa;
+        }
+
+        .location-option.active {
+            background: #e3f2fd;
+            color: #1976d2;
+            font-weight: 600;
+        }
+
+        .market-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-left: 10px;
+        }
+        
+        .market-status.open {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .market-status.closed {
+            background: #f44336;
+            color: white;
+        }
+
+      
+        .location-permission-prompt {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            max-width: 320px;
+            z-index: 2000;
+            font-family: 'Quicksand', sans-serif;
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        .location-permission-prompt.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        .location-permission-prompt .location-permission-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .location-permission-prompt .location-permission-desc {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        .location-permission-prompt .location-permission-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .location-permission-prompt button {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            color: #666;
+            cursor: pointer;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .location-permission-prompt button.allow {
+            border: 1px solid #007bff;
+            background: #007bff;
+            color: white;
+        }
+        .location-permission-prompt button.allow:hover {
+            background: #0056b3;
+        }
+        .location-permission-prompt button.deny:hover {
+            background: #f8f9fa;
+            border-color: #007bff;
+        }
+
+        
+        .location-permission-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 3000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .location-permission-modal.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .location-permission-dialog {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .location-permission-modal.show .location-permission-dialog {
+            transform: scale(1);
+        }
+
+        .location-permission-dialog h3 {
+            margin: 0 0 15px 0;
+            font-size: 20px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .location-permission-dialog p {
+            margin: 0 0 25px 0;
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .location-permission-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .location-permission-buttons button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            min-width: 100px;
+        }
+
+        .btn-never {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-never:hover {
+            background: #d32f2f;
+        }
+
+        .btn-this-time {
+            background: #ff9800;
+            color: white;
+        }
+
+        .btn-this-time:hover {
+            background: #f57c00;
+        }
+
+        .btn-while-visiting {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-while-visiting:hover {
+            background: #1976d2;
+        }
+
+        .btn-always-allow {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-always-allow:hover {
+            background: #388e3c;
         }
 
         .pro-badge {
@@ -152,55 +404,7 @@
             font-size: 16px;
         }
 
-        
-        .location-info {
-            display: none;
-            align-items: center;
-            margin-right: 10px;
-            font-size: 11px;
-            color: #ccc;
-            font-family: 'Quicksand', sans-serif;
-        }
-
-        .location-info i {
-            margin-right: 4px;
-            color: #666;
-        }
-
-        .market-status-container {
-            display: none;
-            align-items: center;
-            margin-right: 10px;
-            font-family: 'Quicksand', sans-serif;
-            font-size: 11px;
-            color: #ccc;
-        }
-
-        .market-status-indicator {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            margin-right: 6px;
-        }
-
-        .market-status-indicator.open {
-            background: #4CAF50;
-            animation: pulse 2s infinite;
-        }
-
-        .market-status-indicator.closed {
-            background: #f44336;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-
-       
         .refresh-stocks-btn {
-            display: none;
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: #ccc;
@@ -231,17 +435,9 @@
             animation: spin 1s linear infinite;
         }
 
-        
-        @media (min-width: 1200px) {
-            .location-info,
-            .market-status-container,
-            .refresh-stocks-btn {
-                display: flex;
-            }
-        }
-
         .main-layout {
             display: flex;
+            margin-top: 99px;
         }
 
         .sidebar {
@@ -252,7 +448,7 @@
             border-right: 1px solid #333;
             position: fixed;
             left: 0;
-            top: 99px;
+            top: 86px;
             background-image: url('SideGradient.png');
             background-size: 100%;
             background-position: center bottom;
@@ -444,11 +640,14 @@
             animation: spin 1s linear infinite;
         }
 
-       
         .stock-card.live,
         .stock-card.offline {
             border: none;
             opacity: 1;
+        }
+
+        .stock-card.offline {
+            background: #555;
         }
 
         .stock-logo-container {
@@ -489,7 +688,11 @@
         }
 
         .offline-indicator {
-            display: none;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 12px;
+            opacity: 0.7;
         }
 
         .stock-symbol {
@@ -522,8 +725,17 @@
             color: #f44336;
         }
 
-        .stock-meta {
-            display: none; 
+        .last-updated {
+            font-size: 11px;
+            color: #999;
+            text-align: center;
+            margin-bottom: 20px;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .last-updated i {
+            margin-right: 5px;
+            color: #4CAF50;
         }
 
         .news-section {
@@ -540,6 +752,8 @@
             color: white;
             cursor: pointer;
             transition: transform 0.3s;
+            width: 910px;
+            height: 132px;
         }
 
         .news-item:hover {
@@ -619,66 +833,6 @@
             font-family: 'Quicksand', sans-serif;
         }
 
-        
-        .region-indicator {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 10px;
-            font-family: 'Quicksand', sans-serif;
-            display: flex;
-            align-items: center;
-        }
-
-        .region-indicator i {
-            margin-right: 5px;
-            color: #4CAF50;
-        }
-
-        
-        .last-updated {
-            font-size: 11px;
-            color: #999;
-            text-align: center;
-            margin-bottom: 20px;
-            font-family: 'Quicksand', sans-serif;
-        }
-
-        .last-updated i {
-            margin-right: 5px;
-            color: #4CAF50;
-        }
-
-       
-        .error-notification {
-            position: fixed;
-            top: 100px;
-            right: 20px;
-            background: #f44336;
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            z-index: 1000;
-            max-width: 400px;
-            display: none;
-            font-family: 'Quicksand', sans-serif;
-        }
-
-        .error-content {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .dismiss-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 18px;
-            cursor: pointer;
-            margin-left: auto;
-        }
-
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -709,8 +863,6 @@
             .main-layout {
                 flex-direction: column;
             }
-            }
-
             
             .stocks-grid {
                 grid-template-columns: repeat(auto-fit, 100px);
@@ -735,7 +887,7 @@
                 height: 35px;
             }
 
-            .location-info, .market-status-container, .refresh-stocks-btn {
+            .location-selector {
                 display: none;
             }
         }
@@ -759,18 +911,43 @@
                     <i class="fas fa-search search-icon"></i>
                 </div>
                 <div class="navbar-right">
-                    <!-- Location info -->
-                    <div class="location-info" style="display: none;">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <span class="location-text">Detecting...</span>
+                    <!-- Location Selector -->
+                    <div class="location-selector-container" style="position: relative;">
+                        <button class="location-selector" id="locationSelector" onclick="toggleLocationDropdown()">
+                            <span id="currentLocation">Global</span>
+                            <i class="fas fa-chevron-down" style="margin-left: 5px; font-size: 10px;"></i>
+                        </button>
+                        <div class="location-dropdown" id="locationDropdown">
+                            <div class="location-option" onclick="changeLocation('US', 'United States', 'USD')">
+                                <span class="flag">US</span> United States (USD)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('EU', 'Europe', 'EUR')">
+                                <span class="flag">EU</span> Europe (EUR)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('GB', 'United Kingdom', 'GBP')">
+                                <span class="flag">GB</span> United Kingdom (GBP)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('JP', 'Japan', 'JPY')">
+                                <span class="flag">JP</span> Japan (JPY)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('CN', 'China', 'CNY')">
+                                <span class="flag">CN</span> China (CNY)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('IN', 'India', 'INR')">
+                                <span class="flag">IN</span> India (INR)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('AU', 'Australia', 'AUD')">
+                                <span class="flag">AU</span> Australia (AUD)
+                            </div>
+                            <div class="location-option" onclick="changeLocation('CA', 'Canada', 'CAD')">
+                                <span class="flag">CA</span> Canada (CAD)
+                            </div>
+                        </div>
                     </div>
-                    
-                    <!-- Market status -->
-                    <div class="market-status-container" style="display: none;">
-                        <div class="market-status-indicator closed"></div>
-                        <span class="market-status-text">Market Closed</span>
-                    </div>
-                    
+
+                    <!-- Market Status -->
+                    <span class="market-status" id="marketStatus">Market Closed</span>
+
                     <!-- Refresh stocks button -->
                     <button class="refresh-stocks-btn" onclick="refreshStockData()" title="Refresh stock data">
                         <i class="fas fa-sync-alt"></i>
@@ -798,7 +975,7 @@
             <div class="content">
                 <div class="portfolio-header">
                     <div class="portfolio-label">Portfolio Value</div>
-                    <div class="portfolio-value">$47,892.50</div>
+                    <div class="portfolio-value" id="portfolioValue">$47,892.50</div>
                     <div class="portfolio-change">
                         <i class="fas fa-arrow-up"></i> +$1,245.30 (+2.8%)
                     </div>
@@ -813,14 +990,11 @@
                     <h3>My Stocks</h3>
                     <a href="stocks.html" class="view-all">View all ›</a>
                 </div>
-                <div class="region-indicator" id="regionalIndicator" style="display: none;">
-                    <i class="fas fa-globe"></i>
-                    <span>Popular in your region</span>
-                </div>
                 <div class="stocks-grid" id="myStocksGrid">
-                    <!-- Stocks will be loaded here by the API -->
+                    <!-- Real stock data will be loaded here by Finnhub API -->
                     <div class="stock-card loading">
                         <div class="stock-symbol">Loading...</div>
+                        <div class="stock-price">Fetching real prices...</div>
                     </div>
                 </div>
 
@@ -829,9 +1003,10 @@
                     <a href="watchlist.html" class="view-all">View all ›</a>
                 </div>
                 <div class="stocks-grid" id="watchlistGrid">
-                    <!-- Watchlist will be loaded here by the API -->
+                    <!-- Real stock data will be loaded here by Finnhub API -->
                     <div class="stock-card loading">
                         <div class="stock-symbol">Loading...</div>
+                        <div class="stock-price">Fetching real prices...</div>
                     </div>
                 </div>
 
@@ -841,8 +1016,8 @@
                 </div>
                 <div class="news-section">
                     <div id="newsContainer">
-                        <div class="news-item">
-                            <div class="news-image">📰</div>
+                        <div class="news-item" onclick="window.location.href='news-details-1.html'">
+                            <div class="news-image">NEWS</div>
                             <div class="news-content">
                                 <div class="news-meta">
                                     <span class="news-source">Bloomberg</span>
@@ -853,7 +1028,7 @@
                             </div>
                         </div>
                         <div class="news-item">
-                            <div class="news-image">📈</div>
+                            <div class="news-image">CHART</div>
                             <div class="news-content">
                                 <div class="news-meta">
                                     <span class="news-source">Reuters</span>
@@ -862,8 +1037,8 @@
                                 <h5 class="news-title">Tech Sector Leads Market Rally</h5>
                             </div>
                         </div>
-                        <div class="news-item sponsored">
-                            <div class="news-image">💼</div>
+                        <div class="news-item sponsored" onclick="window.location.href='news-details-2.html'">
+                            <div class="news-image">BIZ</div>
                             <div class="news-content">
                                 <div class="news-meta">
                                     <span class="news-source">MarketWatch</span>
@@ -879,9 +1054,10 @@
                     <h3>Trending Stocks</h3>
                 </div>
                 <div class="stocks-grid" id="trendingGrid">
-                    <!-- Trending stocks will be loaded here by the API -->
+                    <!-- Real stock data will be loaded here by Finnhub API -->
                     <div class="stock-card loading">
                         <div class="stock-symbol">Loading...</div>
+                        <div class="stock-price">Fetching real prices...</div>
                     </div>
                 </div>
             </div>
@@ -889,101 +1065,420 @@
     </div>
 
     <!-- Profile Modal Overlay -->
-    <div class="profile-modal-overlay" id="profileModalOverlay" onclick="closeProfileModal(event)">
-        <div class="profile-modal" onclick="event.stopPropagation()">
-            <div class="profile-menu-item" onclick="handleMenuClick('personal-info')">
-                <div class="profile-menu-icon">
+    <div class="profile-modal-overlay" id="profileModalOverlay" onclick="closeProfileModal(event)" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s ease;">
+        <div class="profile-modal" onclick="event.stopPropagation()" style="position: absolute; top: 80px; right: 20px; width: 380px; height: 450px; background: #e8e8e8; border-radius: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); padding: 20px; font-family: 'Quicksand', sans-serif; transform: translateY(-20px); transition: transform 0.3s ease; display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="profile-menu-item" onclick="handleMenuClick('personal-info')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
                     <i class="fas fa-user"></i>
                 </div>
-                <div class="profile-menu-text">Personal info</div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Personal info</div>
             </div>
 
-            <div class="profile-menu-item" onclick="handleMenuClick('logout')">
-                <div class="profile-menu-icon">
+            <div class="profile-menu-item" onclick="handleMenuClick('logout')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
                     <i class="fas fa-door-open"></i>
                 </div>
-                <div class="profile-menu-text">Logout</div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Logout</div>
             </div>
 
-            <div class="profile-menu-item" onclick="handleMenuClick('currency')">
-                <div class="profile-menu-icon">
+            <div class="profile-menu-item" onclick="handleMenuClick('currency')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
                     <i class="fas fa-dollar-sign"></i>
                 </div>
-                <div class="profile-menu-text">Currency</div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Currency</div>
             </div>
 
-            <div class="profile-menu-item" onclick="handleMenuClick('theme')">
-                <div class="profile-menu-icon">
+            <div class="profile-menu-item" onclick="handleMenuClick('theme')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
                     <i class="fas fa-sun"></i>
                 </div>
-                <div class="profile-menu-text">Theme</div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Theme</div>
             </div>
 
-            <div class="profile-menu-item" onclick="handleMenuClick('help')">
-                <div class="profile-menu-icon">
+            <div class="profile-menu-item" onclick="handleMenuClick('help')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
                     <i class="fas fa-question-circle"></i>
                 </div>
-                <div class="profile-menu-text">Help & Support</div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Help & Support</div>
             </div>
 
-            <div class="profile-menu-item" onclick="handleMenuClick('terms')">
-                <div class="profile-menu-icon">
+            <div class="profile-menu-item" onclick="handleMenuClick('terms')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
                     <i class="fas fa-file-contract"></i>
                 </div>
-                <div class="profile-menu-text">Terms of Service</div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Terms of Service</div>
             </div>
 
-            <div class="profile-menu-item" onclick="handleMenuClick('delete-account')">
-                <div class="profile-menu-icon">
+            <div class="profile-menu-item" onclick="handleMenuClick('delete-account')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
                     <i class="fas fa-user-times"></i>
                 </div>
-                <div class="profile-menu-text">Delete your account</div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Delete your account</div>
             </div>
         </div>
     </div>
     
-    <!-- Include the Marketstack API Integration -->
+    <!-- Currency Settings Modal -->
+    <div class="currency-modal-overlay" id="currencyModalOverlay" onclick="closeCurrencyModal(event)" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s ease;">
+        <div class="currency-modal" onclick="event.stopPropagation()" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; background: #fff; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); padding: 32px 28px; font-family: 'Quicksand', sans-serif; color: #111;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 style="margin: 0; color: #111; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">Currency Settings</h2>
+                <button onclick="closeCurrencyModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #111; padding: 5px;">&times;</button>
+            </div>
+            <div style="margin-bottom: 0;">
+                <label for="preferredCurrency" style="display: block; margin-bottom: 10px; color: #111; font-size: 16px; font-weight: 600;">Preferred Currency</label>
+                <select id="preferredCurrency" onchange="saveCurrencySettings()" style="width: 100%; padding: 14px; border: 2px solid #111; border-radius: 7px; font-size: 16px; font-family: 'Quicksand', sans-serif; background: #fff; color: #111; font-weight: 500; outline: none;">
+                    <option value="USD">USD - US Dollar</option>
+                    <option value="EUR">EUR - Euro</option>
+                    <option value="GBP">GBP - British Pound</option>
+                    <option value="JPY">JPY - Japanese Yen</option>
+                    <option value="CNY">CNY - Chinese Yuan</option>
+                    <option value="INR">INR - Indian Rupee</option>
+                    <option value="AUD">AUD - Australian Dollar</option>
+                    <option value="CAD">CAD - Canadian Dollar</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Marketstack API Integration for AlphaWave
-        class MarketstackAPI {
+        // ============================================
+        // SELF-CONTAINED LOCATION SERVICE WITH PERMISSION PROMPT
+        // ============================================
+        class SimpleLocationService {
             constructor() {
-                this.apiKey = 'ae3ae6d12720684ba32175d1d315e7d3';
-                this.baseUrl = 'https://api.marketstack.com/v1';
+                this.currentLocation = this.loadLocationSettings();
+                this.hasAskedForLocation = false;
+                this.exchangeRates = {
+                    'USD': 1, 'EUR': 0.85, 'GBP': 0.73, 'JPY': 110,
+                    'CNY': 6.45, 'INR': 74.5, 'AUD': 1.35, 'CAD': 1.25
+                };
+            }
+
+            init() {
+                console.log('🌍 Location service starting...');
+                // Immediately request location using browser's native dialog
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => this.handleLocationSuccess(position),
+                        (error) => this.handleLocationError(error),
+                        { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+                    );
+                } else {
+                    this.showMessage('Geolocation not supported by this browser', 'error');
+                }
+                this.updateLocationDisplay();
+                this.updateMarketStatus();
+                setInterval(() => this.updateMarketStatus(), 60000);
+            }
+
+            showLocationPermissionPrompt() {
+                // Prevent multiple prompts
+                if (document.getElementById('locationPermissionPrompt')) return;
+                const prompt = document.createElement('div');
+                prompt.className = 'location-permission-prompt';
+                prompt.id = 'locationPermissionPrompt';
+                prompt.innerHTML = `
+                    <div class="location-permission-title">Enable Location Access</div>
+                    <div class="location-permission-desc">Get personalized market data, regional news, and trading hours for your location.</div>
+                    <div class="location-permission-actions">
+                        <button class="deny">Not Now</button>
+                        <button class="allow">Allow Location</button>
+                    </div>
+                `;
+                document.body.appendChild(prompt);
+                setTimeout(() => prompt.classList.add('show'), 100);
+                // Button handlers
+                prompt.querySelector('.deny').onclick = () => {
+                    prompt.classList.remove('show');
+                    setTimeout(() => prompt.remove(), 300);
+                    localStorage.setItem('alphawave_location_denied', 'true');
+                    this.showMessage('Using default market settings', 'info');
+                    this.setDefaultLocation && this.setDefaultLocation();
+                };
+                prompt.querySelector('.allow').onclick = async () => {
+                    prompt.classList.remove('show');
+                    setTimeout(() => prompt.remove(), 300);
+                    localStorage.setItem('alphawave_location_denied', 'false');
+                    if (this.requestLocation) {
+                        try {
+                            await this.requestLocation();
+                            this.showMessage('Location access granted!', 'success');
+                        } catch (e) {
+                            this.showMessage('Location request failed', 'error');
+                        }
+                    }
+                };
+            }
+
+            handlePermission(choice) {
+                console.log('User choice:', choice);
+                
+                // Save permission choice
+                localStorage.setItem('alphawave_location_permission', choice);
+                
+                // Hide modal
+                this.hideModal();
+                
+                // Handle different choices
+                switch(choice) {
+                    case 'never':
+                        localStorage.setItem('alphawave_location_denied', 'true');
+                        this.showMessage('Location access disabled', 'info');
+                        break;
+                        
+                    case 'this-time':
+                        this.requestLocation();
+                        break;
+                        
+                    case 'while-visiting':
+                        sessionStorage.setItem('alphawave_location_session', 'allowed');
+                        this.requestLocation();
+                        break;
+                        
+                    case 'always-allow':
+                        this.requestLocation();
+                        break;
+                }
+            }
+
+            requestLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => this.handleLocationSuccess(position),
+                        (error) => this.handleLocationError(error),
+                        { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+                    );
+                } else {
+                    this.showMessage('Geolocation not supported by this browser', 'error');
+                }
+            }
+
+            handleLocationSuccess(position) {
+                const { latitude, longitude } = position.coords;
+                console.log('Location detected:', latitude, longitude);
+                
+                // Simple country detection
+                const country = this.getCountryFromCoordinates(latitude, longitude);
+                const locationMap = {
+                    'US': { label: 'United States', currency: 'USD' },
+                    'GB': { label: 'United Kingdom', currency: 'GBP' },
+                    'DE': { label: 'Europe', currency: 'EUR' },
+                    'JP': { label: 'Japan', currency: 'JPY' },
+                    'CN': { label: 'China', currency: 'CNY' },
+                    'IN': { label: 'India', currency: 'INR' },
+                    'AU': { label: 'Australia', currency: 'AUD' },
+                    'CA': { label: 'Canada', currency: 'CAD' }
+                };
+                
+                const locationInfo = locationMap[country] || locationMap['US'];
+                this.setLocation(country, locationInfo.label, locationInfo.currency);
+                this.showMessage(`Location set to ${locationInfo.label}`, 'success');
+            }
+
+            handleLocationError(error) {
+                console.warn('Location error:', error.message);
+                this.showMessage('Could not detect location - using default', 'warning');
+            }
+
+            getCountryFromCoordinates(lat, lng) {
+                // Basic geographic regions
+                if (lat >= 24 && lat <= 49 && lng >= -125 && lng <= -66) return 'US';
+                if (lat >= 49 && lat <= 61 && lng >= -141 && lng <= -52) return 'CA';
+                if (lat >= 50 && lat <= 61 && lng >= -8 && lng <= 2) return 'GB';
+                if (lat >= 47 && lat <= 55 && lng >= 5 && lng <= 15) return 'DE';
+                if (lat >= 31 && lat <= 46 && lng >= 129 && lng <= 146) return 'JP';
+                if (lat >= 18 && lat <= 54 && lng >= 73 && lng <= 135) return 'CN';
+                if (lat >= 6 && lat <= 37 && lng >= 68 && lng <= 97) return 'IN';
+                if (lat >= -44 && lat <= -10 && lng >= 113 && lng <= 154) return 'AU';
+                return 'US'; // Default
+            }
+
+            hideModal() {
+                const modal = document.getElementById('locationPermissionModal');
+                if (modal) {
+                    modal.classList.remove('show');
+                    setTimeout(() => {
+                        if (modal && modal.parentNode) {
+                            modal.remove();
+                        }
+                    }, 300);
+                }
+            }
+
+            showMessage(message, type) {
+                const colors = {
+                    success: '#4CAF50', warning: '#ff9800', error: '#f44336', info: '#2196F3'
+                };
+                
+                const msg = document.createElement('div');
+                msg.style.cssText = `
+                    position: fixed; top: 20px; right: 20px; padding: 12px 16px; border-radius: 8px;
+                    color: white; font-family: 'Quicksand', sans-serif; font-size: 13px; font-weight: 500;
+                    z-index: 2001; transform: translateX(100%); transition: transform 0.3s ease;
+                    background: ${colors[type] || colors.info};
+                `;
+                msg.textContent = message;
+                
+                document.body.appendChild(msg);
+                
+                setTimeout(() => msg.style.transform = 'translateX(0)', 100);
+                setTimeout(() => {
+                    msg.style.transform = 'translateX(100%)';
+                    setTimeout(() => msg.remove(), 300);
+                }, 3000);
+            }
+
+            loadLocationSettings() {
+                const stored = localStorage.getItem('alphawave_location_settings');
+                if (stored) {
+                    try {
+                        return JSON.parse(stored);
+                    } catch (error) {
+                        console.warn('Error loading location settings:', error);
+                    }
+                }
+                return { country: 'US', currency: 'USD', label: 'United States' };
+            }
+
+            saveLocationSettings() {
+                localStorage.setItem('alphawave_location_settings', JSON.stringify(this.currentLocation));
+            }
+
+            setLocation(country, label, currency) {
+                this.currentLocation = { country, currency, label };
+                this.saveLocationSettings();
+                this.updateLocationDisplay();
+                this.updateMarketStatus();
+                window.dispatchEvent(new CustomEvent('locationChanged', { detail: this.currentLocation }));
+                // Update all prices/currency formatting immediately
+                if (window.finnhubAPI && window.finnhubAPI.updatePortfolioValueOnly) {
+                    window.finnhubAPI.updatePortfolioValueOnly();
+                }
+                // Add more update logic here if needed for other price displays
+            }
+
+            updateLocationDisplay() {
+                const locationElement = document.getElementById('currentLocation');
+                if (locationElement) {
+                    locationElement.textContent = this.currentLocation.label;
+                }
+            }
+
+            updateMarketStatus() {
+                const timezone = this.getTimezoneForCountry(this.currentLocation.country);
+                const status = this.getMarketStatus(timezone);
+                const statusElement = document.getElementById('marketStatus');
+                
+                if (statusElement) {
+                    statusElement.textContent = status.isOpen ? 'Market Open' : 'Market Closed';
+                    statusElement.className = `market-status ${status.isOpen ? 'open' : 'closed'}`;
+                }
+            }
+
+            getTimezoneForCountry(country) {
+                const timezones = {
+                    'US': 'America/New_York', 'EU': 'Europe/London', 'GB': 'Europe/London',
+                    'JP': 'Asia/Tokyo', 'CN': 'Asia/Shanghai', 'IN': 'Asia/Kolkata',
+                    'AU': 'Australia/Sydney', 'CA': 'America/Toronto'
+                };
+                return timezones[country] || 'America/New_York';
+            }
+
+            getMarketStatus(timezone) {
+                try {
+                    const now = new Date();
+                    const marketTime = new Intl.DateTimeFormat('en-US', {
+                        timeZone: timezone, hour: 'numeric', minute: 'numeric', hour12: false
+                    }).formatToParts(now);
+                    
+                    const hour = parseInt(marketTime.find(part => part.type === 'hour').value);
+                    const minute = parseInt(marketTime.find(part => part.type === 'minute').value);
+                    const currentTime = hour * 60 + minute;
+                    
+                    const marketOpen = 9 * 60 + 30; // 9:30 AM
+                    const marketClose = 16 * 60; // 4:00 PM
+                    const isWeekday = now.getDay() >= 1 && now.getDay() <= 5;
+                    const isOpen = isWeekday && currentTime >= marketOpen && currentTime < marketClose;
+                    
+                    return { isOpen };
+                } catch (error) {
+                    return { isOpen: false };
+                }
+            }
+
+            convertCurrency(amountUSD, targetCurrency) {
+                if (targetCurrency === 'USD') return amountUSD;
+                
+                // Use global currency settings if available
+                if (window.currencySettings && window.currencySettings.exchangeRates) {
+                    const rate = window.currencySettings.exchangeRates[targetCurrency];
+                    return rate ? amountUSD * rate : amountUSD;
+                }
+                
+                // Fallback to local exchange rates
+                const rate = this.exchangeRates[targetCurrency];
+                return rate ? amountUSD * rate : amountUSD;
+            }
+
+            formatCurrency(amount, currency = null) {
+                const targetCurrency = currency || this.currentLocation.currency;
+                const convertedAmount = this.convertCurrency(amount, targetCurrency);
+                
+                // Use global formatCurrency function if available
+                if (window.formatCurrency) {
+                    return window.formatCurrency(convertedAmount, targetCurrency);
+                }
+                
+                // Fallback formatting
+                try {
+                    const locale = this.getLocaleForCountry(this.currentLocation.country);
+                    return new Intl.NumberFormat(locale, {
+                        style: 'currency', currency: targetCurrency, 
+                        minimumFractionDigits: 2, maximumFractionDigits: 2
+                    }).format(convertedAmount);
+                } catch (error) {
+                    return `${targetCurrency} ${convertedAmount.toFixed(2)}`;
+                }
+            }
+
+            getLocaleForCountry(country) {
+                const locales = {
+                    'US': 'en-US', 'EU': 'en-GB', 'GB': 'en-GB', 'JP': 'ja-JP',
+                    'CN': 'zh-CN', 'IN': 'en-IN', 'AU': 'en-AU', 'CA': 'en-CA'
+                };
+                return locales[country] || 'en-US';
+            }
+
+            // Reset permission (for testing)
+            resetPermission() {
+                localStorage.removeItem('alphawave_location_permission');
+                localStorage.removeItem('alphawave_location_denied');
+                sessionStorage.removeItem('alphawave_location_prompted');
+                sessionStorage.removeItem('alphawave_location_session');
+                console.log('Location permission reset');
+            }
+        }
+
+        // ============================================
+        // ENHANCED FINNHUB API WITH LOCATION SUPPORT
+        // ============================================
+        class LocationAwareFinnhubAPI {
+            constructor() {
+                this.apiKey = 'ctrlpb1r01qglao4qp80ctrlpb1r01qglao4qp8g';
+                this.baseUrl = 'https://finnhub.io/api/v1';
                 this.cache = new Map();
-                this.cacheExpiry = 5 * 60 * 1000; // 5 minutes cache
                 this.isLoading = false;
-                this.rateLimitDelay = 1000; // 1 second between requests for free tier
+                this.rateLimitDelay = 1000;
                 this.lastRequestTime = 0;
                 
-                // Stock symbols mapping
                 this.stockSymbols = [
                     'TSLA', 'AAPL', 'NVDA', 'AMD', 'META', 'AMZN', 'GOOGL', 'NFLX'
                 ];
                 
-                this.initializeStockService();
+                console.log('Enhanced FinnhubAPI initialized');
             }
 
-            // Initialize the stock service
-            async initializeStockService() {
-                try {
-                    console.log('Initializing Marketstack API service...');
-                    
-                    // Load cached data first for immediate display
-                    this.loadCachedData();
-                    
-                    // Then fetch fresh data
-                    await this.fetchAllStockData();
-                    
-                    // Set up periodic updates (every 5 minutes)
-                    this.startPeriodicUpdates();
-                    
-                } catch (error) {
-                    console.error('Error initializing stock service:', error);
-                    this.handleAPIError(error);
-                }
-            }
-
-            // Rate limiting helper
             async waitForRateLimit() {
                 const now = Date.now();
                 const timeSinceLastRequest = now - this.lastRequestTime;
@@ -996,33 +1491,13 @@
                 this.lastRequestTime = Date.now();
             }
 
-            // Get cache key
-            getCacheKey(symbol, endpoint = 'eod') {
-                return `${symbol}_${endpoint}_${new Date().toDateString()}`;
-            }
-
-            // Check if cached data is valid
-            isCacheValid(cacheData) {
-                if (!cacheData || !cacheData.timestamp) return false;
-                return (Date.now() - cacheData.timestamp) < this.cacheExpiry;
-            }
-
-            // Fetch end-of-day data for a single stock
-            async fetchStockData(symbol) {
+            async fetchStockQuote(symbol) {
                 try {
                     await this.waitForRateLimit();
                     
-                    const cacheKey = this.getCacheKey(symbol);
-                    const cachedData = this.cache.get(cacheKey);
+                    console.log(`Fetching real price for ${symbol}...`);
                     
-                    if (this.isCacheValid(cachedData)) {
-                        console.log(`Using cached data for ${symbol}`);
-                        return cachedData.data;
-                    }
-
-                    console.log(`Fetching fresh data for ${symbol}...`);
-                    
-                    const url = `${this.baseUrl}/eod?access_key=${this.apiKey}&symbols=${symbol}&limit=2`;
+                    const url = `${this.baseUrl}/quote?symbol=${symbol}&token=${this.apiKey}`;
                     const response = await fetch(url);
                     
                     if (!response.ok) {
@@ -1031,41 +1506,31 @@
                     
                     const data = await response.json();
                     
-                    if (data.error) {
-                        throw new Error(data.error.message || 'API Error');
+                    if (!data.c) {
+                        throw new Error(`No quote data found for ${symbol}`);
                     }
                     
-                    if (!data.data || data.data.length === 0) {
-                        throw new Error(`No data found for ${symbol}`);
-                    }
-
-                    // Cache the data
-                    this.cache.set(cacheKey, {
-                        data: data.data,
-                        timestamp: Date.now()
-                    });
-
-                    // Save to localStorage
-                    this.saveCacheToStorage();
-                    
-                    return data.data;
+                    console.log(`Got real price for ${symbol}: ${data.c}`);
+                    return data;
                     
                 } catch (error) {
-                    console.error(`Error fetching data for ${symbol}:`, error);
-                    
-                    // Try to return cached data as fallback
-                    const cacheKey = this.getCacheKey(symbol);
-                    const cachedData = this.cache.get(cacheKey);
-                    if (cachedData) {
-                        console.log(`Using stale cache data for ${symbol}`);
-                        return cachedData.data;
-                    }
-                    
-                    throw error;
+                    console.error(`Error fetching quote for ${symbol}:`, error);
+                    return this.getFallbackQuote(symbol);
                 }
             }
 
-            // Fetch data for all stocks
+            async initializeStockService() {
+                try {
+                    console.log('Initializing Location-Aware Stock Service...');
+                    this.loadCachedData();
+                    await this.fetchAllStockData();
+                    this.startPeriodicUpdates();
+                } catch (error) {
+                    console.error('Error initializing stock service:', error);
+                    this.handleAPIError(error);
+                }
+            }
+
             async fetchAllStockData() {
                 if (this.isLoading) {
                     console.log('Already loading stock data...');
@@ -1075,13 +1540,14 @@
                 this.isLoading = true;
                 
                 try {
-                    console.log('Fetching all stock data...');
+                    const currency = window.locationService?.currentLocation?.currency || 'USD';
+                    console.log(`Fetching stock data (displaying in ${currency})...`);
                     this.showLoadingIndicator();
                     
                     const stockPromises = this.stockSymbols.map(async (symbol) => {
                         try {
-                            const data = await this.fetchStockData(symbol);
-                            return { symbol, data, success: true };
+                            const quoteData = await this.fetchStockQuote(symbol);
+                            return { symbol, data: quoteData, success: true };
                         } catch (error) {
                             console.error(`Failed to fetch ${symbol}:`, error);
                             return { symbol, error, success: false };
@@ -1090,31 +1556,24 @@
 
                     const results = await Promise.all(stockPromises);
                     
-                    // Process results
                     const stockData = {};
                     let successCount = 0;
                     
                     results.forEach(result => {
-                        if (result.success && result.data && result.data.length > 0) {
+                        if (result.success && result.data) {
                             stockData[result.symbol] = this.processStockData(result.data, result.symbol);
                             successCount++;
                         } else {
-                            // Use fallback data
                             stockData[result.symbol] = this.getFallbackData(result.symbol);
                         }
                     });
 
                     console.log(`Successfully fetched data for ${successCount}/${this.stockSymbols.length} stocks`);
                     
-                    // Update UI
                     this.updateStockDisplays(stockData);
+                    this.updatePortfolioValue(stockData);
                     this.hideLoadingIndicator();
                     this.updateLastUpdatedTime();
-                    
-                    // Trigger custom event
-                    window.dispatchEvent(new CustomEvent('stockDataUpdated', {
-                        detail: { stockData, successCount }
-                    }));
                     
                 } catch (error) {
                     console.error('Error fetching stock data:', error);
@@ -1124,29 +1583,13 @@
                 }
             }
 
-            // Process raw stock data
             processStockData(rawData, symbol) {
                 try {
-                    // Get latest two data points for comparison
-                    const latest = rawData[0];
-                    const previous = rawData[1] || rawData[0];
-                    
-                    const currentPrice = latest.close;
-                    const previousPrice = previous.close;
-                    const change = currentPrice - previousPrice;
-                    const changePercent = ((change / previousPrice) * 100);
-                    
                     return {
-                        symbol: symbol,
-                        price: currentPrice,
-                        change: change,
-                        changePercent: changePercent,
-                        volume: latest.volume,
-                        open: latest.open,
-                        high: latest.high,
-                        low: latest.low,
-                        lastUpdate: new Date(latest.date),
-                        isLive: true
+                        symbol: symbol, price: rawData.c, change: rawData.d, 
+                        changePercent: rawData.dp, high: rawData.h, low: rawData.l,
+                        open: rawData.o, previousClose: rawData.pc, 
+                        lastUpdate: new Date(), isLive: true
                     };
                 } catch (error) {
                     console.error(`Error processing data for ${symbol}:`, error);
@@ -1154,50 +1597,59 @@
                 }
             }
 
-            // Get fallback data when API fails
-            getFallbackData(symbol) {
-                const fallbackPrices = {
-                    'TSLA': 245.67,
-                    'AAPL': 198.85,
-                    'NVDA': 875.43,
-                    'AMD': 142.18,
-                    'META': 485.23,
-                    'AMZN': 191.10,
-                    'GOOGL': 158.71,
-                    'NFLX': 485.32
-                };
+            updatePortfolioValue(stockData) {
+                let totalValue = 47892.50; // Base USD value
+                if (window.locationService) {
+                    const formattedValue = window.locationService.formatCurrency(totalValue);
+                    const portfolioValueElement = document.getElementById('portfolioValue');
+                    if (portfolioValueElement) {
+                        portfolioValueElement.textContent = formattedValue;
+                    }
+                }
+            }
 
-                const basePrice = fallbackPrices[symbol] || 100;
-                const randomChange = (Math.random() - 0.5) * 10; // ±5%
-                
+            updatePortfolioValueOnly() {
+                let totalValue = 47892.50; // Base USD value
+                if (window.locationService) {
+                    const formattedValue = window.locationService.formatCurrency(totalValue);
+                    const portfolioValueElement = document.getElementById('portfolioValue');
+                    if (portfolioValueElement) {
+                        portfolioValueElement.textContent = formattedValue;
+                    }
+                }
+            }
+
+            getFallbackQuote(symbol) {
+                const fallbackPrices = {
+                    'TSLA': { c: 245.67, d: 5.35, dp: 2.23 },
+                    'AAPL': { c: 198.85, d: 3.53, dp: 1.81 },
+                    'NVDA': { c: 875.43, d: 15.22, dp: 1.77 },
+                    'AMD': { c: 142.18, d: 3.23, dp: 2.32 },
+                    'META': { c: 485.23, d: 6.56, dp: 1.37 },
+                    'AMZN': { c: 191.10, d: 2.65, dp: 1.41 },
+                    'GOOGL': { c: 158.71, d: 2.89, dp: 1.85 },
+                    'NFLX': { c: 485.32, d: 6.42, dp: 1.34 }
+                };
+                return fallbackPrices[symbol] || { c: 100, d: 2, dp: 2.04 };
+            }
+
+            getFallbackData(symbol) {
+                const fallback = this.getFallbackQuote(symbol);
                 return {
-                    symbol: symbol,
-                    price: basePrice + randomChange,
-                    change: randomChange,
-                    changePercent: (randomChange / basePrice) * 100,
-                    volume: Math.floor(Math.random() * 10000000),
-                    isLive: false,
-                    lastUpdate: new Date()
+                    symbol: symbol, price: fallback.c, change: fallback.d,
+                    changePercent: fallback.dp, isLive: false, lastUpdate: new Date()
                 };
             }
 
-            // Update stock displays across the application
             updateStockDisplays(stockData) {
                 try {
-                    // Update dashboard stocks
+                    console.log('Updating stock displays...');
                     this.updateDashboardStocks(stockData);
-                    
-                    // Update any price displays with currency formatting
-                    this.updateCurrencyDisplays(stockData);
-                    
-                    console.log('Stock displays updated successfully');
-                    
                 } catch (error) {
                     console.error('Error updating stock displays:', error);
                 }
             }
 
-            // Update dashboard stock cards
             updateDashboardStocks(stockData) {
                 const grids = ['myStocksGrid', 'watchlistGrid', 'trendingGrid'];
                 
@@ -1210,17 +1662,33 @@
                             
                             const changeClass = stock.change >= 0 ? 'positive' : 'negative';
                             const changeSign = stock.change >= 0 ? '+' : '';
-                            const priceFormatted = this.formatCurrency(stock.price);
+                            
+                            // Use location service for currency formatting if available
+                            const priceFormatted = window.locationService ? 
+                                window.locationService.formatCurrency(stock.price) : 
+                                `$${stock.price.toFixed(2)}`;
+                            
                             const changeFormatted = `${changeSign}${stock.changePercent.toFixed(2)}%`;
                             
+                            // Route to specific pages
+                            let clickAction = '';
+                            if (symbol === 'AAPL') {
+                                clickAction = `onclick="console.log('Apple clicked'); window.location.href='apple-stock-detail.html';"`;
+                            } else if (symbol === 'GOOGL') {
+                                clickAction = `onclick="console.log('Google clicked'); window.location.href='stock-detail.html';"`;
+                            } else {
+                                clickAction = `onclick="console.log('${symbol} clicked');"`;
+                            }
+                            
                             return `
-                                <div class="stock-card" onclick="showStockDetail('${symbol}')" data-symbol="${symbol}">
+                                <div class="stock-card ${stock.isLive ? 'live' : 'offline'}" ${clickAction} data-symbol="${symbol}">
                                     <div class="stock-logo-container">
                                         <div class="stock-icon-fallback ${symbol.toLowerCase()}" id="icon-${gridId}-${symbol}">
                                             <img src="${this.getStockLogo(symbol)}" alt="${symbol}" class="stock-logo" 
                                                  onerror="this.style.display='none'; document.getElementById('icon-${gridId}-${symbol}').innerHTML='${this.getStockFallback(symbol)}';"
                                                  onload="this.parentElement.style.background='transparent';">
                                         </div>
+                                        ${!stock.isLive ? '<div class="offline-indicator">OFF</div>' : ''}
                                     </div>
                                     <div class="stock-symbol">${symbol}</div>
                                     <div class="stock-price">${priceFormatted}</div>
@@ -1232,110 +1700,27 @@
                 });
             }
 
-            // Get stock logo path
             getStockLogo(symbol) {
                 const logos = {
-                    'TSLA': 'Tesla.png',
-                    'AAPL': 'Apple.png',
-                    'NVDA': 'nvidia.jpg',
-                    'AMD': 'AMD.jpg',
-                    'META': 'Meta.png',
-                    'AMZN': 'amazon_.png',
-                    'GOOGL': 'Google.jpg',
-                    'NFLX': 'netflix.png'
+                    'TSLA': 'Tesla.png', 'AAPL': 'Apple.png', 'NVDA': 'nvidia.jpg',
+                    'AMD': 'AMD.jpg', 'META': 'Meta.png', 'AMZN': 'amazon_.png',
+                    'GOOGL': 'Google.jpg', 'NFLX': 'netflix.png'
                 };
                 return logos[symbol] || `${symbol.toLowerCase()}.png`;
             }
 
-            // Get stock fallback text
             getStockFallback(symbol) {
                 const fallbacks = {
-                    'TSLA': 'T',
-                    'AAPL': 'A',
-                    'NVDA': 'N',
-                    'AMD': 'AMD',
-                    'META': 'f',
-                    'AMZN': 'a',
-                    'GOOGL': 'G',
-                    'NFLX': 'N'
+                    'TSLA': 'T', 'AAPL': 'A', 'NVDA': 'N', 'AMD': 'AMD',
+                    'META': 'f', 'AMZN': 'a', 'GOOGL': 'G', 'NFLX': 'N'
                 };
                 return fallbacks[symbol] || symbol.charAt(0);
             }
 
-            // Format currency based on user location
-            formatCurrency(amount) {
-                try {
-                    // Use location service if available
-                    if (window.locationService && window.locationService.marketRegion) {
-                        const currency = window.locationService.marketRegion.currency || 'USD';
-                        const country = window.locationService.userLocation?.country || 'US';
-                        const locale = this.getLocaleFromCountry(country);
-                        
-                        return new Intl.NumberFormat(locale, {
-                            style: 'currency',
-                            currency: currency,
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        }).format(amount);
-                    }
-                } catch (error) {
-                    console.warn('Error formatting currency:', error);
-                }
-                
-                // Fallback to USD
-                return new Intl.NumberFormat('en-US', {
-                    style: 'currency',
-                    currency: 'USD',
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                }).format(amount);
-            }
-
-            // Format volume
-            formatVolume(volume) {
-                if (volume >= 1000000) {
-                    return (volume / 1000000).toFixed(1) + 'M';
-                } else if (volume >= 1000) {
-                    return (volume / 1000).toFixed(1) + 'K';
-                }
-                return volume?.toString() || 'N/A';
-            }
-
-            // Get locale from country code
-            getLocaleFromCountry(countryCode) {
-                const locales = {
-                    'US': 'en-US',
-                    'GB': 'en-GB',
-                    'DE': 'de-DE',
-                    'FR': 'fr-FR',
-                    'JP': 'ja-JP',
-                    'CN': 'zh-CN',
-                    'CA': 'en-CA',
-                    'AU': 'en-AU'
-                };
-                return locales[countryCode] || 'en-US';
-            }
-
-            // Update currency displays
-            updateCurrencyDisplays(stockData) {
-                const currencyElements = document.querySelectorAll('[data-currency]');
-                currencyElements.forEach(element => {
-                    const value = parseFloat(element.textContent.replace(/[^0-9.-]/g, ''));
-                    if (!isNaN(value)) {
-                        element.textContent = this.formatCurrency(value);
-                    }
-                });
-            }
-
-            // Show loading indicator
             showLoadingIndicator() {
-                // Add loading states to stock cards
                 const stockCards = document.querySelectorAll('.stock-card');
-                stockCards.forEach(card => {
-                    card.classList.add('loading');
-                });
+                stockCards.forEach(card => card.classList.add('loading'));
 
-                // Update refresh button
                 const refreshBtn = document.querySelector('.refresh-stocks-btn');
                 if (refreshBtn) {
                     refreshBtn.classList.add('loading');
@@ -1343,15 +1728,10 @@
                 }
             }
 
-            // Hide loading indicator
             hideLoadingIndicator() {
-                // Remove loading states
                 const stockCards = document.querySelectorAll('.stock-card');
-                stockCards.forEach(card => {
-                    card.classList.remove('loading');
-                });
+                stockCards.forEach(card => card.classList.remove('loading'));
 
-                // Update refresh button
                 const refreshBtn = document.querySelector('.refresh-stocks-btn');
                 if (refreshBtn) {
                     refreshBtn.classList.remove('loading');
@@ -1359,106 +1739,42 @@
                 }
             }
 
-            // Update last updated time
             updateLastUpdatedTime() {
                 const lastUpdatedEl = document.getElementById('lastUpdated');
                 if (lastUpdatedEl) {
                     const now = new Date();
                     const timeString = now.toLocaleTimeString('en-US', { 
-                        hour: '2-digit', 
-                        minute: '2-digit',
-                        hour12: true 
+                        hour: '2-digit', minute: '2-digit', hour12: true 
                     });
-                    lastUpdatedEl.querySelector('span').textContent = `Last updated: ${timeString}`;
+                    const currency = window.locationService?.currentLocation?.currency || 'USD';
+                    lastUpdatedEl.querySelector('span').textContent = `Last updated: ${timeString} (${currency})`;
                     lastUpdatedEl.style.display = 'block';
                 }
             }
 
-            // Handle API errors
             handleAPIError(error) {
                 console.error('API Error:', error);
-                
-                // Show user-friendly error message
-                this.showErrorMessage(error.message || 'Failed to fetch stock data');
-                
-                // Hide loading indicator
                 this.hideLoadingIndicator();
-                
-                // Load cached data as fallback
                 this.loadCachedData();
             }
 
-            // Show error message
-            showErrorMessage(message) {
-                // Create or update error notification
-                let errorDiv = document.getElementById('stockErrorNotification');
-                if (!errorDiv) {
-                    errorDiv = document.createElement('div');
-                    errorDiv.id = 'stockErrorNotification';
-                    errorDiv.className = 'error-notification';
-                    document.body.appendChild(errorDiv);
-                }
-                
-                errorDiv.innerHTML = `
-                    <div class="error-content">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <span>${message}</span>
-                        <button onclick="marketstackAPI.dismissError()" class="dismiss-btn">&times;</button>
-                    </div>
-                `;
-                
-                errorDiv.style.display = 'block';
-                
-                // Auto-hide after 10 seconds
-                setTimeout(() => {
-                    this.dismissError();
-                }, 10000);
-            }
-
-            // Dismiss error notification
-            dismissError() {
-                const errorDiv = document.getElementById('stockErrorNotification');
-                if (errorDiv) {
-                    errorDiv.style.display = 'none';
-                }
-            }
-
-            // Save cache to localStorage
-            saveCacheToStorage() {
-                try {
-                    const cacheData = {};
-                    this.cache.forEach((value, key) => {
-                        cacheData[key] = value;
-                    });
-                    localStorage.setItem('alphawave_stock_cache', JSON.stringify(cacheData));
-                } catch (error) {
-                    console.warn('Could not save cache to storage:', error);
-                }
-            }
-
-            // Load cached data from localStorage
             loadCachedData() {
                 try {
-                    const stored = localStorage.getItem('alphawave_stock_cache');
+                    const stored = localStorage.getItem('alphawave_finnhub_cache');
                     if (stored) {
                         const cacheData = JSON.parse(stored);
-                        Object.entries(cacheData).forEach(([key, value]) => {
-                            this.cache.set(key, value);
-                        });
-                        
-                        // Process cached data for display
                         const stockData = {};
                         this.stockSymbols.forEach(symbol => {
-                            const cacheKey = this.getCacheKey(symbol);
-                            const cachedData = this.cache.get(cacheKey);
-                            if (cachedData && cachedData.data) {
-                                stockData[symbol] = this.processStockData(cachedData.data, symbol);
+                            const cachedQuote = cacheData[symbol];
+                            if (cachedQuote) {
+                                stockData[symbol] = this.processStockData(cachedQuote, symbol);
                             } else {
                                 stockData[symbol] = this.getFallbackData(symbol);
                             }
                         });
                         
                         this.updateStockDisplays(stockData);
+                        this.updatePortfolioValue(stockData);
                         console.log('Loaded cached stock data');
                     }
                 } catch (error) {
@@ -1466,18 +1782,15 @@
                 }
             }
 
-            // Start periodic updates
             startPeriodicUpdates() {
-                // Update every 5 minutes
                 setInterval(() => {
                     if (!this.isLoading) {
-                        console.log('Performing periodic stock data update...');
+                        console.log('Performing periodic update...');
                         this.fetchAllStockData();
                     }
                 }, 5 * 60 * 1000);
             }
 
-            // Manual refresh function
             async refreshStockData() {
                 if (this.isLoading) {
                     console.log('Already refreshing...');
@@ -1485,58 +1798,65 @@
                 }
                 
                 console.log('Manual refresh requested...');
-                this.cache.clear(); // Clear cache to force fresh data
+                this.cache.clear();
                 await this.fetchAllStockData();
             }
         }
 
-        // Initialize the Marketstack API service
-        const marketstackAPI = new MarketstackAPI();
-        window.marketstackAPI = marketstackAPI;
+        // ============================================
+        // GLOBAL FUNCTIONS AND INITIALIZATION
+        // ============================================
 
-        // Authentication System (embedded)
-        class AuthSystem {
-            constructor() {
-                this.users = JSON.parse(localStorage.getItem('alphawave_users') || '[]');
-                this.currentUser = JSON.parse(localStorage.getItem('alphawave_current_user') || 'null');
-                this.initializeAuth();
-            }
-
-            initializeAuth() {
-                const protectedPages = ['dashboard.html', 'portfolio.html', 'news.html', 'stocks.html', 'watchlist.html', 'pro.html'];
-                const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-                
-                if (protectedPages.includes(currentPage) && !this.isLoggedIn()) {
-                    this.redirectToLogin();
-                }
-            }
-
-            isLoggedIn() {
-                return this.currentUser !== null;
-            }
-
-            getCurrentUser() {
-                return this.currentUser;
-            }
-
-            logout() {
-                localStorage.removeItem('alphawave_current_user');
-                this.currentUser = null;
-                this.redirectToLogin();
-            }
-
-            redirectToLogin() {
-                window.location.href = 'index.html';
+        // Location dropdown functions
+        function toggleLocationDropdown() {
+            const dropdown = document.getElementById('locationDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('show');
             }
         }
 
-        // Initialize auth system
-        window.authSystem = new AuthSystem();
+        function changeLocation(country, label, currency) {
+            // Update active selection
+            const options = document.querySelectorAll('.location-option');
+            options.forEach(option => option.classList.remove('active'));
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+            
+            // Close dropdown
+            toggleLocationDropdown();
+            
+            // Update location
+            if (window.locationService) {
+                window.locationService.setLocation(country, label, currency);
+                
+                // Show updating indicator
+                const selector = document.getElementById('currentLocation');
+                const originalText = selector.textContent;
+                selector.textContent = 'Updating...';
+                
+                setTimeout(() => {
+                    selector.textContent = label;
+                }, 1000);
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('locationDropdown');
+            const selector = document.getElementById('locationSelector');
+            
+            if (dropdown && selector && 
+                !dropdown.contains(event.target) && 
+                !selector.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
 
         // Profile Modal Functions
         function toggleProfileModal() {
             const overlay = document.getElementById('profileModalOverlay');
-            if (overlay.classList.contains('show')) {
+            if (overlay.style.display === 'flex') {
                 closeProfileModal();
             } else {
                 openProfileModal();
@@ -1545,7 +1865,8 @@
 
         function openProfileModal() {
             const overlay = document.getElementById('profileModalOverlay');
-            overlay.classList.add('show');
+            overlay.style.display = 'flex';
+            overlay.style.opacity = '1';
             document.body.style.overflow = 'hidden';
         }
 
@@ -1555,279 +1876,565 @@
             }
             
             const overlay = document.getElementById('profileModalOverlay');
-            overlay.classList.remove('show');
+            overlay.style.display = 'none';
+            overlay.style.opacity = '0';
             document.body.style.overflow = 'auto';
         }
 
-        function handleMenuClick(action) {
-            console.log('Menu action:', action);
-            
-            if (action === 'logout') {
-                window.authSystem.logout();
-                return;
-            }
-            
-            // Just close the modal without redirecting anywhere for other actions
-            closeProfileModal();
-        }
-
-        // Stock related functions
-        function showStockDetail(symbol) {
-            window.location.href = `stock-detail.html?symbol=${symbol}`;
-        }
-
         function refreshStockData() {
-            if (window.marketstackAPI) {
-                window.marketstackAPI.refreshStockData();
+            if (window.finnhubAPI) {
+                window.finnhubAPI.refreshStockData();
             }
         }
 
-        // Update location display in navbar
-        function updateLocationDisplay() {
-            const locationInfo = document.querySelector('.location-info');
-            const locationText = document.querySelector('.location-text');
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Enhanced Dashboard with Location Support loading...');
             
-            if (window.locationService && window.locationService.userLocation) {
-                const location = window.locationService.userLocation;
-                if (locationInfo && locationText) {
-                    locationInfo.style.display = 'flex';
-                    if (location.isDefault) {
-                        locationText.textContent = 'Default Location';
-                    } else {
-                        locationText.textContent = `${location.city}, ${location.country}`;
-                    }
-                }
-
-                // Update regional indicator
-                const regionalIndicator = document.getElementById('regionalIndicator');
-                if (regionalIndicator && !location.isDefault) {
-                    regionalIndicator.style.display = 'flex';
-                    const span = regionalIndicator.querySelector('span');
-                    if (span) {
-                        span.textContent = `Popular in ${location.countryName}`;
-                    }
-                }
-
-                // Update market status
-                updateMarketStatus();
-            }
-        }
-
-        function updateMarketStatus() {
-            const marketContainer = document.querySelector('.market-status-container');
-            const statusIndicator = document.querySelector('.market-status-indicator');
-            const statusText = document.querySelector('.market-status-text');
+            // Initialize location service first with location prompt
+            window.locationService = new SimpleLocationService();
+            window.locationService.init();
             
-            if (window.locationService && marketContainer) {
-                const timezone = window.locationService.userLocation?.timezone || 'America/New_York';
-                const marketStatus = getMarketStatus(timezone);
+            // Initialize stock API
+            window.finnhubAPI = new LocationAwareFinnhubAPI();
+            window.finnhubAPI.initializeStockService();
+            
+            // Listen for location changes
+            window.addEventListener('locationChanged', function(event) {
+                console.log('Location changed event:', event.detail);
                 
-                marketContainer.style.display = 'flex';
-                
-                if (statusIndicator) {
-                    statusIndicator.className = `market-status-indicator ${marketStatus.isOpen ? 'open' : 'closed'}`;
+                // Refresh stock data with new currency
+                if (window.finnhubAPI) {
+                    window.finnhubAPI.fetchAllStockData();
                 }
-                
-                if (statusText) {
-                    statusText.textContent = marketStatus.isOpen ? 'Market Open' : 'Market Closed';
+            });
+            
+            console.log('✅ Dashboard initialization complete');
+        });
+
+        // Close modals when pressing Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeProfileModal();
+                const dropdown = document.getElementById('locationDropdown');
+                if (dropdown) {
+                    dropdown.classList.remove('show');
                 }
+            }
+        });
+
+        // Reset function for testing location prompt
+        function resetLocationPrompt() {
+            sessionStorage.removeItem('alphawave_location_prompted');
+            localStorage.removeItem('alphawave_location_denied');
+            localStorage.removeItem('alphawave_location_settings');
+            localStorage.removeItem('alphawave_location_permission');
+            console.log('🔄 Location prompt reset - refresh page to see prompt again');
+        }
+
+        // Force show location prompt for testing
+        function showLocationPromptNow() {
+            if (window.locationService) {
+                console.log('🚀 Forcing location prompt to show...');
+                window.locationService.showLocationPermissionPrompt();
             }
         }
 
-        function getMarketStatus(timezone) {
-            try {
-                const now = new Date();
-                const marketTime = new Intl.DateTimeFormat('en-US', {
-                    timeZone: timezone,
-                    hour: 'numeric',
-                    minute: 'numeric',
-                    hour12: false
-                }).formatToParts(now);
-                
-                const hour = parseInt(marketTime.find(part => part.type === 'hour').value);
-                const minute = parseInt(marketTime.find(part => part.type === 'minute').value);
-                const currentTime = hour * 60 + minute;
-                
-                // NYSE hours: 9:30 AM - 4:00 PM EST (570 - 960 minutes)
-                const marketOpen = 9 * 60 + 30; // 9:30 AM
-                const marketClose = 16 * 60; // 4:00 PM
-                
-                const isWeekday = now.getDay() >= 1 && now.getDay() <= 5;
-                const isOpen = isWeekday && currentTime >= marketOpen && currentTime < marketClose;
-                
-                return {
-                    isOpen: isOpen,
-                    currentTime: `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`,
-                    timezone: timezone
-                };
-            } catch (error) {
-                console.error('Error getting market status:', error);
-                return { isOpen: false, currentTime: '', timezone: 'UTC' };
-            }
-        }
+        // Make functions available globally for testing
+        window.resetLocationPrompt = resetLocationPrompt;
+        window.showLocationPromptNow = showLocationPromptNow;
+            
+        // ============================================
+        // AUTHENTICATION SYSTEM ADD-ON FOR YOUR DASHBOARD
+        // ============================================
 
-        // Show welcome message for logged in user
-        function showWelcomeMessage() {
-            const user = window.authSystem.getCurrentUser();
-            if (user && user.fullName) {
-                const welcomeDiv = document.createElement('div');
-                welcomeDiv.className = 'user-welcome';
-                welcomeDiv.textContent = `Welcome back, ${user.fullName}!`;
-                welcomeDiv.style.cssText = `
+        // Enhanced Authentication System
+        class AuthSystem {
+            constructor() {
+                this.users = JSON.parse(localStorage.getItem('alphawave_users') || '[]');
+                this.currentUser = this.loadCurrentUser();
+                this.initializeAuth();
+            }
+
+            // Safely load current user with validation
+            loadCurrentUser() {
+                try {
+                    const stored = localStorage.getItem('alphawave_current_user');
+                    if (!stored || stored === 'null' || stored === 'undefined') {
+                        return null;
+                    }
+                    
+                    const user = JSON.parse(stored);
+                    
+                    // Validate user object has required properties
+                    if (!user || !user.id || !user.email) {
+                        console.warn('Invalid user session detected, clearing...');
+                        localStorage.removeItem('alphawave_current_user');
+                        return null;
+                    }
+                    
+                    return user;
+                } catch (error) {
+                    console.error('Error loading current user:', error);
+                    localStorage.removeItem('alphawave_current_user');
+                    return null;
+                }
+            }
+
+            // Initialize authentication system
+            initializeAuth() {
+                const protectedPages = ['dashboard.html', 'portfolio.html', 'news.html', 'stocks.html', 'watchlist.html', 'pro.html'];
+                const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+                
+                console.log('Auth check - Page:', currentPage, 'Logged in:', this.isLoggedIn());
+                
+                // Check if user should be on protected page but isn't logged in
+                if (protectedPages.includes(currentPage) && !this.isLoggedIn()) {
+                    console.log('Protected page access denied, redirecting to login...');
+                    this.redirectToLogin();
+                    return;
+                }
+                
+                // Only redirect away from auth pages if user is actually logged in with valid session
+                if ((currentPage === 'index.html' || currentPage === 'signup.html') && this.isLoggedIn()) {
+                    console.log('User already logged in, redirecting to dashboard...');
+                    setTimeout(() => {
+                        this.redirectToDashboard();
+                    }, 100);
+                }
+            }
+
+            // Check if user is logged in
+            isLoggedIn() {
+                return this.currentUser !== null && 
+                       this.currentUser.id && 
+                       this.currentUser.email;
+            }
+
+            // Get current user
+            getCurrentUser() {
+                return this.currentUser;
+            }
+
+            // Logout user
+            logout() {
+                console.log('Logging out user:', this.currentUser?.email);
+                this.clearSession();
+                this.showMessage('You have been logged out successfully', 'success');
+                
+                // Redirect after showing message
+                setTimeout(() => {
+                    this.redirectToLogin();
+                }, 1000);
+            }
+
+            // Clear user session
+            clearSession() {
+                localStorage.removeItem('alphawave_current_user');
+                this.currentUser = null;
+                console.log('User session cleared');
+            }
+
+            // Delete account
+            deleteAccount() {
+                if (!this.isLoggedIn()) {
+                    throw new Error('You must be logged in to delete your account');
+                }
+
+                const userEmail = this.currentUser.email;
+                console.log('Deleting account for user:', userEmail);
+                
+                // Remove user from users array
+                this.users = this.users.filter(u => u.id !== this.currentUser.id);
+                this.saveUsers();
+                
+                // Clear session
+                this.clearSession();
+                
+                console.log('Account deleted successfully for:', userEmail);
+                return { success: true, message: 'Account deleted successfully!' };
+            }
+
+            // Save users to localStorage
+            saveUsers() {
+                localStorage.setItem('alphawave_users', JSON.stringify(this.users));
+            }
+
+            // Redirect to login page
+            redirectToLogin() {
+                const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+                if (currentPage !== 'index.html') {
+                    console.log('Redirecting to login page...');
+                    window.location.href = 'index.html';
+                }
+            }
+
+            // Redirect to dashboard
+            redirectToDashboard() {
+                const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+                if (currentPage !== 'dashboard.html') {
+                    console.log('Redirecting to dashboard...');
+                    window.location.href = 'dashboard.html';
+                }
+            }
+
+            // Show message to user
+            showMessage(message, type = 'info') {
+                // Remove existing messages
+                const existingMessage = document.querySelector('.auth-message');
+                if (existingMessage) {
+                    existingMessage.remove();
+                }
+                
+                // Create message element
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `auth-message auth-message-${type}`;
+                messageDiv.textContent = message;
+                
+                // Style the message
+                messageDiv.style.cssText = `
                     position: fixed;
                     top: 20px;
-                    left: 20px;
-                    background: rgba(76, 175, 80, 0.9);
-                    color: white;
-                    padding: 10px 20px;
+                    right: 20px;
+                    padding: 15px 20px;
                     border-radius: 8px;
+                    color: white;
                     font-family: 'Quicksand', sans-serif;
                     font-weight: 500;
-                    z-index: 1000;
-                    animation: slideInLeft 0.5s ease;
+                    z-index: 10000;
+                    max-width: 300px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    transition: all 0.3s ease;
+                    ${type === 'success' ? 'background: #4CAF50;' : ''}
+                    ${type === 'error' ? 'background: #f44336;' : ''}
+                    ${type === 'info' ? 'background: #2196F3;' : ''}
+                    ${type === 'warning' ? 'background: #ff9800;' : ''}
                 `;
                 
-                document.body.appendChild(welcomeDiv);
+                document.body.appendChild(messageDiv);
                 
                 // Auto remove after 5 seconds
                 setTimeout(() => {
-                    if (welcomeDiv && welcomeDiv.parentNode) {
-                        welcomeDiv.style.animation = 'slideInLeft 0.5s ease reverse';
+                    if (messageDiv && messageDiv.parentNode) {
+                        messageDiv.style.opacity = '0';
+                        messageDiv.style.transform = 'translateX(100%)';
                         setTimeout(() => {
-                            if (welcomeDiv && welcomeDiv.parentNode) {
-                                welcomeDiv.remove();
+                            if (messageDiv && messageDiv.parentNode) {
+                                messageDiv.remove();
                             }
-                        }, 500);
+                        }, 300);
                     }
                 }, 5000);
             }
         }
 
-        // Enhanced initialization
+        // Initialize auth system
+        window.authSystem = new AuthSystem();
+
+        // ============================================
+        // PROFILE MODAL FUNCTIONS
+        // ============================================
+
+        // Update your existing handleMenuClick function with this:
+        function handleMenuClick(action) {
+            console.log('Menu action:', action);
+            
+            switch(action) {
+                case 'logout':
+                    closeProfileModal();
+                    setTimeout(() => {
+                        window.authSystem.logout();
+                    }, 300);
+                    break;
+                    
+                case 'delete-account':
+                    closeProfileModal();
+                    setTimeout(() => {
+                        showDeleteConfirmation();
+                    }, 300);
+                    break;
+                    
+                case 'personal-info':
+                    window.authSystem.showMessage('Personal info page not implemented yet', 'info');
+                    closeProfileModal();
+                    break;
+                    
+                case 'currency':
+                    showCurrencySettingsModal();
+                    closeProfileModal();
+                    break;
+                    
+                case 'theme':
+                    window.authSystem.showMessage('Theme settings not implemented yet', 'info');
+                    closeProfileModal();
+                    break;
+                    
+                case 'help':
+                    window.authSystem.showMessage('Help & Support not implemented yet', 'info');
+                    closeProfileModal();
+                    break;
+                    
+                case 'terms':
+                    window.authSystem.showMessage('Terms of Service not implemented yet', 'info');
+                    closeProfileModal();
+                    break;
+                    
+                default:
+                    closeProfileModal();
+            }
+        }
+
+        // Delete account confirmation function
+        function showDeleteConfirmation() {
+            // Create a simple browser confirmation dialog
+            const confirmed = confirm('WARNING: Do you really want to delete your account?\n\nThis action cannot be undone and you will lose all your data.');
+            
+            if (confirmed) {
+                try {
+                    window.authSystem.deleteAccount();
+                    window.authSystem.showMessage('Account deleted successfully. Redirecting...', 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                    
+                } catch (error) {
+                    window.authSystem.showMessage(error.message, 'error');
+                }
+            }
+        }
+
+        // Initialize auth system on page load
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Dashboard with live stock data loaded');
-            showWelcomeMessage();
+            console.log('Dashboard authentication system loaded');
             
-            // Wait for location services to initialize
+            // Check if user is logged in
+            if (!window.authSystem.isLoggedIn()) {
+                console.log('User not logged in, redirecting...');
+                window.authSystem.redirectToLogin();
+                return;
+            }
+            
+            console.log('User logged in:', window.authSystem.getCurrentUser()?.email);
+        });
+
+        console.log('Authentication system add-on loaded successfully');
+    </script>
+
+    <!-- Currency Exchange Functions -->
+    <script>
+        // ============================================
+        // CURRENCY EXCHANGE SYSTEM
+        // ============================================
+        
+        // Global currency settings
+        let currencySettings = {
+            preferredCurrency: 'USD',
+            exchangeRates: {
+                'USD': 1,
+                'EUR': 0.85,
+                'GBP': 0.73,
+                'JPY': 110,
+                'CNY': 6.45,
+                'INR': 74.5,
+                'AUD': 1.35,
+                'CAD': 1.25
+            }
+        };
+
+        // Load currency settings from localStorage
+        function loadCurrencySettings() {
+            const stored = localStorage.getItem('alphawave_currency_settings');
+            if (stored) {
+                try {
+                    const settings = JSON.parse(stored);
+                    currencySettings = { ...currencySettings, ...settings };
+                } catch (error) {
+                    console.warn('Error loading currency settings:', error);
+                }
+            }
+        }
+
+        // Save currency settings to localStorage
+        function saveCurrencySettingsToStorage() {
+            localStorage.setItem('alphawave_currency_settings', JSON.stringify(currencySettings));
+        }
+
+        // Show currency settings modal
+        function showCurrencySettingsModal() {
+            loadCurrencySettings();
+            // Set current preferred currency
+            document.getElementById('preferredCurrency').value = currencySettings.preferredCurrency;
+            // Show modal
+            const modal = document.getElementById('currencyModalOverlay');
+            modal.style.display = 'block';
             setTimeout(() => {
-                updateLocationDisplay();
-            }, 1000);
+                modal.style.opacity = '1';
+            }, 10);
+        }
 
-            // Listen for location updates
-            window.addEventListener('locationUpdated', function(event) {
-                console.log('Location updated, refreshing displays...');
-                updateLocationDisplay();
-            });
-
-            // Listen for stock data updates
-            window.addEventListener('stockDataUpdated', function(event) {
-                const { stockData, successCount } = event.detail;
-                console.log(`Stock data updated: ${successCount} stocks loaded`);
-            });
-        });
-
-        // Close modal when pressing Escape key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                closeProfileModal();
+        // Close currency settings modal
+        function closeCurrencyModal(event) {
+            if (event && event.target.id !== 'currencyModalOverlay') {
+                return;
             }
-        });
+            
+            const modal = document.getElementById('currencyModalOverlay');
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
 
-        // Add slideIn animation keyframes and profile modal styles
-        const additionalStyles = document.createElement('style');
-        additionalStyles.textContent = `
-            @keyframes slideInLeft {
-                from {
-                    transform: translateX(-100%);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateX(0);
-                    opacity: 1;
+        // Populate exchange rates grid
+        function populateExchangeRates() {
+            const grid = document.getElementById('exchangeRatesGrid');
+            grid.innerHTML = '';
+            
+            const currencies = [
+                { code: 'EUR', name: 'Euro', flag: '🇪🇺' },
+                { code: 'GBP', name: 'British Pound', flag: '🇬🇧' },
+                { code: 'JPY', name: 'Japanese Yen', flag: '🇯🇵' },
+                { code: 'CNY', name: 'Chinese Yuan', flag: '🇨🇳' },
+                { code: 'INR', name: 'Indian Rupee', flag: '🇮🇳' },
+                { code: 'AUD', name: 'Australian Dollar', flag: '🇦🇺' },
+                { code: 'CAD', name: 'Canadian Dollar', flag: '🇨🇦' }
+            ];
+            
+            currencies.forEach(currency => {
+                const rate = currencySettings.exchangeRates[currency.code];
+                const rateElement = document.createElement('div');
+                rateElement.style.cssText = `
+                    padding: 12px;
+                    background: white;
+                    border-radius: 8px;
+                    border: 1px solid #ddd;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                `;
+                
+                rateElement.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 18px;">${currency.flag}</span>
+                        <div>
+                            <div style="font-weight: 500; color: #333;">${currency.code}</div>
+                            <div style="font-size: 12px; color: #666;">${currency.name}</div>
+                        </div>
+                    </div>
+                    <div style="font-weight: 600; color: #007bff; font-size: 16px;">
+                        ${rate.toFixed(4)}
+                    </div>
+                `;
+                
+                grid.appendChild(rateElement);
+            });
+        }
+
+        // Convert currency
+        function convertCurrency() {
+            const amount = parseFloat(document.getElementById('convertAmount').value);
+            const fromCurrency = document.getElementById('fromCurrency').value;
+            const toCurrency = document.getElementById('preferredCurrency').value;
+            
+            if (!amount || isNaN(amount)) {
+                window.authSystem.showMessage('Please enter a valid amount', 'error');
+                return;
+            }
+            
+            if (fromCurrency === toCurrency) {
+                window.authSystem.showMessage('Please select different currencies', 'info');
+                return;
+            }
+            
+            // Convert to USD first, then to target currency
+            const usdAmount = amount / currencySettings.exchangeRates[fromCurrency];
+            const convertedAmount = usdAmount * currencySettings.exchangeRates[toCurrency];
+            
+            // Display result
+            const resultDiv = document.getElementById('conversionResult');
+            const resultText = document.getElementById('conversionText');
+            
+            resultText.innerHTML = `
+                <strong>${amount.toFixed(2)} ${fromCurrency}</strong> = 
+                <strong style="color: #007bff;">${convertedAmount.toFixed(2)} ${toCurrency}</strong>
+                <br><small style="color: #666;">Rate: 1 ${fromCurrency} = ${(currencySettings.exchangeRates[toCurrency] / currencySettings.exchangeRates[fromCurrency]).toFixed(4)} ${toCurrency}</small>
+            `;
+            
+            resultDiv.style.display = 'block';
+        }
+
+        // Save currency settings
+        function saveCurrencySettings() {
+            const preferredCurrency = document.getElementById('preferredCurrency').value;
+            
+            currencySettings.preferredCurrency = preferredCurrency;
+            saveCurrencySettingsToStorage();
+            
+            // Update location service if it exists
+            if (window.locationService) {
+                window.locationService.currentLocation.currency = preferredCurrency;
+                window.locationService.saveLocationSettings();
+                
+                // Update portfolio value with new currency
+                if (window.finnhubAPI) {
+                    window.finnhubAPI.updatePortfolioValueOnly();
                 }
             }
             
-            .profile-modal-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0, 0, 0, 0.5);
-                z-index: 1000;
-                display: none;
-                opacity: 0;
-                transition: opacity 0.3s ease;
-            }
+            window.authSystem.showMessage('Currency settings saved successfully!', 'success');
+            closeCurrencyModal();
+            
+            // Refresh page to apply new currency settings
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        }
 
-            .profile-modal-overlay.show {
-                display: flex;
-                opacity: 1;
-            }
+        // Enhanced currency conversion function for use throughout the app
+        function convertCurrencyAmount(amount, fromCurrency, toCurrency) {
+            if (!amount || isNaN(amount)) return 0;
+            if (fromCurrency === toCurrency) return amount;
+            
+            const usdAmount = amount / currencySettings.exchangeRates[fromCurrency];
+            return usdAmount * currencySettings.exchangeRates[toCurrency];
+        }
 
-            .profile-modal {
-                position: absolute;
-                top: 80px;
-                right: 20px;
-                width: 380px;
-                height: 450px;
-                background: #e8e8e8;
-                border-radius: 15px;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-                padding: 20px;
-                font-family: 'Quicksand', sans-serif;
-                transform: translateY(-20px);
-                transition: transform 0.3s ease;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-            }
+        // Format currency for display
+        function formatCurrency(amount, currency) {
+            const locales = {
+                'USD': 'en-US',
+                'EUR': 'de-DE',
+                'GBP': 'en-GB',
+                'JPY': 'ja-JP',
+                'CNY': 'zh-CN',
+                'INR': 'en-IN',
+                'AUD': 'en-AU',
+                'CAD': 'en-CA'
+            };
+            
+            const locale = locales[currency] || 'en-US';
+            
+            return new Intl.NumberFormat(locale, {
+                style: 'currency',
+                currency: currency,
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(amount);
+        }
 
-            .profile-modal-overlay.show .profile-modal {
-                transform: translateY(0);
-            }
+        // Load currency settings on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCurrencySettings();
+            
+            // Make currency settings globally available
+            window.currencySettings = currencySettings;
+            window.convertCurrencyAmount = convertCurrencyAmount;
+            window.formatCurrency = formatCurrency;
+            window.showCurrencySettingsModal = showCurrencySettingsModal;
+        });
 
-            .profile-menu-item {
-                display: flex;
-                align-items: center;
-                padding: 8px 0;
-                cursor: pointer;
-                transition: background 0.3s ease;
-                border-radius: 8px;
-                margin-bottom: 2px;
-            }
-
-            .profile-menu-item:hover {
-                background: rgba(0, 0, 0, 0.1);
-                padding-left: 10px;
-            }
-
-            .profile-menu-item:last-child {
-                margin-bottom: 0;
-            }
-
-            .profile-menu-icon {
-                width: 35px;
-                height: 35px;
-                border-radius: 50%;
-                background: #666;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin-right: 10px;
-                color: white;
-                font-size: 14px;
-                flex-shrink: 0;
-            }
-
-            .profile-menu-text {
-                font-size: 14px;
-                font-weight: 500;
-                color: #333;
-                font-family: 'Quicksand', sans-serif;
-            }
-        `;
-        document.head.appendChild(additionalStyles);
+        console.log('Currency exchange system loaded successfully');
     </script>
 </body>
 </html>
