@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="geolocation-service.js"></script>
     <script src="location-components.js"></script>
+    <script src="auth.js"></script>
     <style>
         * {
             margin: 0;
@@ -243,6 +244,12 @@
         .navbar-right i.fa-bell {
             color: white;
             font-size: 16px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-right i.fa-bell:hover {
+            color: #007bff;
         }
 
         .refresh-stocks-btn {
@@ -281,19 +288,50 @@
             100% { transform: rotate(360deg); }
         }
 
-       
-        @media (max-width: 768px) {
-            .search-input {
-                width: 300px;
-            }
-            
-            .navbar-brand {
-                font-size: 24px;
-            }
+        /* Message Dropdown Styles (from news.html) */
+        .message-dropdown {
+            position: absolute;
+            top: 60px;
+            right: 60px;
+            background: #ecebeb;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            min-width: 320px;
+            min-height: 380px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .message-dropdown-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            padding: 60px 0 0 0;
+        }
+        .message-dropdown-content svg {
+            margin-bottom: 30px;
+        }
+        .message-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .message-subtext {
+            font-size: 1.1rem;
+            color: #555;
+            text-align: center;
+        }
 
-            .location-selector {
-                display: none;
-            }
+        /* Layout Fixes */
+        .main-layout {
+            display: flex;
+            margin-top: 99px;
         }
 
         .sidebar {
@@ -304,7 +342,7 @@
             border-right: 1px solid #333;
             position: fixed;
             left: 0;
-            top: 86px;
+            top: 99px;
             background-image: url('SideGradient.png');
             background-size: 100%;
             background-position: center bottom;
@@ -556,7 +594,86 @@
             background: #c9c9c9;
         }
 
+        /* Delete Account Modal Styles (from news.html) */
+        .delete-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .delete-modal-overlay.show {
+            display: block;
+            opacity: 1;
+        }
+        .delete-modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            padding: 32px 28px;
+            font-family: 'Quicksand', sans-serif;
+            color: #111;
+        }
+        .delete-warning-icon {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .delete-warning-triangle {
+            width: 40px;
+            height: 40px;
+            background: #fff3cd;
+            border: 2px solid #ffe066;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            margin: 0 auto;
+        }
+        .delete-message {
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 24px;
+        }
+        .delete-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .delete-btn {
+            background: #f44336;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 24px;
+            font-size: 16px;
+            font-family: 'Quicksand', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .delete-btn:hover {
+            background: #d32f2f;
+        }
+
+        /* Responsive Design */
         @media (max-width: 768px) {
+            .search-input {
+                width: 300px;
+            }
+            
+            .navbar-brand {
+                font-size: 24px;
+            }
+
+            .location-selector {
+                display: none;
+            }
+
             .sidebar {
                 width: 100%;
                 height: auto;
@@ -568,10 +685,12 @@
 
             .content {
                 margin-left: 0; 
+                padding: 20px;
             }
 
             .main-layout {
                 flex-direction: column;
+                margin-top: 99px;
             }
 
             .payment-container {
@@ -596,166 +715,287 @@
         @media (max-width: 576px) {
             .content {
                 margin-left: 0;
+                padding: 15px;
+            }
+            
+            .navbar-brand {
+                font-size: 24px;
+            }
+
+            .search-input {
+                width: 250px;
+            }
+
+            .payment-title {
+                font-size: 28px;
+            }
+
+            .pay-with-title {
+                font-size: 24px;
             }
         }
     </style>
 </head>
 <body>
-        <nav class="navbar">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="dashboard.html">
-                    <div class="logo-circle">AlphaWave</div>
-                    AlphaWave
-                </a>
-                <div class="search-container">
-                    <input type="text" class="search-input" placeholder="Search stocks...">
-                    <i class="fas fa-search search-icon"></i>
-                </div>
-                <div class="navbar-right">
-                    <!-- Location Selector (only for dashboard.html) -->
-                    <div class="location-selector-container" style="position: relative;">
-                        <button class="location-selector" id="locationSelector" onclick="toggleLocationDropdown()">
-                            <span id="currentLocation">Global</span>
-                            <i class="fas fa-chevron-down" style="margin-left: 5px; font-size: 10px;"></i>
-                        </button>
-                        <div class="location-dropdown" id="locationDropdown">
-                            <div class="location-option" onclick="changeLocation('US', 'United States', 'USD')">
-                                <span class="flag">US</span> United States (USD)
-                            </div>
-                            <div class="location-option" onclick="changeLocation('EU', 'Europe', 'EUR')">
-                                <span class="flag">EU</span> Europe (EUR)
-                            </div>
-                            <div class="location-option" onclick="changeLocation('GB', 'United Kingdom', 'GBP')">
-                                <span class="flag">GB</span> United Kingdom (GBP)
-                            </div>
-                            <div class="location-option" onclick="changeLocation('JP', 'Japan', 'JPY')">
-                                <span class="flag">JP</span> Japan (JPY)
-                            </div>
-                            <div class="location-option" onclick="changeLocation('CN', 'China', 'CNY')">
-                                <span class="flag">CN</span> China (CNY)
-                            </div>
-                            <div class="location-option" onclick="changeLocation('IN', 'India', 'INR')">
-                                <span class="flag">IN</span> India (INR)
-                            </div>
-                            <div class="location-option" onclick="changeLocation('AU', 'Australia', 'AUD')">
-                                <span class="flag">AU</span> Australia (AUD)
-                            </div>
-                            <div class="location-option" onclick="changeLocation('CA', 'Canada', 'CAD')">
-                                <span class="flag">CA</span> Canada (CAD)
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Refresh stocks button (only for dashboard.html) -->
-                    <button class="refresh-stocks-btn" onclick="refreshStockData()" title="Refresh stock data">
-                        <i class="fas fa-sync-alt"></i>
-                        Refresh
+    <nav class="navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="dashboard.html">
+                <div class="logo-circle">AlphaWave</div>
+                AlphaWave
+            </a>
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search stocks...">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+            <div class="navbar-right">
+                <!-- Location Selector -->
+                <div class="location-selector-container" style="position: relative;">
+                    <button class="location-selector" id="locationSelector" onclick="toggleLocationDropdown()">
+                        <span id="currentLocation">Global</span>
+                        <i class="fas fa-chevron-down" style="margin-left: 5px; font-size: 10px;"></i>
                     </button>
-                    
-                    <a href="pro.html" class="pro-badge">Pro</a>
-                    <i class="fas fa-bell" style="color: white;"></i>
-                    <div class="user-avatar" onclick="toggleProfileModal()">
-                        <img src="accountLogo.jpg" alt="User">
-                    </div>
-                </div>
-            </div>
-        </nav>
-
-        <div class="main-layout">
-            <div class="sidebar">
-                <ul class="sidebar-nav">
-                    <li><a href="dashboard.html">Dashboard</a></li>
-                    <li><a href="portfolio.html">Portfolio</a></li>
-                    <li><a href="news.html">Latest News</a></li>
-                </ul>
-            </div>
-
-            <div class="content">
-                <div class="payment-container">
-                    <div class="payment-left">
-                        <h1 class="payment-title">Payment</h1>
-                        
-                        <div class="pay-with-section">
-                            <h2 class="pay-with-title">Pay With</h2>
-                            
-                            <div class="payment-option selected" onclick="selectPayment(this)">
-                                <input type="radio" name="payment" value="paypal" checked>
-                                <img src="PayPalLogo.png" alt="PayPal" class="payment-logo-front" 
-                                     onerror="this.style.display='none';">
-                                <div class="payment-option-content">
-                                    <span class="payment-option-text">PayPal</span>
-                                </div>
-                            </div>
-                            
-                            <div class="payment-option" onclick="selectPayment(this)">
-                                <input type="radio" name="payment" value="card">
-                                <div class="payment-option-content">
-                                    <span class="payment-option-text">Credit / Debit Card</span>
-                                    <div class="payment-logos">
-                                        <img src="visa-logo.png" alt="Visa" class="payment-logo"
-                                             onerror="this.style.display='none';">
-                                        <img src="Mastercard-Logo.png" alt="Mastercard" class="payment-logo"
-                                             onerror="this.style.display='none';">
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="payment-option" onclick="selectPayment(this)">
-                                <input type="radio" name="payment" value="bank">
-                                <div class="payment-option-content">
-                                    <span class="payment-option-text">Bank Transfer</span>
-                                </div>
-                            </div>
+                    <div class="location-dropdown" id="locationDropdown">
+                        <div class="location-option" onclick="changeLocation('US', 'United States', 'USD')">
+                            <span class="flag">US</span> United States (USD)
                         </div>
-                    </div>
-
-                    <div class="payment-right">
-                        <div class="order-overview">
-                            <h3 class="order-title">Order Overview</h3>
-                            
-                            <div class="order-item">
-                                <span class="order-item-text">1 x x Google (GOOGL)</span>
-                                <span class="order-item-price">$158.71</span>
-                            </div>
-                            
-                            <div class="order-item">
-                                <span class="order-item-text">Commission Fee</span>
-                                <span class="order-item-price">$0</span>
-                            </div>
-                            
-                            <div class="order-total">
-                                <span class="order-total-text">Total Price</span>
-                                <span class="order-total-price">$158.71</span>
-                            </div>
+                        <div class="location-option" onclick="changeLocation('EU', 'Europe', 'EUR')">
+                            <span class="flag">EU</span> Europe (EUR)
+                        </div>
+                        <div class="location-option" onclick="changeLocation('GB', 'United Kingdom', 'GBP')">
+                            <span class="flag">GB</span> United Kingdom (GBP)
+                        </div>
+                        <div class="location-option" onclick="changeLocation('JP', 'Japan', 'JPY')">
+                            <span class="flag">JP</span> Japan (JPY)
+                        </div>
+                        <div class="location-option" onclick="changeLocation('CN', 'China', 'CNY')">
+                            <span class="flag">CN</span> China (CNY)
+                        </div>
+                        <div class="location-option" onclick="changeLocation('IN', 'India', 'INR')">
+                            <span class="flag">IN</span> India (INR)
+                        </div>
+                        <div class="location-option" onclick="changeLocation('AU', 'Australia', 'AUD')">
+                            <span class="flag">AU</span> Australia (AUD)
+                        </div>
+                        <div class="location-option" onclick="changeLocation('CA', 'Canada', 'CAD')">
+                            <span class="flag">CA</span> Canada (CAD)
                         </div>
                     </div>
                 </div>
+
+                <!-- Refresh stocks button -->
+                <button class="refresh-stocks-btn" onclick="refreshStockData()" title="Refresh stock data">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh
+                </button>
                 
-                <div class="payment-buttons">
-                    <button class="payment-btn cancel-btn" onclick="cancelPayment()">Cancel</button>
-                    <button class="payment-btn confirm-btn" onclick="confirmPayment()">Confirm</button>
+                <a href="pro.html" class="pro-badge">Pro</a>
+                <i class="fas fa-bell" id="notificationBell" style="color: white; cursor: pointer;"></i>
+                <div id="messageDropdown" class="message-dropdown" style="display: none;">
+                    <div class="message-dropdown-content">
+                        <svg width="90" height="90" viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="45" cy="45" r="45" fill="#444"/>
+                            <ellipse cx="45" cy="45" rx="30" ry="22" fill="#444"/>
+                            <circle cx="34" cy="50" r="4" fill="#fff"/>
+                            <circle cx="45" cy="50" r="4" fill="#fff"/>
+                            <circle cx="56" cy="50" r="4" fill="#fff"/>
+                        </svg>
+                        <div class="message-title">No Notices Right Now!</div>
+                        <div class="message-subtext">You are up to date!</div>
+                    </div>
                 </div>
+                <div class="user-avatar" onclick="toggleProfileModal()">
+                    <img src="accountLogo.jpg" alt="User">
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-layout">
+        <div class="sidebar">
+            <ul class="sidebar-nav">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="portfolio.html">Portfolio</a></li>
+                <li><a href="news.html">Latest News</a></li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <div class="payment-container">
+                <div class="payment-left">
+                    <h1 class="payment-title">Payment</h1>
+                    
+                    <div class="pay-with-section">
+                        <h2 class="pay-with-title">Pay With</h2>
+                        
+                        <div class="payment-option selected" onclick="selectPayment(this)">
+                            <input type="radio" name="payment" value="paypal" checked>
+                            <img src="PayPalLogo.png" alt="PayPal" class="payment-logo-front" 
+                                 onerror="this.style.display='none';">
+                            <div class="payment-option-content">
+                                <span class="payment-option-text">PayPal</span>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-option" onclick="selectPayment(this)">
+                            <input type="radio" name="payment" value="card">
+                            <div class="payment-option-content">
+                                <span class="payment-option-text">Credit / Debit Card</span>
+                                <div class="payment-logos">
+                                    <img src="visa-logo.png" alt="Visa" class="payment-logo"
+                                         onerror="this.style.display='none';">
+                                    <img src="Mastercard-Logo.png" alt="Mastercard" class="payment-logo"
+                                         onerror="this.style.display='none';">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-option" onclick="selectPayment(this)">
+                            <input type="radio" name="payment" value="bank">
+                            <div class="payment-option-content">
+                                <span class="payment-option-text">Bank Transfer</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payment-right">
+                    <div class="order-overview">
+                        <h3 class="order-title">Order Overview</h3>
+                        
+                        <div class="order-item">
+                            <span class="order-item-text">1 x Google (GOOGL)</span>
+                            <span class="order-item-price">$158.71</span>
+                        </div>
+                        
+                        <div class="order-item">
+                            <span class="order-item-text">Commission Fee</span>
+                            <span class="order-item-price">$0</span>
+                        </div>
+                        
+                        <div class="order-total">
+                            <span class="order-total-text">Total Price</span>
+                            <span class="order-total-price">$158.71</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="payment-buttons">
+                <button class="payment-btn cancel-btn" onclick="cancelPayment()">Cancel</button>
+                <button class="payment-btn confirm-btn" onclick="confirmPayment()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal Overlay (same design as news.html) -->
+    <div class="profile-modal-overlay" id="profileModalOverlay" onclick="closeProfileModal(event)" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s ease;">
+        <div class="profile-modal" onclick="event.stopPropagation()" style="position: absolute; top: 80px; right: 20px; width: 380px; height: 450px; background: #e8e8e8; border-radius: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); padding: 20px; font-family: 'Quicksand', sans-serif; transform: translateY(-20px); transition: transform 0.3s ease; display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="profile-menu-item" onclick="handleMenuClick('personal-info')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Personal info</div>
+            </div>
+
+            <div class="profile-menu-item" onclick="handleMenuClick('logout')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
+                    <i class="fas fa-door-open"></i>
+                </div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Logout</div>
+            </div>
+
+            <div class="profile-menu-item" onclick="handleMenuClick('currency')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Currency</div>
+            </div>
+
+            <div class="profile-menu-item" onclick="handleMenuClick('theme')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
+                    <i class="fas fa-sun"></i>
+                </div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Theme</div>
+            </div>
+
+            <div class="profile-menu-item" onclick="handleMenuClick('help')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
+                    <i class="fas fa-question-circle"></i>
+                </div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Help & Support</div>
+            </div>
+
+            <div class="profile-menu-item" onclick="handleMenuClick('terms')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
+                    <i class="fas fa-file-contract"></i>
+                </div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Terms of Service</div>
+            </div>
+
+            <div class="profile-menu-item" onclick="handleMenuClick('delete-account')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
+                    <i class="fas fa-user-times"></i>
+                </div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Delete your account</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Currency Settings Modal -->
+    <div class="currency-modal-overlay" id="currencyModalOverlay" onclick="closeCurrencyModal(event)" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s ease;">
+        <div class="currency-modal" onclick="event.stopPropagation()" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; background: #fff; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); padding: 32px 28px; font-family: 'Quicksand', sans-serif; color: #111;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 style="margin: 0; color: #111; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">Currency Settings</h2>
+                <button onclick="closeCurrencyModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #111; padding: 5px;">&times;</button>
+            </div>
+            <div style="margin-bottom: 0;">
+                <label for="preferredCurrency" style="display: block; margin-bottom: 10px; color: #111; font-size: 16px; font-weight: 600;">Preferred Currency</label>
+                <select id="preferredCurrency" onchange="saveCurrencySettings()" style="width: 100%; padding: 14px; border: 2px solid #111; border-radius: 7px; font-size: 16px; font-family: 'Quicksand', sans-serif; background: #fff; color: #111; font-weight: 500; outline: none;">
+                    <option value="USD">USD - US Dollar</option>
+                    <option value="EUR">EUR - Euro</option>
+                    <option value="GBP">GBP - British Pound</option>
+                    <option value="JPY">JPY - Japanese Yen</option>
+                    <option value="CNY">CNY - Chinese Yuan</option>
+                    <option value="INR">INR - Indian Rupee</option>
+                    <option value="AUD">AUD - Australian Dollar</option>
+                    <option value="CAD">CAD - Canadian Dollar</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Account Confirmation Modal -->
+    <div class="delete-modal-overlay" id="deleteModalOverlay" onclick="closeDeleteModal(event)">
+        <div class="delete-modal" onclick="event.stopPropagation()">
+            <div class="delete-warning-icon">
+                <div class="delete-warning-triangle"></div>
+            </div>
+            <div class="delete-message">
+                Are you sure that you<br>want to <strong>delete</strong> your account?
+            </div>
+            <div class="delete-buttons">
+                <button class="delete-btn" onclick="confirmDelete()">Yes</button>
+                <button class="delete-btn" onclick="closeDeleteModal()">No</button>
             </div>
         </div>
     </div>
 
     <script>
         function selectPayment(element) {
-            
+            // Remove selected class from all options
             document.querySelectorAll('.payment-option').forEach(option => {
                 option.classList.remove('selected');
             });
             
-           
+            // Add selected class to clicked option
             element.classList.add('selected');
             
-            
+            // Check the radio button
             const radio = element.querySelector('input[type="radio"]');
             radio.checked = true;
         }
 
         function cancelPayment() {
-           
             window.history.back();
         }
 
@@ -763,7 +1003,6 @@
             const selectedPayment = document.querySelector('input[name="payment"]:checked');
             if (selectedPayment) {
                 alert(`Payment confirmed with ${selectedPayment.value}`);
-                
                 window.location.href = 'portfolio.html';
             }
         }
@@ -772,7 +1011,166 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Payment page loaded');
         });
-        // Location dropdown functions (for dashboard.html only)
+
+        // Profile Modal Functions
+        function toggleProfileModal() {
+            const overlay = document.getElementById('profileModalOverlay');
+            if (overlay.style.display === 'flex') {
+                closeProfileModal();
+            } else {
+                openProfileModal();
+            }
+        }
+
+        function openProfileModal() {
+            const overlay = document.getElementById('profileModalOverlay');
+            overlay.style.display = 'flex';
+            overlay.style.opacity = '1';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeProfileModal(event) {
+            if (event && event.target !== event.currentTarget) {
+                return;
+            }
+            
+            const overlay = document.getElementById('profileModalOverlay');
+            overlay.style.display = 'none';
+            overlay.style.opacity = '0';
+            document.body.style.overflow = 'auto';
+        }
+
+        function handleMenuClick(action) {
+            console.log('Menu action:', action);
+            switch(action) {
+                case 'logout':
+                    closeProfileModal();
+                    setTimeout(() => {
+                        if (window.authSystem) {
+                            window.authSystem.logout();
+                        } else {
+                            alert('Logged out');
+                            window.location.href = 'index.html';
+                        }
+                    }, 300);
+                    break;
+                case 'delete-account':
+                    closeProfileModal();
+                    setTimeout(() => {
+                        showDeleteModal();
+                    }, 300);
+                    break;
+                case 'personal-info':
+                    alert('Personal info page not implemented yet');
+                    closeProfileModal();
+                    break;
+                case 'currency':
+                    showCurrencySettingsModal();
+                    closeProfileModal();
+                    break;
+                case 'theme':
+                    alert('Theme settings not implemented yet');
+                    closeProfileModal();
+                    break;
+                case 'help':
+                    alert('Help & Support not implemented yet');
+                    closeProfileModal();
+                    break;
+                case 'terms':
+                    alert('Terms of Service not implemented yet');
+                    closeProfileModal();
+                    break;
+                default:
+                    closeProfileModal();
+            }
+        }
+
+        // Currency Settings Functions
+        let currencySettings = {
+            preferredCurrency: 'USD',
+            exchangeRates: {
+                'USD': 1, 'EUR': 0.85, 'GBP': 0.73, 'JPY': 110,
+                'CNY': 6.45, 'INR': 74.5, 'AUD': 1.35, 'CAD': 1.25
+            }
+        };
+
+        function loadCurrencySettings() {
+            const stored = localStorage.getItem('alphawave_currency_settings');
+            if (stored) {
+                try {
+                    const settings = JSON.parse(stored);
+                    currencySettings = { ...currencySettings, ...settings };
+                } catch (error) {
+                    console.warn('Error loading currency settings:', error);
+                }
+            }
+        }
+
+        function saveCurrencySettingsToStorage() {
+            localStorage.setItem('alphawave_currency_settings', JSON.stringify(currencySettings));
+        }
+
+        function showCurrencySettingsModal() {
+            loadCurrencySettings();
+            document.getElementById('preferredCurrency').value = currencySettings.preferredCurrency;
+            const modal = document.getElementById('currencyModalOverlay');
+            modal.style.display = 'block';
+            setTimeout(() => {
+                modal.style.opacity = '1';
+            }, 10);
+        }
+
+        function closeCurrencyModal(event) {
+            if (event && event.target.id !== 'currencyModalOverlay') {
+                return;
+            }
+            const modal = document.getElementById('currencyModalOverlay');
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+
+        function saveCurrencySettings() {
+            const preferredCurrency = document.getElementById('preferredCurrency').value;
+            currencySettings.preferredCurrency = preferredCurrency;
+            saveCurrencySettingsToStorage();
+            alert('Currency settings saved!');
+            closeCurrencyModal();
+        }
+
+        // Delete Account Functions
+        function showDeleteModal() {
+            const overlay = document.getElementById('deleteModalOverlay');
+            overlay.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDeleteModal(event) {
+            if (event && event.target !== event.currentTarget) {
+                return;
+            }
+            const overlay = document.getElementById('deleteModalOverlay');
+            overlay.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        function confirmDelete() {
+            try {
+                if (window.authSystem) {
+                    window.authSystem.deleteAccount();
+                    alert('Account deleted successfully');
+                } else {
+                    alert('Account deleted successfully');
+                }
+                setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+            } catch (error) {
+                alert(error.message || 'Error deleting account');
+            }
+            closeDeleteModal();
+        }
+
+        // Location dropdown functions
         function toggleLocationDropdown() {
             const dropdown = document.getElementById('locationDropdown');
             if (dropdown) {
@@ -791,15 +1189,12 @@
             // Close dropdown
             toggleLocationDropdown();
             
-            // Update location (only works if locationService exists)
+            // Update location
             if (window.locationService) {
                 window.locationService.setLocation(country, label, currency);
-                
-                // Show updating indicator
                 const selector = document.getElementById('currentLocation');
                 const originalText = selector.textContent;
                 selector.textContent = 'Updating...';
-                
                 setTimeout(() => {
                     selector.textContent = label;
                 }, 1000);
@@ -818,41 +1213,7 @@
             }
         });
 
-        // Profile modal functions (add to all pages)
-        function toggleProfileModal() {
-            const overlay = document.getElementById('profileModalOverlay');
-            if (overlay) {
-                if (overlay.style.display === 'flex') {
-                    closeProfileModal();
-                } else {
-                    openProfileModal();
-                }
-            }
-        }
-
-        function openProfileModal() {
-            const overlay = document.getElementById('profileModalOverlay');
-            if (overlay) {
-                overlay.style.display = 'flex';
-                overlay.style.opacity = '1';
-                document.body.style.overflow = 'hidden';
-            }
-        }
-
-        function closeProfileModal(event) {
-            if (event && event.target !== event.currentTarget) {
-                return;
-            }
-            
-            const overlay = document.getElementById('profileModalOverlay');
-            if (overlay) {
-                overlay.style.display = 'none';
-                overlay.style.opacity = '0';
-                document.body.style.overflow = 'auto';
-            }
-        }
-
-        // Refresh function (dashboard.html only)
+        // Refresh function
         function refreshStockData() {
             if (window.finnhubAPI) {
                 window.finnhubAPI.refreshStockData();
@@ -863,6 +1224,8 @@
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 closeProfileModal();
+                closeCurrencyModal();
+                closeDeleteModal();
                 const dropdown = document.getElementById('locationDropdown');
                 if (dropdown) {
                     dropdown.classList.remove('show');
@@ -870,28 +1233,22 @@
             }
         });
 
-        // --- BEGIN: Google Payment API Integration ---
+        // Google Payment API Integration
         class GooglePaymentAPI {
             constructor() {
                 this.apiKey = 'ctrlpb1r01qglao4qp80ctrlpb1r01qglao4qp8g';
                 this.baseUrl = 'https://finnhub.io/api/v1';
-                this.rateLimitDelay = 1000; // 1 second between requests
+                this.rateLimitDelay = 1000;
                 this.lastRequestTime = 0;
                 this.symbol = 'GOOGL';
-
                 this.initializeGooglePayment();
             }
 
             async initializeGooglePayment() {
                 try {
                     console.log('Initializing Google payment with real price...');
-                    
-                    // Load cached price first
                     this.loadCachedPrice();
-                    
-                    // Fetch fresh price
                     await this.fetchGooglePrice();
-                    
                 } catch (error) {
                     console.error('Error initializing Google payment:', error);
                     this.showError('Failed to load Google stock price');
@@ -913,7 +1270,6 @@
             async fetchStockQuote(symbol) {
                 try {
                     await this.waitForRateLimit();
-                    
                     const url = `${this.baseUrl}/quote?symbol=${symbol}&token=${this.apiKey}`;
                     const response = await fetch(url);
                     
@@ -922,13 +1278,11 @@
                     }
                     
                     const data = await response.json();
-                    
                     if (!data.c) {
                         throw new Error(`No quote data found for ${symbol}`);
                     }
                     
                     return data;
-                    
                 } catch (error) {
                     console.error(`Error fetching quote for ${symbol}:`, error);
                     return this.getFallbackQuote();
@@ -938,7 +1292,6 @@
             async fetchGooglePrice() {
                 try {
                     console.log('Fetching Google stock price for payment...');
-                    
                     const quoteData = await this.fetchStockQuote(this.symbol);
                     
                     if (quoteData) {
@@ -946,7 +1299,6 @@
                         this.updatePaymentPrice(price);
                         this.savePriceToCache(price);
                     }
-                    
                 } catch (error) {
                     console.error('Error fetching Google price:', error);
                     this.showError('Failed to fetch Google stock price');
@@ -974,24 +1326,20 @@
                 try {
                     console.log('Updating Google payment price...');
                     
-                    // Update order item price
                     const orderItemPrice = document.querySelector('.order-item-price');
                     if (orderItemPrice) {
                         orderItemPrice.textContent = this.formatCurrency(price);
                     }
                     
-                    // Update order total price
                     const orderTotalPrice = document.querySelector('.order-total-price');
                     if (orderTotalPrice) {
                         orderTotalPrice.textContent = this.formatCurrency(price);
                     }
                     
-                    // Update any other price displays
                     const priceElements = document.querySelectorAll('[data-price="google"]');
                     priceElements.forEach(element => {
                         element.textContent = this.formatCurrency(price);
                     });
-                    
                 } catch (error) {
                     console.error('Error updating payment price:', error);
                 }
@@ -1039,10 +1387,22 @@
                 this.fetchGooglePrice();
             }
         }
-        // --- END: Google Payment API Integration ---
 
         // Initialize Google Payment API
         const googlePaymentAPI = new GooglePaymentAPI();
+    </script>
+
+    <!-- Message dropdown logic -->
+    <script>
+        const bell = document.getElementById('notificationBell');
+        const dropdown = document.getElementById('messageDropdown');
+        document.addEventListener('click', function(event) {
+            if (bell && bell.contains(event.target)) {
+                dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+            } else if (dropdown && !dropdown.contains(event.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
     </script>
 </body>
 </html>
