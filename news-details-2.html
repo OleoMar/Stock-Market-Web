@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="geolocation-service.js"></script>
     <script src="location-components.js"></script>
+    <script src="auth.js"></script>
     <style>
         * {
             margin: 0;
@@ -539,6 +540,71 @@
                 margin-left: 0;
             }
         }
+
+        .delete-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .delete-modal-overlay.show {
+            display: block;
+            opacity: 1;
+        }
+        .delete-modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            padding: 32px 28px;
+            font-family: 'Quicksand', sans-serif;
+            color: #111;
+        }
+        .delete-warning-icon {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .delete-warning-triangle {
+            width: 40px;
+            height: 40px;
+            background: #fff3cd;
+            border: 2px solid #ffe066;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            margin: 0 auto;
+        }
+        .delete-message {
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 24px;
+        }
+        .delete-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .delete-btn {
+            background: #f44336;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 24px;
+            font-size: 16px;
+            font-family: 'Quicksand', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .delete-btn:hover {
+            background: #d32f2f;
+        }
     </style>
 </head>
 <body>
@@ -719,6 +785,22 @@
                     <option value="AUD">AUD - Australian Dollar</option>
                     <option value="CAD">CAD - Canadian Dollar</option>
                 </select>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Account Confirmation Modal -->
+    <div class="delete-modal-overlay" id="deleteModalOverlay" onclick="closeDeleteModal(event)">
+        <div class="delete-modal" onclick="event.stopPropagation()">
+            <div class="delete-warning-icon">
+                <div class="delete-warning-triangle"></div>
+            </div>
+            <div class="delete-message">
+                Are you sure that you<br>want to <strong>delete</strong> your account?
+            </div>
+            <div class="delete-buttons">
+                <button class="delete-btn" onclick="confirmDelete()">Yes</button>
+                <button class="delete-btn" onclick="closeDeleteModal()">No</button>
             </div>
         </div>
     </div>
@@ -1028,6 +1110,35 @@
         }
         // Make modal functions global
         window.showCurrencySettingsModal = showCurrencySettingsModal;
+
+        function showDeleteModal() {
+            const overlay = document.getElementById('deleteModalOverlay');
+            overlay.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeDeleteModal(event) {
+            if (event && event.target !== event.currentTarget) {
+                return;
+            }
+            const overlay = document.getElementById('deleteModalOverlay');
+            overlay.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+        function confirmDelete() {
+            try {
+                window.authSystem.deleteAccount();
+                window.authSystem.showMessage('Account deleted successfully', 'success');
+                setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+            } catch (error) {
+                window.authSystem.showMessage(error.message, 'error');
+            }
+            closeDeleteModal();
+        }
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeDeleteModal();
+            }
+        });
     </script>
 </body>
 </html>

@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="geolocation-service.js"></script>
     <script src="location-components.js"></script>
+    <script src="auth.js"></script>
     <style>
         * {
             margin: 0;
@@ -291,7 +292,7 @@
 
         .main-layout {
             display: flex;
-            margin-top: 99px;
+            margin-top: 75px;
         }
 
         .sidebar { 
@@ -595,6 +596,86 @@
             font-size: 1.1rem;
             color: #555;
             text-align: center;
+        }
+
+        .profile-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .profile-modal-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .profile-modal {
+            position: absolute;
+            top: 80px;
+            right: 20px;
+            width: 380px;
+            height: 450px;
+            background: #e8e8e8;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            font-family: 'Quicksand', sans-serif;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .profile-modal-overlay.show .profile-modal {
+            transform: translateY(0);
+        }
+
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            border-radius: 8px;
+            margin-bottom: 2px;
+        }
+
+        .profile-menu-item:hover {
+            background: rgba(0, 0, 0, 0.1);
+            padding-left: 10px;
+        }
+
+        .profile-menu-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .profile-menu-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: white;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .profile-menu-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            font-family: 'Quicksand', sans-serif;
         }
     </style>
 </head>
