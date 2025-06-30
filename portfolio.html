@@ -31,9 +31,9 @@
 
         .navbar {
             background: #1a1a1a;
-            padding: 15px 0;
+            padding: 5px 0;
             border-bottom: 1px solid #333;
-            height: 99px;
+            height: 75px;
             display: flex;
             align-items: center;
             position: fixed;
@@ -46,50 +46,37 @@
 
         .navbar .container-fluid {
             display: flex;
-            align-items: center;
+            align-items: center; 
             justify-content: space-between;
             width: 100%;
-            padding: 0 20px;
+            padding:  0 30px;
             flex-wrap: nowrap;
         }
 
-        .navbar-brand {
+        .navbar-brand { 
             color: white !important;
             font-weight: bold;
-            font-size: 40px;
+            font-size: 35px;
             display: flex;
-            align-items: center;
+            align-items: center; 
+            padding: 0;
             text-decoration: none;
             font-family: 'Quicksand', sans-serif;
         }
 
-        .navbar .logo-circle {
-            width: 70px;
-            height: 70px;
-            border: 2px solid rgb(103, 103, 103);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            margin-right: 10px;
-            background: white;
-            color: rgb(0, 0, 0);
-            font-weight: normal;
-            font-family: 'Quicksand', sans-serif;
-        }
 
-        .search-container {
+        .search-container { 
             flex: 1;
-            max-width: 469px;
+            max-width: 450px;
             margin: 0 auto;
             position: relative;
             z-index: 2;
+            
         }
 
         .search-input {
             width: 100%;
-            max-width: 469px;
+            max-width: 450px;
             height: 43px;
             padding: 10px 40px 10px 15px;
             border: 1px solid #444;
@@ -107,10 +94,11 @@
             color: #666;
         }
 
-        .navbar-right {
+        .navbar-right { 
             display: flex;
-            align-items: center;
-            gap: 15px;
+            align-items: center; 
+            padding: 0;
+            gap: 30px;
             position: relative;
             z-index: 2;
         }
@@ -119,13 +107,16 @@
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
-            padding: 8px 12px;
+            padding: 10px 15px;
             border-radius: 9px;
             font-size: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
             font-family: 'Quicksand', sans-serif;
             min-width: 80px;
+            height: 42px;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .location-selector:hover {
@@ -215,6 +206,7 @@
             font-weight: 600;
             border: none;
             font-family: 'Quicksand', sans-serif;
+            font-size: 20px;
             width: 84px;
             height: 42px;
             display: flex;
@@ -243,7 +235,7 @@
 
         .navbar-right i.fa-bell {
             color: white;
-            font-size: 16px;
+            font-size: 30px;
         }
 
         .refresh-stocks-btn {
@@ -302,16 +294,16 @@
         }
 
         .sidebar {
-            width: 200px;
+            width: 250px; 
             background: white;
-            height: calc(100vh - 99px);
+            height: calc(100vh - 70px);
             padding: 30px 0;
             border-right: 1px solid #333;
             position: fixed;
             left: 0;
-            top: 86px;
-            background-image: url('SideGradient.png');
-            background-size: 100%;
+            top: 70px;
+            background-image: url('images/navi.png');
+            background-size: cover;
             background-position: center bottom;
             background-repeat: no-repeat;
             z-index: 10;
@@ -329,7 +321,7 @@
         .sidebar-nav a {
             display: block;
             padding: 15px 30px;
-            color: #ccc;
+            color: #1C1C1C;
             text-decoration: none;
             transition: all 0.3s;
             font-weight: 500;
@@ -340,6 +332,7 @@
         .sidebar-nav a.active {
             background: #2a2a2a;
             color: white;
+            font-weight: bold;
         }
 
         .content {
@@ -349,7 +342,7 @@
             color: #333;
             min-height: calc(100vh - 99px);
             font-family: 'Quicksand', sans-serif;
-            margin-left: 200px;
+            margin-left: 250px;
         }
 
         .portfolio-header {
@@ -368,7 +361,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-image: url('dotsBg2.png');
+            background-image: url('images/dotsBg2.png');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -387,7 +380,7 @@
 
         .portfolio-change {
             background: rgba(0,0,0,0.289);
-            color: #00ff7b;
+            color: #84d887;
             padding: 8px 20px;
             border-radius: 20px;
             display: inline-block;
@@ -399,13 +392,13 @@
         }
 
         .portfolio-change i {
-            color:#00ff7b;
+            color:#84d887;
         }
 
         .portfolio-stats {
             position: relative;
             z-index: 1;
-            color: #666;
+            color: #1C1C1C;
             font-weight: 600;
             font-family: 'Quicksand', sans-serif;
         }
@@ -448,14 +441,20 @@
 
         .view-all {
             background: #f0f0f0;
-            color: #666;
+            color: #101010;
             padding: 8px 15px;
             border-radius: 15px;
             text-decoration: none;
             font-size: 14px;
-            border: 1px solid #e0e0e0;
+            border: 1px solid #868585;
             cursor: pointer;
             font-family: 'Quicksand', sans-serif;
+            width: 162px;
+            height: 43px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 170px;
         }
 
         .chart-container {
@@ -488,10 +487,11 @@
             padding: 8px 15px;
             border: 1px solid #555;
             background: transparent;
-            color: #999;
+            color: #bdbbbb;
             border-radius: 20px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 15px;
+            font-weight: 400;
             transition: all 0.3s;
             font-family: 'Quicksand', sans-serif;
         }
@@ -501,6 +501,7 @@
             background: #333;
             color: white;
             border-color: #555;
+            font-weight: 600;
         }
 
         .stocks-grid {
@@ -670,12 +671,12 @@
         <nav class="navbar">
             <div class="container-fluid">
                 <a class="navbar-brand" href="dashboard.html">
-                    <div class="logo-circle">AlphaWave</div>
-                    AlphaWave
+                    <img src="images/logoLight.png" width="50px" alt="Logo">
+                    <p>&nbsp</p>AlphaWave
                 </a>
                 <div class="search-container">
                     <input type="text" class="search-input" placeholder="Search stocks...">
-                    <i class="fas fa-search search-icon"></i>
+                    <i class="fas fa-search search-icon"></i> 
                 </div>
                 <div class="navbar-right">
                     <!-- Location Selector -->
@@ -712,6 +713,9 @@
                         </div>
                     </div>
 
+                    <!-- Market Status -->
+                    <!-- <span class="market-status" id="marketStatus">Market Closed</span> -->
+
                     <!-- Refresh stocks button -->
                     <button class="refresh-stocks-btn" onclick="refreshStockData()" title="Refresh stock data">
                         <i class="fas fa-sync-alt"></i>
@@ -734,7 +738,7 @@
                         </div>
                     </div>
                     <div class="user-avatar" onclick="toggleProfileModal()">
-                        <img src="accountLogo.jpg" alt="User">
+                        <img src="images/profilepic.jpg" alt="User">
                     </div>
                 </div>
             </div>
@@ -1279,9 +1283,9 @@
 
             getStockLogo(symbol) {
                 const logos = {
-                    'TSLA': 'Tesla.png', 'AAPL': 'Apple.png', 'NVDA': 'nvidia.jpg',
-                    'AMD': 'AMD.jpg', 'META': 'Meta.png', 'AMZN': 'amazon_.png',
-                    'GOOGL': 'Google.jpg', 'NFLX': 'netflix.png'
+                    'TSLA': 'images/Tesla.png', 'AAPL': 'images/Apple.png', 'NVDA': 'images/nvidia.jpg',
+                    'AMD': 'images/AMD.jpg', 'META': 'images/Meta.png', 'AMZN': 'images/amazon_.png',
+                    'GOOGL': 'images/Google.jpg', 'NFLX': 'images/netflix.png'
                 };
                 return logos[symbol] || `${symbol.toLowerCase()}.png`;
             }
