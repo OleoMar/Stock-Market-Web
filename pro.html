@@ -7,9 +7,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="geolocation-service.js"></script>
-    <script src="location-components.js"></script>
-    <script src="auth.js"></script>
     <style>
         * {
             margin: 0;
@@ -64,14 +61,12 @@
             font-family: 'Quicksand', sans-serif;
         }
 
-
         .search-container { 
             flex: 1;
             max-width: 450px;
             margin: 0 auto;
             position: relative;
             z-index: 2;
-            
         }
 
         .search-input {
@@ -118,7 +113,6 @@
             align-items: center;
             justify-content: space-between;
         }
-
 
         .location-selector:hover {
             background: rgba(255, 255, 255, 0.2);
@@ -178,26 +172,6 @@
             color: white;
         }
 
-        .market-status {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            margin-left: 10px;
-        }
-
-        .market-status.open {
-            background: #4CAF50;
-            color: white;
-        }
-
-        .market-status.closed {
-            background: #f44336;
-            color: white;
-        }
-
         .pro-badge {
             background: #D9D9D9;
             color: #333;
@@ -237,6 +211,7 @@
         .navbar-right i.fa-bell { 
             color: white;
             font-size: 30px;
+            cursor: pointer;
         }
 
         .refresh-stocks-btn {
@@ -275,7 +250,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        
         @media (max-width: 768px) {
             .search-input {
                 width: 300px;
@@ -345,14 +319,13 @@
             min-height: calc(100vh - 75px);
             font-family: 'Quicksand', sans-serif;
             margin-left: 250px;
-            
         }
 
         .pro-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15 px;
+            margin-bottom: 15px;
         }
 
         .pro-title-section {
@@ -391,7 +364,6 @@
             font-weight: 600;
             color: #333;
             margin-bottom: 5px;
-           
             font-family: 'Quicksand', sans-serif;
         }
 
@@ -498,67 +470,6 @@
             transform: translateY(-1px);
         }
 
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-                top: 0;
-                left: 0;
-                min-height: auto;
-            }
-
-            .content {
-                margin-left: 0; 
-            }
-
-            .main-layout {
-                flex-direction: column;
-            }
-
-            .content {
-                padding: 30px;
-            }
-
-            .pro-header {
-                flex-direction: column;
-                gap: 30px;
-                align-items: flex-start;
-            }
-
-            .upgrade-card {
-                align-items: flex-start;
-                text-align: left;
-            }
-
-            .pricing-section {
-                flex-direction: column;
-                gap: 20px;
-            }
-
-            .pro-title-section {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
-
-            .pro-badge-inline {
-                margin-left: 0;
-            }
-
-            .profile-modal {
-                right: 10px;
-                width: 350px;
-                height: 420px;
-                top: 70px;
-            }
-        }
-        @media (max-width: 576px) {
-            .content {
-                margin-left: 0;
-            }
-        }
-
         .message-dropdown {
             position: absolute;
             top: 60px;
@@ -573,6 +484,7 @@
             justify-content: center;
             z-index: 2000;
         }
+
         .message-dropdown-content {
             display: flex;
             flex-direction: column;
@@ -582,9 +494,11 @@
             height: 100%;
             padding: 60px 0 0 0;
         }
+
         .message-dropdown-content svg {
             margin-bottom: 30px;
         }
+
         .message-title {
             font-size: 1.35rem;
             font-weight: 700;
@@ -592,6 +506,7 @@
             margin-bottom: 8px;
             text-align: center;
         }
+
         .message-subtext {
             font-size: 1.1rem;
             color: #555;
@@ -677,130 +592,291 @@
             color: #333;
             font-family: 'Quicksand', sans-serif;
         }
+
+        .currency-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .currency-modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            padding: 32px 28px;
+            font-family: 'Quicksand', sans-serif;
+            color: #111;
+        }
+
+        .delete-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .delete-modal-overlay.show {
+            display: block;
+            opacity: 1;
+        }
+
+        .delete-modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            padding: 32px 28px;
+            font-family: 'Quicksand', sans-serif;
+            color: #111;
+        }
+
+        .delete-warning-icon {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .delete-warning-triangle {
+            width: 40px;
+            height: 40px;
+            background: #fff3cd;
+            border: 2px solid #ffe066;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            margin: 0 auto;
+        }
+
+        .delete-message {
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 24px;
+        }
+
+        .delete-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .delete-btn {
+            background: #f44336;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 24px;
+            font-size: 16px;
+            font-family: 'Quicksand', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .delete-btn:hover {
+            background: #d32f2f;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                top: 0;
+                left: 0;
+                min-height: auto;
+            }
+
+            .content {
+                margin-left: 0; 
+            }
+
+            .main-layout {
+                flex-direction: column;
+            }
+
+            .content {
+                padding: 30px;
+            }
+
+            .pro-header {
+                flex-direction: column;
+                gap: 30px;
+                align-items: flex-start;
+            }
+
+            .upgrade-card {
+                align-items: flex-start;
+                text-align: left;
+            }
+
+            .pricing-section {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .pro-title-section {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .pro-badge-inline {
+                margin-left: 0;
+            }
+
+            .profile-modal {
+                right: 10px;
+                width: 350px;
+                height: 420px;
+                top: 70px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .content {
+                margin-left: 0;
+            }
+        }
     </style>
 </head>
 <body>
-        <nav class="navbar">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="dashboard.html">
-                    <img src="images/logoLight.png" width="50px" alt="Logo">
-                    <p>&nbsp</p>AlphaWave
-                </a>
-                <div class="search-container">
-                    <input type="text" class="search-input" placeholder="Search stocks...">
-                    <i class="fas fa-search search-icon"></i> 
-                </div>
-                <div class="navbar-right">
-                    <!-- Location Selector -->
-                    <div class="location-selector-container" style="position: relative;">
-                        <button class="location-selector" id="locationSelector" onclick="toggleLocationDropdown()">
-                            <span id="currentLocation">Global</span>
-                            <i class="fas fa-chevron-down" style="margin-left: 5px; font-size: 10px;"></i>
-                        </button>
-                        <div class="location-dropdown" id="locationDropdown">
-                            <div class="location-option" onclick="changeLocation('US', 'United States', 'USD')">
-                                <span class="flag">US</span> United States (USD)
-                            </div>
-                            <div class="location-option" onclick="changeLocation('EU', 'Europe', 'EUR')">
-                                <span class="flag">EU</span> Europe (EUR)
-                            </div>
-                            <div class="location-option" onclick="changeLocation('GB', 'United Kingdom', 'GBP')">
-                                <span class="flag">GB</span> United Kingdom (GBP)
-                            </div>
-                            <div class="location-option" onclick="changeLocation('JP', 'Japan', 'JPY')">
-                                <span class="flag">JP</span> Japan (JPY)
-                            </div>
-                            <div class="location-option" onclick="changeLocation('CN', 'China', 'CNY')">
-                                <span class="flag">CN</span> China (CNY)
-                            </div>
-                            <div class="location-option" onclick="changeLocation('IN', 'India', 'INR')">
-                                <span class="flag">IN</span> India (INR)
-                            </div>
-                            <div class="location-option" onclick="changeLocation('AU', 'Australia', 'AUD')">
-                                <span class="flag">AU</span> Australia (AUD)
-                            </div>
-                            <div class="location-option" onclick="changeLocation('CA', 'Canada', 'CAD')">
-                                <span class="flag">CA</span> Canada (CAD)
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Market Status -->
-                    <!-- <span class="market-status" id="marketStatus">Market Closed</span> -->
-
-                    <!-- Refresh stocks button -->
-                    <button class="refresh-stocks-btn" onclick="refreshStockData()" title="Refresh stock data">
-                        <i class="fas fa-sync-alt"></i>
-                        Refresh
+    <nav class="navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="dashboard.html">
+                <img src="images/logoLight.png" width="50px" alt="Logo">
+                <p>&nbsp</p>AlphaWave
+            </a>
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search stocks...">
+                <i class="fas fa-search search-icon"></i> 
+            </div>
+            <div class="navbar-right">
+                <!-- Location Selector -->
+                <div class="location-selector-container" style="position: relative;">
+                    <button class="location-selector" id="locationSelector" onclick="toggleLocationDropdown()">
+                        <span id="currentLocation">Global</span>
+                        <i class="fas fa-chevron-down" style="margin-left: 5px; font-size: 10px;"></i>
                     </button>
-                    
-                    <a href="pro.html" class="pro-badge">Pro</a>
-                    <i class="fas fa-bell" id="notificationBell" style="color: white; cursor: pointer;"></i>
-                    <div id="messageDropdown" class="message-dropdown" style="display: none;">
-                        <div class="message-dropdown-content">
-                            <svg width="90" height="90" viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="45" cy="45" r="45" fill="#444"/>
-                                <ellipse cx="45" cy="45" rx="30" ry="22" fill="#444"/>
-                                <circle cx="34" cy="50" r="4" fill="#fff"/>
-                                <circle cx="45" cy="50" r="4" fill="#fff"/>
-                                <circle cx="56" cy="50" r="4" fill="#fff"/>
-                            </svg>
-                            <div class="message-title">No Notices Right Now!</div>
-                            <div class="message-subtext">You are up to date!</div>
+                    <div class="location-dropdown" id="locationDropdown">
+                        <div class="location-option" onclick="changeLocation('US', 'United States', 'USD')">
+                            <span class="flag">US</span> United States (USD)
+                        </div>
+                        <div class="location-option" onclick="changeLocation('EU', 'Europe', 'EUR')">
+                            <span class="flag">EU</span> Europe (EUR)
+                        </div>
+                        <div class="location-option" onclick="changeLocation('GB', 'United Kingdom', 'GBP')">
+                            <span class="flag">GB</span> United Kingdom (GBP)
+                        </div>
+                        <div class="location-option" onclick="changeLocation('JP', 'Japan', 'JPY')">
+                            <span class="flag">JP</span> Japan (JPY)
+                        </div>
+                        <div class="location-option" onclick="changeLocation('CN', 'China', 'CNY')">
+                            <span class="flag">CN</span> China (CNY)
+                        </div>
+                        <div class="location-option" onclick="changeLocation('IN', 'India', 'INR')">
+                            <span class="flag">IN</span> India (INR)
+                        </div>
+                        <div class="location-option" onclick="changeLocation('AU', 'Australia', 'AUD')">
+                            <span class="flag">AU</span> Australia (AUD)
+                        </div>
+                        <div class="location-option" onclick="changeLocation('CA', 'Canada', 'CAD')">
+                            <span class="flag">CA</span> Canada (CAD)
                         </div>
                     </div>
-                    <div class="user-avatar" onclick="toggleProfileModal()">
-                        <img src="images/profilepic.jpg" alt="User">
+                </div>
+
+                <!-- Refresh stocks button -->
+                <button class="refresh-stocks-btn" onclick="refreshStockData()" title="Refresh stock data">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh
+                </button>
+                
+                <a href="pro.html" class="pro-badge">Pro</a>
+                <i class="fas fa-bell" id="notificationBell"></i>
+                <div id="messageDropdown" class="message-dropdown" style="display: none;">
+                    <div class="message-dropdown-content">
+                        <svg width="90" height="90" viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="45" cy="45" r="45" fill="#444"/>
+                            <ellipse cx="45" cy="45" rx="30" ry="22" fill="#444"/>
+                            <circle cx="34" cy="50" r="4" fill="#fff"/>
+                            <circle cx="45" cy="50" r="4" fill="#fff"/>
+                            <circle cx="56" cy="50" r="4" fill="#fff"/>
+                        </svg>
+                        <div class="message-title">No Notices Right Now!</div>
+                        <div class="message-subtext">You are up to date!</div>
                     </div>
+                </div>
+                <div class="user-avatar" onclick="toggleProfileModal()">
+                    <img src="images/profilepic.jpg" alt="User">
                 </div>
             </div>
-        </nav>
+        </div>
+    </nav>
 
-        <div class="main-layout">
-            <div class="sidebar">
-                <ul class="sidebar-nav">
-                    <li><a href="dashboard.html">Dashboard</a></li>
-                    <li><a href="portfolio.html">Portfolio</a></li>
-                    <li><a href="news.html">Latest News</a></li>
-                </ul>
+    <div class="main-layout">
+        <div class="sidebar">
+            <ul class="sidebar-nav">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="portfolio.html">Portfolio</a></li>
+                <li><a href="news.html">Latest News</a></li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <div class="pro-header">
+                <div class="pro-title-section">
+                    <span class="alphawave-text">AlphaWave</span>
+                    <span class="pro-badge-inline">Pro</span>
+                </div>
+                <div class="upgrade-card">
+                    <h2>Upgrade to Pro</h2>
+                    <p>for better experience with AlphaWave</p>
+                </div>
             </div>
 
-            <div class="content">
-                <div class="pro-header">
-                    <div class="pro-title-section">
-                        <span class="alphawave-text">AlphaWave</span>
-                        <span class="pro-badge-inline">Pro</span>
-                    </div>
-                    <div class="upgrade-card">
-                        <h2>Upgrade to Pro</h2>
-                        <p>for better experience with AlphaWave</p>
-                    </div>
-                </div>
+            <div class="features-list">
+                <li>Ad-free Experience</li>
+                <li>Advanced Research & Exclusive Insights</li>
+                <li>Priority Customer Support</li>
+                <li>Early Access to New Features</li>
+                <li>Exclusive Webinars & Workshops</li>
+                <li>Intelligent Alert & Notifications</li>
+                <li>And more</li>
+            </div>
 
-                <div class="features-list">
-                    <li>Ad-free Experience</li>
-                    <li>Advanced Research & Exclusive Insights</li>
-                    <li>Priority Customer Support</li>
-                    <li>Early Access to New Features</li>
-                    <li>Exclusive Webinars & Workshops</li>
-                    <li>Intelligent Alert & Notifications</li>
-                    <li>And more</li>
+            <div class="pricing-section">
+                <div class="pricing-card">
+                    <h3>Monthly</h3>
+                    <div class="price">$50/Month</div>
+                    <div class="price-detail">Month-to-month flexibility<br>With 7 days free trial</div>
+                    <button class="upgrade-btn" onclick="upgradeToMonthly()">Upgrade</button>
                 </div>
-
-                <div class="pricing-section">
-                    <div class="pricing-card">
-                        <h3>Monthly</h3>
-                        <div class="price">$50/Month</div>
-                        <div class="price-detail">Month-to-month flexibility<br>With 7 days free trial</div>
-                        <button class="upgrade-btn" onclick="upgradeToMonthly()">Upgrade</button>
-                    </div>
-                    
-                    <div class="pricing-card">
-                        <h3>Yearly</h3>
-                        <div class="price"><span style="text-decoration: line-through; color: #999;">$600</span> $480/Year</div>
-                        <div class="price-detail">Pay up front and save 20%<br>With 30 days free trial</div>
-                        <button class="upgrade-btn" onclick="upgradeToYearly()">Upgrade</button>
-                    </div>
+                
+                <div class="pricing-card">
+                    <h3>Yearly</h3>
+                    <div class="price"><span style="text-decoration: line-through; color: #999;">$600</span> $480/Year</div>
+                    <div class="price-detail">Pay up front and save 20%<br>With 30 days free trial</div>
+                    <button class="upgrade-btn" onclick="upgradeToYearly()">Upgrade</button>
                 </div>
             </div>
         </div>
@@ -860,7 +936,7 @@
         </div>
     </div>
 
-    <!-- Delete Account Confirmation Modal -->
+    <!-- Delete Acc Confirmation Modal -->
     <div class="delete-modal-overlay" id="deleteModalOverlay" onclick="closeDeleteModal(event)">
         <div class="delete-modal" onclick="event.stopPropagation()">
             <div class="delete-warning-icon">
@@ -876,9 +952,9 @@
         </div>
     </div>
 
-    <!-- Currency Settings Modal -->
-    <div class="currency-modal-overlay" id="currencyModalOverlay" onclick="closeCurrencyModal(event)" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s ease;">
-        <div class="currency-modal" onclick="event.stopPropagation()" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; background: #fff; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); padding: 32px 28px; font-family: 'Quicksand', sans-serif; color: #111;">
+    <!-- Currency Settings Modl -->
+    <div class="currency-modal-overlay" id="currencyModalOverlay" onclick="closeCurrencyModal(event)">
+        <div class="currency-modal" onclick="event.stopPropagation()">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                 <h2 style="margin: 0; color: #111; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">Currency Settings</h2>
                 <button onclick="closeCurrencyModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #111; padding: 5px;">&times;</button>
@@ -900,7 +976,7 @@
     </div>
 
     <script>
-        // Authentication Sys
+        // Authentication System with all required methods
         class AuthSystem {
             constructor() {
                 this.users = JSON.parse(localStorage.getItem('alphawave_users') || '[]');
@@ -931,26 +1007,91 @@
                 this.redirectToLogin();
             }
 
+            deleteAccount() {
+                if (!this.isLoggedIn()) {
+                    throw new Error('No user logged in');
+                }
+
+                // Remove user from users array
+                this.users = this.users.filter(user => user.email !== this.currentUser.email);
+                localStorage.setItem('alphawave_users', JSON.stringify(this.users));
+                
+                // Clear current user
+                localStorage.removeItem('alphawave_current_user');
+                this.currentUser = null;
+            }
+
             redirectToLogin() {
                 window.location.href = 'index.html';
             }
+
+            showMessage(message, type = 'info') {
+                const existingMessage = document.querySelector('.auth-message');
+                if (existingMessage) {
+                    existingMessage.remove();
+                }
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `auth-message auth-message-${type}`;
+                messageDiv.textContent = message;
+                
+                messageDiv.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 15px 20px;
+                    border-radius: 8px;
+                    color: white;
+                    font-family: 'Quicksand', sans-serif;
+                    font-weight: 500;
+                    z-index: 10000;
+                    max-width: 300px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    transition: all 0.3s ease;
+                    ${type === 'success' ? 'background: #4CAF50;' : ''}
+                    ${type === 'error' ? 'background: #f44336;' : ''}
+                    ${type === 'info' ? 'background: #2196F3;' : ''}
+                `;
+                
+                document.body.appendChild(messageDiv);
+                
+                setTimeout(() => {
+                    if (messageDiv && messageDiv.parentNode) {
+                        messageDiv.style.opacity = '0';
+                        messageDiv.style.transform = 'translateX(100%)';
+                        setTimeout(() => {
+                            if (messageDiv && messageDiv.parentNode) {
+                                messageDiv.remove();
+                            }
+                        }, 300);
+                    }
+                }, 5000);
+            }
         }
 
-        // Initialize auth 
+        // Initialize auth system
         window.authSystem = new AuthSystem();
 
-        
+        // Upgrade functions - Fixed to ensure they work properly
         function upgradeToMonthly() {
-            
-            window.location.href = 'pro-version-payment-page.html?plan=monthly&price=50&duration=Month';
+            console.log('Upgrading to Monthly plan...');
+            try {
+                window.location.href = 'pro-version-payment-page.html?plan=monthly&price=$50&duration=Month';
+            } catch (error) {
+                console.error('Error redirecting to payment page:', error);
+            }
         }
 
         function upgradeToYearly() {
-          
-            window.location.href = 'pro-version-payment-page.html?plan=yearly&price=480&duration=Year&originalPrice=600&discount=20';
+            console.log('Upgrading to Yearly plan...');
+            try {
+                window.location.href = 'pro-version-payment-page.html?plan=yearly&price=$480&duration=Year&originalPrice=$600&discount=20';
+            } catch (error) {
+                console.error('Error redirecting to payment page:', error);
+            }
         }
 
-        
+        // Profile modal functions
         function toggleProfileModal() {
             const overlay = document.getElementById('profileModalOverlay');
             if (overlay.classList.contains('show')) {
@@ -1044,64 +1185,17 @@
         function confirmDelete() {
             try {
                 window.authSystem.deleteAccount();
-                showMessage('Account deleted successfully', 'success');
+                window.authSystem.showMessage('Account deleted successfully', 'success');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
             } catch (error) {
-                showMessage(error.message, 'error');
+                window.authSystem.showMessage(error.message, 'error');
             }
             closeDeleteModal();
         }
 
-        function showMessage(message, type = 'info') {
-            const existingMessage = document.querySelector('.auth-message');
-            if (existingMessage) {
-                existingMessage.remove();
-            }
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `auth-message auth-message-${type}`;
-            messageDiv.textContent = message;
-            
-            messageDiv.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 15px 20px;
-                border-radius: 8px;
-                color: white;
-                font-family: 'Quicksand', sans-serif;
-                font-weight: 500;
-                z-index: 10000;
-                max-width: 300px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                transition: all 0.3s ease;
-                ${type === 'success' ? 'background: #4CAF50;' : ''}
-                ${type === 'error' ? 'background: #f44336;' : ''}
-                ${type === 'info' ? 'background: #2196F3;' : ''}
-            `;
-            
-            document.body.appendChild(messageDiv);
-            
-            setTimeout(() => {
-                if (messageDiv && messageDiv.parentNode) {
-                    messageDiv.style.opacity = '0';
-                    messageDiv.style.transform = 'translateX(100%)';
-                    setTimeout(() => {
-                        if (messageDiv && messageDiv.parentNode) {
-                            messageDiv.remove();
-                        }
-                    }, 300);
-                }
-            }, 5000);
-        }
-
-        // Close modal 
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                closeProfileModal();
-                closeDeleteModal();
-            }
-        });
-        // Location dropdown functions 
+        // Location dropdown functions
         function toggleLocationDropdown() {
             const dropdown = document.getElementById('locationDropdown');
             if (dropdown) {
@@ -1110,27 +1204,93 @@
         }
 
         function changeLocation(country, label, currency) {
-            // Update active selection
             const options = document.querySelectorAll('.location-option');
             options.forEach(option => option.classList.remove('active'));
             if (event && event.target) {
                 event.target.classList.add('active');
             }
             
-            // Close dropdown
             toggleLocationDropdown();
             
-            // Update location (only works if locationService exists)
             if (window.locationService) {
                 window.locationService.setLocation(country, label, currency);
                 
-                // Show updating indicator
                 const selector = document.getElementById('currentLocation');
                 const originalText = selector.textContent;
                 selector.textContent = 'Updating...';
                 
                 setTimeout(() => {
                     selector.textContent = label;
+                }, 1000);
+            }
+        }
+
+        // Currency settings functions
+        let currencySettings = {
+            preferredCurrency: 'USD',
+            exchangeRates: {
+                'USD': 1, 'EUR': 0.85, 'GBP': 0.73, 'JPY': 110,
+                'CNY': 6.45, 'INR': 74.5, 'AUD': 1.35, 'CAD': 1.25
+            }
+        };
+
+        function loadCurrencySettings() {
+            const stored = localStorage.getItem('alphawave_currency_settings');
+            if (stored) {
+                try {
+                    const settings = JSON.parse(stored);
+                    currencySettings = { ...currencySettings, ...settings };
+                } catch (error) {
+                    console.warn('Error loading currency settings:', error);
+                }
+            }
+        }
+
+        function saveCurrencySettingsToStorage() {
+            localStorage.setItem('alphawave_currency_settings', JSON.stringify(currencySettings));
+        }
+
+        function showCurrencySettingsModal() {
+            loadCurrencySettings();
+            document.getElementById('preferredCurrency').value = currencySettings.preferredCurrency;
+            const modal = document.getElementById('currencyModalOverlay');
+            modal.style.display = 'block';
+            setTimeout(() => {
+                modal.style.opacity = '1';
+            }, 10);
+        }
+
+        function closeCurrencyModal(event) {
+            if (event && event.target.id !== 'currencyModalOverlay') {
+                return;
+            }
+            const modal = document.getElementById('currencyModalOverlay');
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+
+        function saveCurrencySettings() {
+            const preferredCurrency = document.getElementById('preferredCurrency').value;
+            currencySettings.preferredCurrency = preferredCurrency;
+            saveCurrencySettingsToStorage();
+            
+            if (window.authSystem && window.authSystem.showMessage) {
+                window.authSystem.showMessage('Currency settings saved!', 'success');
+            }
+            closeCurrencyModal();
+        }
+
+        // Refresh function
+        function refreshStockData() {
+            const btn = document.querySelector('.refresh-stocks-btn');
+            if (btn) {
+                btn.classList.add('loading');
+                btn.disabled = true;
+                setTimeout(() => {
+                    btn.classList.remove('loading');
+                    btn.disabled = false;
                 }, 1000);
             }
         }
@@ -1147,58 +1307,12 @@
             }
         });
 
-        // Profile modal functions (add to all pages)
-        function toggleProfileModal() {
-            const overlay = document.getElementById('profileModalOverlay');
-            if (overlay) {
-                if (overlay.style.display === 'flex') {
-                    closeProfileModal();
-                } else {
-                    openProfileModal();
-                }
-            }
-        }
-
-        function openProfileModal() {
-            const overlay = document.getElementById('profileModalOverlay');
-            if (overlay) {
-                overlay.style.display = 'flex';
-                overlay.style.opacity = '1';
-                document.body.style.overflow = 'hidden';
-            }
-        }
-
-        function closeProfileModal(event) {
-            if (event && event.target !== event.currentTarget) {
-                return;
-            }
-            
-            const overlay = document.getElementById('profileModalOverlay');
-            if (overlay) {
-                overlay.style.display = 'none';
-                overlay.style.opacity = '0';
-                document.body.style.overflow = 'auto';
-            }
-        }
-
-        // Refresh function (dashboard.html only)
-        function refreshStockData() {
-            // You can implement real refresh logic here if needed
-            const btn = document.querySelector('.refresh-stocks-btn');
-            if (btn) {
-                btn.classList.add('loading');
-                btn.disabled = true;
-                setTimeout(() => {
-                    btn.classList.remove('loading');
-                    btn.disabled = false;
-                }, 1000);
-            }
-        }
-
         // Close modals when pressing Escape key
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 closeProfileModal();
+                closeDeleteModal();
+                closeCurrencyModal();
                 const dropdown = document.getElementById('locationDropdown');
                 if (dropdown) {
                     dropdown.classList.remove('show');
@@ -1206,162 +1320,23 @@
             }
         });
 
-        // --- BEGIN: SimpleLocationService (copied from dashboard.html) ---
-        class SimpleLocationService {
-            constructor() {
-                this.currentLocation = this.loadLocationSettings();
-                this.hasAskedForLocation = false;
-                this.exchangeRates = {
-                    'USD': 1, 'EUR': 0.85, 'GBP': 0.73, 'JPY': 110,
-                    'CNY': 6.45, 'INR': 74.5, 'AUD': 1.35, 'CAD': 1.25
-                };
-            }
-            init() {
-                this.updateLocationDisplay();
-                this.updateMarketStatus();
-                setInterval(() => this.updateMarketStatus(), 60000);
-            }
-            loadLocationSettings() {
-                const stored = localStorage.getItem('alphawave_location_settings');
-                if (stored) {
-                    try { return JSON.parse(stored); } catch (e) {}
-                }
-                return { country: 'US', currency: 'USD', label: 'Global' };
-            }
-            saveLocationSettings() {
-                localStorage.setItem('alphawave_location_settings', JSON.stringify(this.currentLocation));
-            }
-            setLocation(country, label, currency) {
-                this.currentLocation = { country, currency, label };
-                this.saveLocationSettings();
-                this.updateLocationDisplay();
-                this.updateMarketStatus();
-                window.dispatchEvent(new CustomEvent('locationChanged', { detail: this.currentLocation }));
-            }
-            updateLocationDisplay() {
-                const locationElement = document.getElementById('currentLocation');
-                if (locationElement) {
-                    locationElement.textContent = this.currentLocation.label;
-                }
-            }
-            updateMarketStatus() {
-                const timezone = this.getTimezoneForCountry(this.currentLocation.country);
-                const status = this.getMarketStatus(timezone);
-                const statusElement = document.getElementById('marketStatus');
-                if (statusElement) {
-                    statusElement.textContent = status.isOpen ? 'Market Open' : 'Market Closed';
-                    statusElement.className = `market-status ${status.isOpen ? 'open' : 'closed'}`;
-                }
-            }
-            getTimezoneForCountry(country) {
-                const timezones = {
-                    'US': 'America/New_York', 'EU': 'Europe/London', 'GB': 'Europe/London',
-                    'JP': 'Asia/Tokyo', 'CN': 'Asia/Shanghai', 'IN': 'Asia/Kolkata',
-                    'AU': 'Australia/Sydney', 'CA': 'America/Toronto'
-                };
-                return timezones[country] || 'America/New_York';
-            }
-            getMarketStatus(timezone) {
-                try {
-                    const now = new Date();
-                    const marketTime = new Intl.DateTimeFormat('en-US', {
-                        timeZone: timezone, hour: 'numeric', minute: 'numeric', hour12: false
-                    }).formatToParts(now);
-                    const hour = parseInt(marketTime.find(part => part.type === 'hour').value);
-                    const minute = parseInt(marketTime.find(part => part.type === 'minute').value);
-                    const currentTime = hour * 60 + minute;
-                    const marketOpen = 9 * 60 + 30; // 9:30 AM
-                    const marketClose = 16 * 60; // 4:00 PM
-                    const isWeekday = now.getDay() >= 1 && now.getDay() <= 5;
-                    const isOpen = isWeekday && currentTime >= marketOpen && currentTime < marketClose;
-                    return { isOpen };
-                } catch (error) {
-                    return { isOpen: false };
-                }
-            }
-        }
-        // --- END: SimpleLocationService ---
-
-        // Initialize location service when page loads
+        // Message dropdown functionality - Fixed
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize location service
-            window.locationService = new SimpleLocationService();
-            window.locationService.init();
-        });
+            const bell = document.getElementById('notificationBell');
+            const dropdown = document.getElementById('messageDropdown');
+            
+            if (bell && dropdown) {
+                bell.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    const isVisible = dropdown.style.display === 'flex';
+                    dropdown.style.display = isVisible ? 'none' : 'flex';
+                });
 
-        // Currency settings logic (shared with dashboard)
-        let currencySettings = {
-            preferredCurrency: 'USD',
-            exchangeRates: {
-                'USD': 1,
-                'EUR': 0.85,
-                'GBP': 0.73,
-                'JPY': 110,
-                'CNY': 6.45,
-                'INR': 74.5,
-                'AUD': 1.35,
-                'CAD': 1.25
-            }
-        };
-        function loadCurrencySettings() {
-            const stored = localStorage.getItem('alphawave_currency_settings');
-            if (stored) {
-                try {
-                    const settings = JSON.parse(stored);
-                    currencySettings = { ...currencySettings, ...settings };
-                } catch (error) {
-                    console.warn('Error loading currency settings:', error);
-                }
-            }
-        }
-        function saveCurrencySettingsToStorage() {
-            localStorage.setItem('alphawave_currency_settings', JSON.stringify(currencySettings));
-        }
-        function showCurrencySettingsModal() {
-            loadCurrencySettings();
-            document.getElementById('preferredCurrency').value = currencySettings.preferredCurrency;
-            const modal = document.getElementById('currencyModalOverlay');
-            modal.style.display = 'block';
-            setTimeout(() => {
-                modal.style.opacity = '1';
-            }, 10);
-        }
-        function closeCurrencyModal(event) {
-            if (event && event.target.id !== 'currencyModalOverlay') {
-                return;
-            }
-            const modal = document.getElementById('currencyModalOverlay');
-            modal.style.opacity = '0';
-            setTimeout(() => {
-                modal.style.display = 'none';
-            }, 300);
-        }
-        function saveCurrencySettings() {
-            const preferredCurrency = document.getElementById('preferredCurrency').value;
-            currencySettings.preferredCurrency = preferredCurrency;
-            saveCurrencySettingsToStorage();
-            // Update location service if it exists
-            if (window.locationService) {
-                window.locationService.currentLocation.currency = preferredCurrency;
-                window.locationService.saveLocationSettings();
-                window.locationService.updatePortfolioValue && window.locationService.updatePortfolioValue();
-            }
-            // Show a message (optional)
-            if (window.authSystem && window.authSystem.showMessage) {
-                window.authSystem.showMessage('Currency settings saved!', 'success');
-            }
-            closeCurrencyModal();
-        }
-        // Make modal functions global
-        window.showCurrencySettingsModal = showCurrencySettingsModal;
-
-        const bell = document.getElementById('notificationBell');
-        const dropdown = document.getElementById('messageDropdown');
-        document.addEventListener('click', function(event) {
-            if (bell && bell.contains(event.target)) {
-                dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
-            } else if (dropdown && !dropdown.contains(event.target)) {
-                dropdown.style.display = 'none';
+                document.addEventListener('click', function(event) {
+                    if (!dropdown.contains(event.target) && !bell.contains(event.target)) {
+                        dropdown.style.display = 'none';
+                    }
+                });
             }
         });
     </script>
