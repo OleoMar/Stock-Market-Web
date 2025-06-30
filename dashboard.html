@@ -8,10 +8,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="geolocation-service.js"></script>
-    <script src="location-components.js"></script>
     <style>
         * {
             margin: 0;
@@ -67,14 +63,12 @@
             font-family: 'Quicksand', sans-serif;
         }
 
-
         .search-container { 
             flex: 1;
             max-width: 450px;
             margin: 0 auto;
             position: relative;
             z-index: 2;
-            
         }
 
         .search-input {
@@ -95,6 +89,90 @@
             top: 50%;
             transform: translateY(-50%);
             color: #666;
+            cursor: pointer;
+        }
+
+        /* Search Results Dropdown */
+        .search-results-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1001;
+            display: none;
+            margin-top: 5px;
+        }
+
+        .search-results-dropdown.show {
+            display: block;
+        }
+
+        .search-result-item {
+            padding: 12px 16px;
+            color: #333;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-item:hover {
+            background: #f8f9fa;
+        }
+
+        .search-result-info {
+            flex: 1;
+        }
+
+        .search-result-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .search-result-symbol {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .search-result-exchange {
+            font-size: 11px;
+            color: #999;
+            padding: 2px 6px;
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+
+        .search-loading {
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+
+        .search-no-results {
+            padding: 20px;
+            text-align: center;
+            color: #666;
+        }
+
+        .search-error {
+            padding: 20px;
+            text-align: center;
+            color: #f44336;
+            font-size: 14px;
         }
 
         .navbar-right { 
@@ -187,172 +265,35 @@
             color: white;
         }
 
-      
-        .location-permission-prompt {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            background: white;
-            border: 1px solid #ddd;
+        .refresh-stocks-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ccc;
+            padding: 4px 8px;
             border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            max-width: 320px;
-            z-index: 2000;
-            font-family: 'Quicksand', sans-serif;
-            transform: translateX(100%);
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
-        .location-permission-prompt.show {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        .location-permission-prompt .location-permission-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-        }
-        .location-permission-prompt .location-permission-desc {
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 15px;
-        }
-        .location-permission-prompt .location-permission-actions {
-            display: flex;
-            gap: 10px;
-        }
-        .location-permission-prompt button {
-            flex: 1;
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            background: white;
-            color: #666;
-            cursor: pointer;
-            font-family: 'Quicksand', sans-serif;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-        .location-permission-prompt button.allow {
-            border: 1px solid #007bff;
-            background: #007bff;
-            color: white;
-        }
-        .location-permission-prompt button.allow:hover {
-            background: #0056b3;
-        }
-        .location-permission-prompt button.deny:hover {
-            background: #f8f9fa;
-            border-color: #007bff;
-        }
-
-        
-        .location-permission-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 3000;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .location-permission-modal.show {
-            display: flex;
-            opacity: 1;
-        }
-
-        .location-permission-dialog {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-            font-family: 'Quicksand', sans-serif;
-        }
-
-        .location-permission-modal.show .location-permission-dialog {
-            transform: scale(1);
-        }
-
-        .location-permission-dialog h3 {
-            margin: 0 0 15px 0;
-            font-size: 20px;
-            color: #333;
-            font-weight: 600;
-        }
-
-        .location-permission-dialog p {
-            margin: 0 0 25px 0;
-            color: #666;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        .location-permission-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        .location-permission-buttons button {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            font-family: 'Quicksand', sans-serif;
-            font-weight: 500;
+            font-size: 10px;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 14px;
-            min-width: 100px;
+            margin-right: 8px;
+            font-family: 'Quicksand', sans-serif;
         }
 
-        .btn-never {
-            background: #f44336;
+        .refresh-stocks-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
             color: white;
         }
 
-        .btn-never:hover {
-            background: #d32f2f;
+        .refresh-stocks-btn.loading {
+            pointer-events: none;
+            opacity: 0.6;
         }
 
-        .btn-this-time {
-            background: #ff9800;
-            color: white;
+        .refresh-stocks-btn i {
+            margin-right: 3px;
         }
 
-        .btn-this-time:hover {
-            background: #f57c00;
-        }
-
-        .btn-while-visiting {
-            background: #2196F3;
-            color: white;
-        }
-
-        .btn-while-visiting:hover {
-            background: #1976d2;
-        }
-
-        .btn-always-allow {
-            background: #4CAF50;
-            color: white;
-        }
-
-        .btn-always-allow:hover {
-            background: #388e3c;
+        .refresh-stocks-btn.loading i {
+            animation: spin 1s linear infinite;
         }
 
         .pro-badge {
@@ -394,37 +335,6 @@
         .navbar-right i.fa-bell { 
             color: white;
             font-size: 30px;
-        }
-
-        .refresh-stocks-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #ccc;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-right: 8px;
-            font-family: 'Quicksand', sans-serif;
-        }
-
-        .refresh-stocks-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-        }
-
-        .refresh-stocks-btn.loading {
-            pointer-events: none;
-            opacity: 0.6;
-        }
-
-        .refresh-stocks-btn i {
-            margin-right: 3px;
-        }
-
-        .refresh-stocks-btn.loading i {
-            animation: spin 1s linear infinite;
         }
 
         .main-layout {
@@ -528,7 +438,7 @@
             font-family: 'Quicksand', sans-serif;
         }
 
-        .portfolio-change { /* reuse*/
+        .portfolio-change {
             background: rgba(0,0,0,0.5);
             color: #84d887;
             padding: 8px 20px;
@@ -581,7 +491,6 @@
             align-items: center;
             justify-content: center;
             margin-right: 140px;
-            
         }
 
         .stocks-grid {
@@ -828,6 +737,45 @@
             font-family: 'Quicksand', sans-serif;
         }
 
+        .message-dropdown {
+            position: absolute;
+            top: 60px;
+            right: 60px;
+            background: #ecebeb;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            min-width: 320px;
+            min-height: 380px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .message-dropdown-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            padding: 60px 0 0 0;
+        }
+        .message-dropdown-content svg {
+            margin-bottom: 30px;
+        }
+        .message-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .message-subtext {
+            font-size: 1.1rem;
+            color: #555;
+            text-align: center;
+        }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -891,45 +839,6 @@
                 margin-left: 0;
             }
         }
-
-        .message-dropdown {
-            position: absolute;
-            top: 60px;
-            right: 60px;
-            background: #ecebeb;
-            border-radius: 18px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-            min-width: 320px;
-            min-height: 380px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-        }
-        .message-dropdown-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
-            padding: 60px 0 0 0;
-        }
-        .message-dropdown-content svg {
-            margin-bottom: 30px;
-        }
-        .message-title {
-            font-size: 1.35rem;
-            font-weight: 700;
-            color: #222;
-            margin-bottom: 8px;
-            text-align: center;
-        }
-        .message-subtext {
-            font-size: 1.1rem;
-            color: #555;
-            text-align: center;
-        }
     </style>
 </head>
 <body>
@@ -941,8 +850,11 @@
                     <p>&nbsp</p>AlphaWave
                 </a>
                 <div class="search-container">
-                    <input type="text" class="search-input" placeholder="Search stocks...">
-                    <i class="fas fa-search search-icon"></i> 
+                    <input type="text" class="search-input" id="dashboardSearchInput" placeholder="Search stocks..." autocomplete="off">
+                    <i class="fas fa-search search-icon" onclick="performSearch()"></i>
+                    <div class="search-results-dropdown" id="searchResultsDropdown">
+                        <!-- Search results will be populated here -->
+                    </div>
                 </div>
                 <div class="navbar-right">
                     <!-- Location Selector -->
@@ -978,9 +890,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Market Status -->
-                    <!-- <span class="market-status" id="marketStatus">Market Closed</span> -->
 
                     <!-- Refresh stocks button -->
                     <button class="refresh-stocks-btn" onclick="refreshStockData()" title="Refresh stock data">
@@ -1196,7 +1105,265 @@
 
     <script>
         // ============================================
-        // SELF-CONTAINED LOCATION SERVICE WITH PERMISSION PROMPT
+        // ENHANCED SEARCH SYSTEM FOR DASHBOARD
+        // ============================================
+        
+        const FINNHUB_API_KEY = 'd1hf3vpr01qsvr29q1qgd1hf3vpr01qsvr29q1r0';
+        
+        class DashboardSearchSystem {
+            constructor() {
+                this.searchInput = document.getElementById('dashboardSearchInput');
+                this.searchResults = document.getElementById('searchResultsDropdown');
+                this.searchTimeout = null;
+                this.isSearching = false;
+                this.lastQuery = '';
+                
+                this.initializeSearch();
+            }
+            
+            initializeSearch() {
+                console.log('Initializing dashboard search system...');
+                
+                // Add event listeners
+                this.searchInput.addEventListener('input', (e) => this.handleSearchInput(e));
+                this.searchInput.addEventListener('keydown', (e) => this.handleKeyDown(e));
+                this.searchInput.addEventListener('focus', (e) => this.handleFocus(e));
+                this.searchInput.addEventListener('blur', (e) => this.handleBlur(e));
+                
+                // Close search results when clicking outside
+                document.addEventListener('click', (e) => this.handleOutsideClick(e));
+                
+                console.log('Dashboard search system initialized');
+            }
+            
+            handleSearchInput(event) {
+                const query = event.target.value.trim();
+                
+                // Clear previous timeout
+                if (this.searchTimeout) {
+                    clearTimeout(this.searchTimeout);
+                }
+                
+                // If query is empty, hide results
+                if (query.length === 0) {
+                    this.hideSearchResults();
+                    return;
+                }
+                
+                // If query is too short, don't search
+                if (query.length < 2) {
+                    return;
+                }
+                
+                // Debounce search requests
+                this.searchTimeout = setTimeout(() => {
+                    this.performSearch(query);
+                }, 300);
+            }
+            
+            handleKeyDown(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    const query = this.searchInput.value.trim();
+                    if (query) {
+                        this.performSearch(query);
+                    }
+                } else if (event.key === 'Escape') {
+                    this.hideSearchResults();
+                    this.searchInput.blur();
+                }
+            }
+            
+            handleFocus(event) {
+                // Show results if there's a query and results exist
+                if (this.searchInput.value.trim() && this.searchResults.children.length > 0) {
+                    this.showSearchResults();
+                }
+            }
+            
+            handleBlur(event) {
+                // Delay hiding to allow clicks on results
+                setTimeout(() => {
+                    if (!this.searchResults.matches(':hover')) {
+                        this.hideSearchResults();
+                    }
+                }, 150);
+            }
+            
+            handleOutsideClick(event) {
+                if (!this.searchInput.contains(event.target) && 
+                    !this.searchResults.contains(event.target)) {
+                    this.hideSearchResults();
+                }
+            }
+            
+            async performSearch(query) {
+                if (this.isSearching || query === this.lastQuery) {
+                    return;
+                }
+                
+                this.isSearching = true;
+                this.lastQuery = query;
+                
+                console.log('Searching for:', query);
+                
+                // Show loading state
+                this.showLoadingState();
+                
+                try {
+                    const results = await this.searchCompanies(query);
+                    this.displaySearchResults(results, query);
+                } catch (error) {
+                    console.error('Search error:', error);
+                    this.showErrorState();
+                } finally {
+                    this.isSearching = false;
+                }
+            }
+            
+            async searchCompanies(query) {
+                const url = `https://finnhub.io/api/v1/search?q=${encodeURIComponent(query)}&token=${FINNHUB_API_KEY}`;
+                
+                try {
+                    const response = await fetch(url);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    console.log('Search results:', data);
+                    
+                    if (data.result && data.result.length > 0) {
+                        return data.result.slice(0, 8); // Limit to 8 results
+                    }
+                    
+                    return [];
+                } catch (error) {
+                    console.error('Error searching companies:', error);
+                    throw error;
+                }
+            }
+            
+            displaySearchResults(results, query) {
+                if (results.length === 0) {
+                    this.showNoResultsState(query);
+                    return;
+                }
+                
+                const resultsHTML = results.map(result => this.createResultHTML(result)).join('');
+                
+                this.searchResults.innerHTML = resultsHTML;
+                this.showSearchResults();
+                
+                // Add click handlers to results
+                this.searchResults.querySelectorAll('.search-result-item').forEach(item => {
+                    item.addEventListener('click', (e) => this.handleResultClick(e, item));
+                });
+            }
+            
+            createResultHTML(result) {
+                const { symbol, description, displaySymbol, type } = result;
+                const exchange = result.exchange || '';
+                
+                return `
+                    <div class="search-result-item" data-symbol="${symbol}" data-description="${description}">
+                        <div class="search-result-info">
+                            <div class="search-result-name">${description || symbol}</div>
+                            <div class="search-result-symbol">${symbol}${displaySymbol && displaySymbol !== symbol ? ` (${displaySymbol})` : ''}</div>
+                        </div>
+                        ${exchange ? `<div class="search-result-exchange">${exchange}</div>` : ''}
+                    </div>
+                `;
+            }
+            
+            handleResultClick(event, item) {
+                const symbol = item.dataset.symbol;
+                const description = item.dataset.description;
+                
+                console.log('Selected stock:', symbol, description);
+                
+                // Update search input with selected value
+                this.searchInput.value = `${description} (${symbol})`;
+                
+                // Hide search results
+                this.hideSearchResults();
+                
+                // Navigate to stock detail page or show stock info
+                this.navigateToStock(symbol, description);
+            }
+            
+            navigateToStock(symbol, description) {
+                // For specific stocks, navigate to their detail pages
+                if (symbol === 'AAPL') {
+                    window.location.href = 'apple-stock-detail.html';
+                } else if (symbol === 'GOOGL' || symbol === 'GOOG') {
+                    window.location.href = 'stock-detail.html';
+                } else {
+                    // For other stocks, you could:
+                    // 1. Navigate to a general stock detail page with the symbol as parameter
+                    // 2. Show a modal with stock information
+                    // 3. Navigate to the search-company page with the symbol
+                    
+                    // Option 3: Navigate to search-company page
+                    window.location.href = `search-company.html?company=${encodeURIComponent(symbol)}`;
+                }
+            }
+            
+            showLoadingState() {
+                this.searchResults.innerHTML = `
+                    <div class="search-loading">
+                        <i class="fas fa-spinner fa-spin"></i> Searching...
+                    </div>
+                `;
+                this.showSearchResults();
+            }
+            
+            showNoResultsState(query) {
+                this.searchResults.innerHTML = `
+                    <div class="search-no-results">
+                        No results found for "${query}"
+                        <br><small>Try searching by company name or stock symbol</small>
+                    </div>
+                `;
+                this.showSearchResults();
+            }
+            
+            showErrorState() {
+                this.searchResults.innerHTML = `
+                    <div class="search-error">
+                        Search temporarily unavailable
+                        <br><small>Please try again in a moment</small>
+                    </div>
+                `;
+                this.showSearchResults();
+            }
+            
+            showSearchResults() {
+                this.searchResults.classList.add('show');
+            }
+            
+            hideSearchResults() {
+                this.searchResults.classList.remove('show');
+            }
+            
+            clearSearch() {
+                this.searchInput.value = '';
+                this.hideSearchResults();
+                this.lastQuery = '';
+            }
+        }
+        
+        // Global search function for the search icon
+        function performSearch() {
+            const query = document.getElementById('dashboardSearchInput').value.trim();
+            if (query && window.dashboardSearch) {
+                window.dashboardSearch.performSearch(query);
+            }
+        }
+
+        // ============================================
+        // LOCATION SERVICE
         // ============================================
         class SimpleLocationService {
             constructor() {
@@ -1210,7 +1377,6 @@
 
             init() {
                 console.log('Location service starting...');
-                // Immediately request location using browser's native dialog
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(
                         (position) => this.handleLocationSuccess(position),
@@ -1225,93 +1391,10 @@
                 setInterval(() => this.updateMarketStatus(), 60000);
             }
 
-            showLocationPermissionPrompt() {
-                // Prevent multiple prompts
-                if (document.getElementById('locationPermissionPrompt')) return;
-                const prompt = document.createElement('div');
-                prompt.className = 'location-permission-prompt';
-                prompt.id = 'locationPermissionPrompt';
-                prompt.innerHTML = `
-                    <div class="location-permission-title">Enable Location Access</div>
-                    <div class="location-permission-desc">Get personalized market data, regional news, and trading hours for your location.</div>
-                    <div class="location-permission-actions">
-                        <button class="deny">Not Now</button>
-                        <button class="allow">Allow Location</button>
-                    </div>
-                `;
-                document.body.appendChild(prompt);
-                setTimeout(() => prompt.classList.add('show'), 100);
-                // Button handlers
-                prompt.querySelector('.deny').onclick = () => {
-                    prompt.classList.remove('show');
-                    setTimeout(() => prompt.remove(), 300);
-                    localStorage.setItem('alphawave_location_denied', 'true');
-                    this.showMessage('Using default market settings', 'info');
-                    this.setDefaultLocation && this.setDefaultLocation();
-                };
-                prompt.querySelector('.allow').onclick = async () => {
-                    prompt.classList.remove('show');
-                    setTimeout(() => prompt.remove(), 300);
-                    localStorage.setItem('alphawave_location_denied', 'false');
-                    if (this.requestLocation) {
-                        try {
-                            await this.requestLocation();
-                            this.showMessage('Location access granted!', 'success');
-                        } catch (e) {
-                            this.showMessage('Location request failed', 'error');
-                        }
-                    }
-                };
-            }
-
-            handlePermission(choice) {
-                console.log('User choice:', choice);
-                
-                // Save permission choice
-                localStorage.setItem('alphawave_location_permission', choice);
-                
-                // Hide modal
-                this.hideModal();
-                
-                // Handle different choices
-                switch(choice) {
-                    case 'never':
-                        localStorage.setItem('alphawave_location_denied', 'true');
-                        this.showMessage('Location access disabled', 'info');
-                        break;
-                        
-                    case 'this-time':
-                        this.requestLocation();
-                        break;
-                        
-                    case 'while-visiting':
-                        sessionStorage.setItem('alphawave_location_session', 'allowed');
-                        this.requestLocation();
-                        break;
-                        
-                    case 'always-allow':
-                        this.requestLocation();
-                        break;
-                }
-            }
-
-            requestLocation() {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => this.handleLocationSuccess(position),
-                        (error) => this.handleLocationError(error),
-                        { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
-                    );
-                } else {
-                    this.showMessage('Geolocation not supported by this browser', 'error');
-                }
-            }
-
             handleLocationSuccess(position) {
                 const { latitude, longitude } = position.coords;
                 console.log('Location detected:', latitude, longitude);
                 
-                // Simple country detection
                 const country = this.getCountryFromCoordinates(latitude, longitude);
                 const locationMap = {
                     'US': { label: 'United States', currency: 'USD' },
@@ -1335,7 +1418,6 @@
             }
 
             getCountryFromCoordinates(lat, lng) {
-                // Basic geographic regions
                 if (lat >= 24 && lat <= 49 && lng >= -125 && lng <= -66) return 'US';
                 if (lat >= 49 && lat <= 61 && lng >= -141 && lng <= -52) return 'CA';
                 if (lat >= 50 && lat <= 61 && lng >= -8 && lng <= 2) return 'GB';
@@ -1344,19 +1426,7 @@
                 if (lat >= 18 && lat <= 54 && lng >= 73 && lng <= 135) return 'CN';
                 if (lat >= 6 && lat <= 37 && lng >= 68 && lng <= 97) return 'IN';
                 if (lat >= -44 && lat <= -10 && lng >= 113 && lng <= 154) return 'AU';
-                return 'US'; // Default
-            }
-
-            hideModal() {
-                const modal = document.getElementById('locationPermissionModal');
-                if (modal) {
-                    modal.classList.remove('show');
-                    setTimeout(() => {
-                        if (modal && modal.parentNode) {
-                            modal.remove();
-                        }
-                    }, 300);
-                }
+                return 'US';
             }
 
             showMessage(message, type) {
@@ -1404,11 +1474,9 @@
                 this.updateLocationDisplay();
                 this.updateMarketStatus();
                 window.dispatchEvent(new CustomEvent('locationChanged', { detail: this.currentLocation }));
-                // Update all prices/currency formatting immediately
                 if (window.finnhubAPI && window.finnhubAPI.updatePortfolioValueOnly) {
                     window.finnhubAPI.updatePortfolioValueOnly();
                 }
-                // Add more update logic here if needed for other price displays
             }
 
             updateLocationDisplay() {
@@ -1449,8 +1517,8 @@
                     const minute = parseInt(marketTime.find(part => part.type === 'minute').value);
                     const currentTime = hour * 60 + minute;
                     
-                    const marketOpen = 9 * 60 + 30; // 9:30 AM
-                    const marketClose = 16 * 60; // 4:00 PM
+                    const marketOpen = 9 * 60 + 30;
+                    const marketClose = 16 * 60;
                     const isWeekday = now.getDay() >= 1 && now.getDay() <= 5;
                     const isOpen = isWeekday && currentTime >= marketOpen && currentTime < marketClose;
                     
@@ -1463,13 +1531,11 @@
             convertCurrency(amountUSD, targetCurrency) {
                 if (targetCurrency === 'USD') return amountUSD;
                 
-                // Use global currency settings if available
                 if (window.currencySettings && window.currencySettings.exchangeRates) {
                     const rate = window.currencySettings.exchangeRates[targetCurrency];
                     return rate ? amountUSD * rate : amountUSD;
                 }
                 
-                // Fallback to local exchange rates
                 const rate = this.exchangeRates[targetCurrency];
                 return rate ? amountUSD * rate : amountUSD;
             }
@@ -1478,12 +1544,10 @@
                 const targetCurrency = currency || this.currentLocation.currency;
                 const convertedAmount = this.convertCurrency(amount, targetCurrency);
                 
-                // Use global formatCurrency function if available
                 if (window.formatCurrency) {
                     return window.formatCurrency(convertedAmount, targetCurrency);
                 }
                 
-                // Fallback formatting
                 try {
                     const locale = this.getLocaleForCountry(this.currentLocation.country);
                     return new Intl.NumberFormat(locale, {
@@ -1502,19 +1566,10 @@
                 };
                 return locales[country] || 'en-US';
             }
-
-            // Reset permission (for testing)
-            resetPermission() {
-                localStorage.removeItem('alphawave_location_permission');
-                localStorage.removeItem('alphawave_location_denied');
-                sessionStorage.removeItem('alphawave_location_prompted');
-                sessionStorage.removeItem('alphawave_location_session');
-                console.log('Location permission reset');
-            }
         }
 
         // ============================================
-        // ENHANCED FINNHUB API WITH LOCATION SUPPORT
+        // FINNHUB API SERVICE
         // ============================================
         class LocationAwareFinnhubAPI {
             constructor() {
@@ -1651,7 +1706,7 @@
             }
 
             updatePortfolioValue(stockData) {
-                let totalValue = 47892.50; // Base USD value
+                let totalValue = 47892.50;
                 if (window.locationService) {
                     const formattedValue = window.locationService.formatCurrency(totalValue);
                     const portfolioValueElement = document.getElementById('portfolioValue');
@@ -1662,7 +1717,7 @@
             }
 
             updatePortfolioValueOnly() {
-                let totalValue = 47892.50; // Base USD value
+                let totalValue = 47892.50;
                 if (window.locationService) {
                     const formattedValue = window.locationService.formatCurrency(totalValue);
                     const portfolioValueElement = document.getElementById('portfolioValue');
@@ -1716,14 +1771,12 @@
                             const changeClass = stock.change >= 0 ? 'positive' : 'negative';
                             const changeSign = stock.change >= 0 ? '+' : '';
                             
-                            // Use location service for currency formatting if available
                             const priceFormatted = window.locationService ? 
                                 window.locationService.formatCurrency(stock.price) : 
                                 `$${stock.price.toFixed(2)}`;
                             
                             const changeFormatted = `${changeSign}${stock.changePercent.toFixed(2)}%`;
                             
-                            // Route to specific pages
                             let clickAction = '';
                             if (symbol === 'AAPL') {
                                 clickAction = `onclick="console.log('Apple clicked'); window.location.href='apple-stock-detail.html';"`;
@@ -1860,7 +1913,6 @@
         // GLOBAL FUNCTIONS AND INITIALIZATION
         // ============================================
 
-        // Location dropdown functions
         function toggleLocationDropdown() {
             const dropdown = document.getElementById('locationDropdown');
             if (dropdown) {
@@ -1869,21 +1921,17 @@
         }
 
         function changeLocation(country, label, currency) {
-            // Update active selection
             const options = document.querySelectorAll('.location-option');
             options.forEach(option => option.classList.remove('active'));
             if (event && event.target) {
                 event.target.classList.add('active');
             }
             
-            // Close dropdown
             toggleLocationDropdown();
             
-            // Update location
             if (window.locationService) {
                 window.locationService.setLocation(country, label, currency);
                 
-                // Show updating indicator
                 const selector = document.getElementById('currentLocation');
                 const originalText = selector.textContent;
                 selector.textContent = 'Updating...';
@@ -1894,7 +1942,6 @@
             }
         }
 
-        // Close dropdown when clicking outside
         document.addEventListener('click', function(event) {
             const dropdown = document.getElementById('locationDropdown');
             const selector = document.getElementById('locationSelector');
@@ -1906,7 +1953,6 @@
             }
         });
 
-        // Profile Modal Functions
         function toggleProfileModal() {
             const overlay = document.getElementById('profileModalOverlay');
             if (overlay.style.display === 'flex') {
@@ -1940,11 +1986,93 @@
             }
         }
 
+        function handleMenuClick(action) {
+            console.log('Menu action:', action);
+            
+            switch(action) {
+                case 'logout':
+                    closeProfileModal();
+                    setTimeout(() => {
+                        if (window.authSystem) {
+                            window.authSystem.logout();
+                        }
+                    }, 300);
+                    break;
+                    
+                case 'delete-account':
+                    closeProfileModal();
+                    setTimeout(() => {
+                        showDeleteConfirmation();
+                    }, 300);
+                    break;
+                    
+                case 'personal-info':
+                    if (window.authSystem) {
+                        window.authSystem.showMessage('Personal info page not implemented yet', 'info');
+                    }
+                    closeProfileModal();
+                    break;
+                    
+                case 'currency':
+                    showCurrencySettingsModal();
+                    closeProfileModal();
+                    break;
+                    
+                case 'theme':
+                    if (window.authSystem) {
+                        window.authSystem.showMessage('Theme settings not implemented yet', 'info');
+                    }
+                    closeProfileModal();
+                    break;
+                    
+                case 'help':
+                    if (window.authSystem) {
+                        window.authSystem.showMessage('Help & Support not implemented yet', 'info');
+                    }
+                    closeProfileModal();
+                    break;
+                    
+                case 'terms':
+                    if (window.authSystem) {
+                        window.authSystem.showMessage('Terms of Service not implemented yet', 'info');
+                    }
+                    closeProfileModal();
+                    break;
+                    
+                default:
+                    closeProfileModal();
+            }
+        }
+
+        function showDeleteConfirmation() {
+            const confirmed = confirm('WARNING: Do you really want to delete your account?\n\nThis action cannot be undone and you will lose all your data.');
+            
+            if (confirmed) {
+                try {
+                    if (window.authSystem) {
+                        window.authSystem.deleteAccount();
+                        window.authSystem.showMessage('Account deleted successfully. Redirecting...', 'success');
+                        
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 2000);
+                    }
+                } catch (error) {
+                    if (window.authSystem) {
+                        window.authSystem.showMessage(error.message, 'error');
+                    }
+                }
+            }
+        }
+
         // Initialize everything when page loads
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Enhanced Dashboard with Location Support loading...');
+            console.log('Enhanced Dashboard with Search loading...');
             
-            // Initialize location service first
+            // Initialize search system first
+            window.dashboardSearch = new DashboardSearchSystem();
+            
+            // Initialize location service
             window.locationService = new SimpleLocationService();
             window.locationService.init();
             
@@ -1956,7 +2084,6 @@
             window.addEventListener('locationChanged', function(event) {
                 console.log('Location changed event:', event.detail);
                 
-                // Refresh stock data with new currency
                 if (window.finnhubAPI) {
                     window.finnhubAPI.fetchAllStockData();
                 }
@@ -1973,525 +2100,15 @@
                 if (dropdown) {
                     dropdown.classList.remove('show');
                 }
+                
+                // Close search results
+                if (window.dashboardSearch) {
+                    window.dashboardSearch.hideSearchResults();
+                }
             }
         });
 
-        // Reset function for testing location prompt
-        function resetLocationPrompt() {
-            sessionStorage.removeItem('alphawave_location_prompted');
-            localStorage.removeItem('alphawave_location_denied');
-            localStorage.removeItem('alphawave_location_settings');
-            localStorage.removeItem('alphawave_location_permission');
-            console.log('Location prompt reset - refresh page to see prompt again');
-        }
-
-        // Force show location prompt for testing
-        function showLocationPromptNow() {
-            if (window.locationService) {
-                console.log('Forcing location prompt to show...');
-                window.locationService.showLocationPermissionPrompt();
-            }
-        }
-
-        // Make functions available globally for testing
-        window.resetLocationPrompt = resetLocationPrompt;
-        window.showLocationPromptNow = showLocationPromptNow;
-            
-        // ============================================
-        // AUTHENTICATION SYSTEM ADD-ON FOR YOUR DASHBOARD
-        // ============================================
-
-        // Enhanced Authentication System
-        class AuthSystem {
-            constructor() {
-                this.users = JSON.parse(localStorage.getItem('alphawave_users') || '[]');
-                this.currentUser = this.loadCurrentUser();
-                this.initializeAuth();
-            }
-
-            // Safely load current user with validation
-            loadCurrentUser() {
-                try {
-                    const stored = localStorage.getItem('alphawave_current_user');
-                    if (!stored || stored === 'null' || stored === 'undefined') {
-                        return null;
-                    }
-                    
-                    const user = JSON.parse(stored);
-                    
-                    // Validate user object has required properties
-                    if (!user || !user.id || !user.email) {
-                        console.warn('Invalid user session detected, clearing...');
-                        localStorage.removeItem('alphawave_current_user');
-                        return null;
-                    }
-                    
-                    return user;
-                } catch (error) {
-                    console.error('Error loading current user:', error);
-                    localStorage.removeItem('alphawave_current_user');
-                    return null;
-                }
-            }
-
-            // Initialize authentication system
-            initializeAuth() {
-                const protectedPages = ['dashboard.html', 'portfolio.html', 'news.html', 'stocks.html', 'watchlist.html', 'pro.html'];
-                const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-                
-                console.log('Auth check - Page:', currentPage, 'Logged in:', this.isLoggedIn());
-                
-                // Check if user should be on protected page but isn't logged in
-                if (protectedPages.includes(currentPage) && !this.isLoggedIn()) {
-                    console.log('Protected page access denied, redirecting to login...');
-                    this.redirectToLogin();
-                    return;
-                }
-                
-                // Only redirect away from auth pages if user is actually logged in with valid session
-                if ((currentPage === 'index.html' || currentPage === 'signup.html') && this.isLoggedIn()) {
-                    console.log('User already logged in, redirecting to dashboard...');
-                    setTimeout(() => {
-                        this.redirectToDashboard();
-                    }, 100);
-                }
-            }
-
-            // Check if user is logged in
-            isLoggedIn() {
-                return this.currentUser !== null && 
-                       this.currentUser.id && 
-                       this.currentUser.email;
-            }
-
-            // Get current user
-            getCurrentUser() {
-                return this.currentUser;
-            }
-
-            // Logout user
-            logout() {
-                console.log('Logging out user:', this.currentUser?.email);
-                this.clearSession();
-                this.showMessage('You have been logged out successfully', 'success');
-                
-                // Redirect after showing message
-                setTimeout(() => {
-                    this.redirectToLogin();
-                }, 1000);
-            }
-
-            // Clear user session
-            clearSession() {
-                localStorage.removeItem('alphawave_current_user');
-                this.currentUser = null;
-                console.log('User session cleared');
-            }
-
-            // Delete account
-            deleteAccount() {
-                if (!this.isLoggedIn()) {
-                    throw new Error('You must be logged in to delete your account');
-                }
-
-                const userEmail = this.currentUser.email;
-                console.log('Deleting account for user:', userEmail);
-                
-                // Remove user from users array
-                this.users = this.users.filter(u => u.id !== this.currentUser.id);
-                this.saveUsers();
-                
-                // Clear session
-                this.clearSession();
-                
-                console.log('Account deleted successfully for:', userEmail);
-                return { success: true, message: 'Account deleted successfully!' };
-            }
-
-            // Save users to localStorage
-            saveUsers() {
-                localStorage.setItem('alphawave_users', JSON.stringify(this.users));
-            }
-
-            // Redirect to login page
-            redirectToLogin() {
-                const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-                if (currentPage !== 'index.html') {
-                    console.log('Redirecting to login page...');
-                    window.location.href = 'index.html';
-                }
-            }
-
-            // Redirect to dashboard
-            redirectToDashboard() {
-                const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-                if (currentPage !== 'dashboard.html') {
-                    console.log('Redirecting to dashboard...');
-                    window.location.href = 'dashboard.html';
-                }
-            }
-
-            // Show message to user
-            showMessage(message, type = 'info') {
-                // Remove existing messages
-                const existingMessage = document.querySelector('.auth-message');
-                if (existingMessage) {
-                    existingMessage.remove();
-                }
-                
-                // Create message element
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `auth-message auth-message-${type}`;
-                messageDiv.textContent = message;
-                
-                // Style the message
-                messageDiv.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    padding: 15px 20px;
-                    border-radius: 8px;
-                    color: white;
-                    font-family: 'Quicksand', sans-serif;
-                    font-weight: 500;
-                    z-index: 10000;
-                    max-width: 300px;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                    transition: all 0.3s ease;
-                    ${type === 'success' ? 'background: #4CAF50;' : ''}
-                    ${type === 'error' ? 'background: #f44336;' : ''}
-                    ${type === 'info' ? 'background: #2196F3;' : ''}
-                    ${type === 'warning' ? 'background: #ff9800;' : ''}
-                `;
-                
-                document.body.appendChild(messageDiv);
-                
-                // Auto remove after 5 seconds
-                setTimeout(() => {
-                    if (messageDiv && messageDiv.parentNode) {
-                        messageDiv.style.opacity = '0';
-                        messageDiv.style.transform = 'translateX(100%)';
-                        setTimeout(() => {
-                            if (messageDiv && messageDiv.parentNode) {
-                                messageDiv.remove();
-                            }
-                        }, 300);
-                    }
-                }, 5000);
-            }
-        }
-
-        // Initialize auth system
-        window.authSystem = new AuthSystem();
-
-        // ============================================
-        // PROFILE MODAL FUNCTIONS
-        // ============================================
-
-        // Update your existing handleMenuClick function with this:
-        function handleMenuClick(action) {
-            console.log('Menu action:', action);
-            
-            switch(action) {
-                case 'logout':
-                    closeProfileModal();
-                    setTimeout(() => {
-                        window.authSystem.logout();
-                    }, 300);
-                    break;
-                    
-                case 'delete-account':
-                    closeProfileModal();
-                    setTimeout(() => {
-                        showDeleteConfirmation();
-                    }, 300);
-                    break;
-                    
-                case 'personal-info':
-                    window.authSystem.showMessage('Personal info page not implemented yet', 'info');
-                    closeProfileModal();
-                    break;
-                    
-                case 'currency':
-                    showCurrencySettingsModal();
-                    closeProfileModal();
-                    break;
-                    
-                case 'theme':
-                    window.authSystem.showMessage('Theme settings not implemented yet', 'info');
-                    closeProfileModal();
-                    break;
-                    
-                case 'help':
-                    window.authSystem.showMessage('Help & Support not implemented yet', 'info');
-                    closeProfileModal();
-                    break;
-                    
-                case 'terms':
-                    window.authSystem.showMessage('Terms of Service not implemented yet', 'info');
-                    closeProfileModal();
-                    break;
-                    
-                default:
-                    closeProfileModal();
-            }
-        }
-
-        // Delete account confirmation function
-        function showDeleteConfirmation() {
-            // Create a simple browser confirmation dialog
-            const confirmed = confirm('WARNING: Do you really want to delete your account?\n\nThis action cannot be undone and you will lose all your data.');
-            
-            if (confirmed) {
-                try {
-                    window.authSystem.deleteAccount();
-                    window.authSystem.showMessage('Account deleted successfully. Redirecting...', 'success');
-                    
-                    setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 2000);
-                    
-                } catch (error) {
-                    window.authSystem.showMessage(error.message, 'error');
-                }
-            }
-        }
-
-        // Initialize auth system on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Dashboard authentication system loaded');
-            
-            // Check if user is logged in
-            if (!window.authSystem.isLoggedIn()) {
-                console.log('User not logged in, redirecting...');
-                window.authSystem.redirectToLogin();
-                return;
-            }
-            
-            console.log('User logged in:', window.authSystem.getCurrentUser()?.email);
-        });
-
-        console.log('Authentication system add-on loaded successfully');
-    </script>
-
-    <!-- Currency Exchange Functions -->
-    <script>
-        // ============================================
-        // CURRENCY EXCHANGE SYSTEM
-        // ============================================
-        
-        // Global currency settings
-        let currencySettings = {
-            preferredCurrency: 'USD',
-            exchangeRates: {
-                'USD': 1,
-                'EUR': 0.85,
-                'GBP': 0.73,
-                'JPY': 110,
-                'CNY': 6.45,
-                'INR': 74.5,
-                'AUD': 1.35,
-                'CAD': 1.25
-            }
-        };
-
-        // Load currency settings from localStorage
-        function loadCurrencySettings() {
-            const stored = localStorage.getItem('alphawave_currency_settings');
-            if (stored) {
-                try {
-                    const settings = JSON.parse(stored);
-                    currencySettings = { ...currencySettings, ...settings };
-                } catch (error) {
-                    console.warn('Error loading currency settings:', error);
-                }
-            }
-        }
-
-        // Save currency settings to localStorage
-        function saveCurrencySettingsToStorage() {
-            localStorage.setItem('alphawave_currency_settings', JSON.stringify(currencySettings));
-        }
-
-        // Show currency settings modal
-        function showCurrencySettingsModal() {
-            loadCurrencySettings();
-            // Set current preferred currency
-            document.getElementById('preferredCurrency').value = currencySettings.preferredCurrency;
-            // Show modal
-            const modal = document.getElementById('currencyModalOverlay');
-            modal.style.display = 'block';
-            setTimeout(() => {
-                modal.style.opacity = '1';
-            }, 10);
-        }
-
-        // Close currency settings modal
-        function closeCurrencyModal(event) {
-            if (event && event.target.id !== 'currencyModalOverlay') {
-                return;
-            }
-            
-            const modal = document.getElementById('currencyModalOverlay');
-            modal.style.opacity = '0';
-            setTimeout(() => {
-                modal.style.display = 'none';
-            }, 300);
-        }
-
-        // Populate exchange rates grid
-        function populateExchangeRates() {
-            const grid = document.getElementById('exchangeRatesGrid');
-            grid.innerHTML = '';
-            
-            const currencies = [
-                { code: 'EUR', name: 'Euro', flag: '🇪🇺' },
-                { code: 'GBP', name: 'British Pound', flag: '🇬🇧' },
-                { code: 'JPY', name: 'Japanese Yen', flag: '🇯🇵' },
-                { code: 'CNY', name: 'Chinese Yuan', flag: '🇨🇳' },
-                { code: 'INR', name: 'Indian Rupee', flag: '🇮🇳' },
-                { code: 'AUD', name: 'Australian Dollar', flag: '🇦🇺' },
-                { code: 'CAD', name: 'Canadian Dollar', flag: '🇨🇦' }
-            ];
-            
-            currencies.forEach(currency => {
-                const rate = currencySettings.exchangeRates[currency.code];
-                const rateElement = document.createElement('div');
-                rateElement.style.cssText = `
-                    padding: 12px;
-                    background: white;
-                    border-radius: 8px;
-                    border: 1px solid #ddd;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                `;
-                
-                rateElement.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="font-size: 18px;">${currency.flag}</span>
-                        <div>
-                            <div style="font-weight: 500; color: #333;">${currency.code}</div>
-                            <div style="font-size: 12px; color: #666;">${currency.name}</div>
-                        </div>
-                    </div>
-                    <div style="font-weight: 600; color: #007bff; font-size: 16px;">
-                        ${rate.toFixed(4)}
-                    </div>
-                `;
-                
-                grid.appendChild(rateElement);
-            });
-        }
-
-        // Convert currency
-        function convertCurrency() {
-            const amount = parseFloat(document.getElementById('convertAmount').value);
-            const fromCurrency = document.getElementById('fromCurrency').value;
-            const toCurrency = document.getElementById('preferredCurrency').value;
-            
-            if (!amount || isNaN(amount)) {
-                window.authSystem.showMessage('Please enter a valid amount', 'error');
-                return;
-            }
-            
-            if (fromCurrency === toCurrency) {
-                window.authSystem.showMessage('Please select different currencies', 'info');
-                return;
-            }
-            
-            // Convert to USD first, then to target currency
-            const usdAmount = amount / currencySettings.exchangeRates[fromCurrency];
-            const convertedAmount = usdAmount * currencySettings.exchangeRates[toCurrency];
-            
-            // Display result
-            const resultDiv = document.getElementById('conversionResult');
-            const resultText = document.getElementById('conversionText');
-            
-            resultText.innerHTML = `
-                <strong>${amount.toFixed(2)} ${fromCurrency}</strong> = 
-                <strong style="color: #007bff;">${convertedAmount.toFixed(2)} ${toCurrency}</strong>
-                <br><small style="color: #666;">Rate: 1 ${fromCurrency} = ${(currencySettings.exchangeRates[toCurrency] / currencySettings.exchangeRates[fromCurrency]).toFixed(4)} ${toCurrency}</small>
-            `;
-            
-            resultDiv.style.display = 'block';
-        }
-
-        // Save currency settings
-        function saveCurrencySettings() {
-            const preferredCurrency = document.getElementById('preferredCurrency').value;
-            
-            currencySettings.preferredCurrency = preferredCurrency;
-            saveCurrencySettingsToStorage();
-            
-            // Update location service if it exists
-            if (window.locationService) {
-                window.locationService.currentLocation.currency = preferredCurrency;
-                window.locationService.saveLocationSettings();
-                
-                // Update portfolio value with new currency
-                if (window.finnhubAPI) {
-                    window.finnhubAPI.updatePortfolioValueOnly();
-                }
-            }
-            
-            window.authSystem.showMessage('Currency settings saved successfully!', 'success');
-            closeCurrencyModal();
-            
-            // Refresh page to apply new currency settings
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        }
-
-        // Enhanced currency conversion function for use throughout the app
-        function convertCurrencyAmount(amount, fromCurrency, toCurrency) {
-            if (!amount || isNaN(amount)) return 0;
-            if (fromCurrency === toCurrency) return amount;
-            
-            const usdAmount = amount / currencySettings.exchangeRates[fromCurrency];
-            return usdAmount * currencySettings.exchangeRates[toCurrency];
-        }
-
-        // Format currency for display
-        function formatCurrency(amount, currency) {
-            const locales = {
-                'USD': 'en-US',
-                'EUR': 'de-DE',
-                'GBP': 'en-GB',
-                'JPY': 'ja-JP',
-                'CNY': 'zh-CN',
-                'INR': 'en-IN',
-                'AUD': 'en-AU',
-                'CAD': 'en-CA'
-            };
-            
-            const locale = locales[currency] || 'en-US';
-            
-            return new Intl.NumberFormat(locale, {
-                style: 'currency',
-                currency: currency,
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }).format(amount);
-        }
-
-        // Load currency settings on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            loadCurrencySettings();
-            
-            // Make currency settings globally available
-            window.currencySettings = currencySettings;
-            window.convertCurrencyAmount = convertCurrencyAmount;
-            window.formatCurrency = formatCurrency;
-            window.showCurrencySettingsModal = showCurrencySettingsModal;
-        });
-
-        console.log('Currency exchange system loaded successfully');
-    </script>
-
-    <!-- Message dropdown logic -->
-    <script>
+        // Message dropdown logic
         const bell = document.getElementById('notificationBell');
         const dropdown = document.getElementById('messageDropdown');
         document.addEventListener('click', function(event) {
@@ -2501,6 +2118,21 @@
                 dropdown.style.display = 'none';
             }
         });
+
+        // Stub functions for currency settings
+        function showCurrencySettingsModal() {
+            console.log('Currency settings modal would open here');
+        }
+
+        function closeCurrencyModal() {
+            console.log('Currency settings modal would close here');
+        }
+
+        function saveCurrencySettings() {
+            console.log('Currency settings would be saved here');
+        }
+
+        console.log('Enhanced Dashboard with Search System loaded successfully');
     </script>
 </body>
 </html>
