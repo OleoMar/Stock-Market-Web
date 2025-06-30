@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlphaWave - Federal Reserve Signals Rate Changes</title>
+    <title>AlphaWave - Investment Strategies for Market Volatility</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="geolocation-service.js"></script>
-    <script src="location-components.js"></script>
     <style>
         * {
             margin: 0;
@@ -63,14 +61,12 @@
             font-family: 'Quicksand', sans-serif;
         }
 
-
         .search-container { 
             flex: 1;
             max-width: 450px;
             margin: 0 auto;
             position: relative;
             z-index: 2;
-            
         }
 
         .search-input {
@@ -117,7 +113,6 @@
             align-items: center;
             justify-content: space-between;
         }
-
 
         .location-selector:hover {
             background: rgba(255, 255, 255, 0.2);
@@ -177,26 +172,6 @@
             color: white;
         }
 
-        .market-status {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            margin-left: 10px;
-        }
-
-        .market-status.open {
-            background: #4CAF50;
-            color: white;
-        }
-
-        .market-status.closed {
-            background: #f44336;
-            color: white;
-        }
-
         .pro-badge {
             background: #D9D9D9;
             color: #333;
@@ -233,9 +208,10 @@
             object-fit: cover;
         }
 
-        .navbar-right i.fa-bell {
+        .navbar-right i.fa-bell { 
             color: white;
             font-size: 30px;
+            cursor: pointer;
         }
 
         .refresh-stocks-btn {
@@ -274,7 +250,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        
         @media (max-width: 768px) {
             .search-input {
                 width: 300px;
@@ -341,7 +316,7 @@
             padding: 30px;
             background: #f5f5f5;
             color: #333;
-            min-height: calc(100vh - 99px);
+            min-height: calc(100vh - 75px);
             font-family: 'Quicksand', sans-serif;
             margin-left: 250px; 
         }
@@ -377,123 +352,79 @@
         }
 
         .video-container {
-            width: 400px;
-            height: 225px;
-            border-radius: 10px;
+            width: 500px;
+            height: 320px;
+            border-radius: 15px;
             overflow: hidden;
-            background: #1a1a1a;
             position: relative;
             flex-shrink: 0;
-        }
-
-        .video-content {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .video-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.7) 100%);
-        }
-
-        .video-header {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.8);
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 11px;
-            color: white;
-            font-weight: 600;
-            text-align: center;
-        }
-
-        .market-data {
-            position: absolute;
-            bottom: 50px;
-            left: 10px;
-            right: 10px;
-            color: white;
-            font-size: 12px;
-            font-family: 'Quicksand', sans-serif;
-        }
-
-        .market-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 3px;
-        }
-
-        .market-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .market-value {
-            color: #4CAF50;
-            font-weight: 600;
-        }
-
-        .market-ticker {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(0,0,0,0.9);
-            padding: 8px 10px;
-            font-size: 10px;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 10;
-        }
-
-        .ticker-item {
-            display: flex;
-            align-items: center;
-            gap: 3px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
         }
 
         .chart-image {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 1;
+            width: 100%;
+            height: 100%;
         }
 
         .chart-image img {
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 10px;
+            border-radius: 15px;
         }
 
-        @media (max-width: 1024px) {
+        .message-dropdown {
+            position: absolute;
+            top: 60px;
+            right: 60px;
+            background: #ecebeb;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            min-width: 320px;
+            min-height: 380px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .message-dropdown-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            padding: 60px 0 0 0;
+        }
+
+        .message-dropdown-content svg {
+            margin-bottom: 30px;
+        }
+
+        .message-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .message-subtext {
+            font-size: 1.1rem;
+            color: #555;
+            text-align: center;
+        }
+
+        @media (max-width: 1200px) {
             .article-container {
                 flex-direction: column;
             }
             
             .video-container {
                 width: 100%;
-                max-width: 500px;
+                max-width: 600px;
+                height: 320px;
                 margin: 0 auto;
             }
         }
@@ -527,10 +458,20 @@
             .article-container {
                 padding: 20px;
             }
+
+            .video-container {
+                width: 100%;
+                height: 250px;
+            }
         }
+
         @media (max-width: 576px) {
             .content {
                 margin-left: 0;
+            }
+
+            .video-container {
+                height: 200px;
             }
         }
     </style>
@@ -582,9 +523,6 @@
                         </div>
                     </div>
 
-                    <!-- Market Status -->
-                    <!-- <span class="market-status" id="marketStatus">Market Closed</span> -->
-
                     <!-- Refresh stocks button -->
                     <button class="refresh-stocks-btn" onclick="refreshStockData()" title="Refresh stock data">
                         <i class="fas fa-sync-alt"></i>
@@ -592,7 +530,7 @@
                     </button>
                     
                     <a href="pro.html" class="pro-badge">Pro</a>
-                    <i class="fas fa-bell" id="notificationBell" style="color: white; cursor: pointer;"></i>
+                    <i class="fas fa-bell" id="notificationBell"></i>
                     <div id="messageDropdown" class="message-dropdown" style="display: none;">
                         <div class="message-dropdown-content">
                             <svg width="90" height="90" viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -644,11 +582,9 @@
                     </div>
                     
                     <div class="video-container">
-                        <div class="video-content">
-                            <div class="chart-image">
-                                <img src="images/newspic3.jpg" alt="Industrial Chart" style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px;" 
-                                     onerror="this.style.display='none';">
-                            </div>
+                        <div class="chart-image">
+                            <img src="images/newspic3.jpg" alt="Investment Strategy Chart" 
+                                 onerror="this.style.display='none';">
                         </div>
                     </div>
                 </div>
@@ -734,21 +670,20 @@
     </div>
     
     <script>
-        // --- BEGIN: SimpleLocationService (copied from dashboard.html) ---
+        // SimpleLocationService
         class SimpleLocationService {
             constructor() {
                 this.currentLocation = this.loadLocationSettings();
-                this.hasAskedForLocation = false;
                 this.exchangeRates = {
                     'USD': 1, 'EUR': 0.85, 'GBP': 0.73, 'JPY': 110,
                     'CNY': 6.45, 'INR': 74.5, 'AUD': 1.35, 'CAD': 1.25
                 };
             }
+            
             init() {
                 this.updateLocationDisplay();
-                this.updateMarketStatus();
-                setInterval(() => this.updateMarketStatus(), 60000);
             }
+            
             loadLocationSettings() {
                 const stored = localStorage.getItem('alphawave_location_settings');
                 if (stored) {
@@ -756,63 +691,37 @@
                 }
                 return { country: 'US', currency: 'USD', label: 'Global' };
             }
+            
             saveLocationSettings() {
                 localStorage.setItem('alphawave_location_settings', JSON.stringify(this.currentLocation));
             }
+            
             setLocation(country, label, currency) {
                 this.currentLocation = { country, currency, label };
                 this.saveLocationSettings();
                 this.updateLocationDisplay();
-                this.updateMarketStatus();
-                window.dispatchEvent(new CustomEvent('locationChanged', { detail: this.currentLocation }));
             }
+            
             updateLocationDisplay() {
                 const locationElement = document.getElementById('currentLocation');
                 if (locationElement) {
                     locationElement.textContent = this.currentLocation.label;
                 }
             }
-            updateMarketStatus() {
-                const timezone = this.getTimezoneForCountry(this.currentLocation.country);
-                const status = this.getMarketStatus(timezone);
-                const statusElement = document.getElementById('marketStatus');
-                if (statusElement) {
-                    statusElement.textContent = status.isOpen ? 'Market Open' : 'Market Closed';
-                    statusElement.className = `market-status ${status.isOpen ? 'open' : 'closed'}`;
-                }
-            }
-            getTimezoneForCountry(country) {
-                const timezones = {
-                    'US': 'America/New_York', 'EU': 'Europe/London', 'GB': 'Europe/London',
-                    'JP': 'Asia/Tokyo', 'CN': 'Asia/Shanghai', 'IN': 'Asia/Kolkata',
-                    'AU': 'Australia/Sydney', 'CA': 'America/Toronto'
-                };
-                return timezones[country] || 'America/New_York';
-            }
-            getMarketStatus(timezone) {
-                try {
-                    const now = new Date();
-                    const marketTime = new Intl.DateTimeFormat('en-US', {
-                        timeZone: timezone, hour: 'numeric', minute: 'numeric', hour12: false
-                    }).formatToParts(now);
-                    const hour = parseInt(marketTime.find(part => part.type === 'hour').value);
-                    const minute = parseInt(marketTime.find(part => part.type === 'minute').value);
-                    const currentTime = hour * 60 + minute;
-                    const marketOpen = 9 * 60 + 30; // 9:30 AM
-                    const marketClose = 16 * 60; // 4:00 PM
-                    const isWeekday = now.getDay() >= 1 && now.getDay() <= 5;
-                    const isOpen = isWeekday && currentTime >= marketOpen && currentTime < marketClose;
-                    return { isOpen };
-                } catch (error) {
-                    return { isOpen: false };
-                }
-            }
         }
-        // --- END: SimpleLocationService ---
 
-        // --- BEGIN: Refresh function ---
+        // Authentication functions placeholder
+        window.authSystem = {
+            showMessage: function(message, type) {
+                console.log(`${type}: ${message}`);
+            },
+            logout: function() {
+                window.location.href = 'index.html';
+            }
+        };
+
+        // Main functions
         function refreshStockData() {
-            // You can implement real refresh logic here if needed
             const btn = document.querySelector('.refresh-stocks-btn');
             if (btn) {
                 btn.classList.add('loading');
@@ -823,59 +732,7 @@
                 }, 1000);
             }
         }
-        // --- END: Refresh function ---
 
-        // --- BEGIN: Profile menu handler ---
-        function handleMenuClick(action) {
-            console.log('Menu action:', action);
-            
-            switch(action) {
-                case 'logout':
-                    closeProfileModal();
-                    setTimeout(() => {
-                        window.authSystem.logout();
-                    }, 300);
-                    break;
-                    
-                case 'delete-account':
-                    closeProfileModal();
-                    setTimeout(() => {
-                        showDeleteModal();
-                    }, 300);
-                    break;
-                    
-                case 'personal-info':
-                    window.authSystem.showMessage('Personal info page not implemented yet', 'info');
-                    closeProfileModal();
-                    break;
-                    
-                case 'currency':
-                    showCurrencySettingsModal();
-                    closeProfileModal();
-                    break;
-                    
-                case 'theme':
-                    window.authSystem.showMessage('Theme settings not implemented yet', 'info');
-                    closeProfileModal();
-                    break;
-                    
-                case 'help':
-                    window.authSystem.showMessage('Help & Support not implemented yet', 'info');
-                    closeProfileModal();
-                    break;
-                    
-                case 'terms':
-                    window.authSystem.showMessage('Terms of Service not implemented yet', 'info');
-                    closeProfileModal();
-                    break;
-                    
-                default:
-                    closeProfileModal();
-            }
-        }
-        // --- END: Profile menu handler ---
-
-        // Location dropdown functions
         function toggleLocationDropdown() {
             const dropdown = document.getElementById('locationDropdown');
             if (dropdown) {
@@ -884,23 +741,18 @@
         }
 
         function changeLocation(country, label, currency) {
-            // Update active selection
             const options = document.querySelectorAll('.location-option');
             options.forEach(option => option.classList.remove('active'));
             if (event && event.target) {
                 event.target.classList.add('active');
             }
             
-            // Close dropdown
             toggleLocationDropdown();
             
-            // Update location
             if (window.locationService) {
                 window.locationService.setLocation(country, label, currency);
                 
-                // Show updating indicator
                 const selector = document.getElementById('currentLocation');
-                const originalText = selector.textContent;
                 selector.textContent = 'Updating...';
                 
                 setTimeout(() => {
@@ -909,7 +761,6 @@
             }
         }
 
-        // Profile Modal Functions
         function toggleProfileModal() {
             const overlay = document.getElementById('profileModalOverlay');
             if (overlay) {
@@ -943,11 +794,82 @@
             }
         }
 
+        function handleMenuClick(action) {
+            switch(action) {
+                case 'logout':
+                    closeProfileModal();
+                    setTimeout(() => {
+                        window.authSystem.logout();
+                    }, 300);
+                    break;
+                case 'currency':
+                    showCurrencySettingsModal();
+                    closeProfileModal();
+                    break;
+                default:
+                    window.authSystem.showMessage(`${action} not implemented yet`, 'info');
+                    closeProfileModal();
+            }
+        }
+
+        // Currency settings
+        let currencySettings = {
+            preferredCurrency: 'USD',
+            exchangeRates: {
+                'USD': 1, 'EUR': 0.85, 'GBP': 0.73, 'JPY': 110,
+                'CNY': 6.45, 'INR': 74.5, 'AUD': 1.35, 'CAD': 1.25
+            }
+        };
+
+        function showCurrencySettingsModal() {
+            const modal = document.getElementById('currencyModalOverlay');
+            modal.style.display = 'block';
+            setTimeout(() => {
+                modal.style.opacity = '1';
+            }, 10);
+        }
+
+        function closeCurrencyModal(event) {
+            if (event && event.target.id !== 'currencyModalOverlay') {
+                return;
+            }
+            const modal = document.getElementById('currencyModalOverlay');
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+
+        function saveCurrencySettings() {
+            const preferredCurrency = document.getElementById('preferredCurrency').value;
+            currencySettings.preferredCurrency = preferredCurrency;
+            localStorage.setItem('alphawave_currency_settings', JSON.stringify(currencySettings));
+            window.authSystem.showMessage('Currency settings saved!', 'success');
+            closeCurrencyModal();
+        }
+
         // Initialize everything when page loads
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize location service
             window.locationService = new SimpleLocationService();
             window.locationService.init();
+
+            // Message dropdown functionality
+            const bell = document.getElementById('notificationBell');
+            const dropdown = document.getElementById('messageDropdown');
+            
+            if (bell && dropdown) {
+                bell.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    const isVisible = dropdown.style.display === 'flex';
+                    dropdown.style.display = isVisible ? 'none' : 'flex';
+                });
+
+                document.addEventListener('click', function(event) {
+                    if (!dropdown.contains(event.target) && !bell.contains(event.target)) {
+                        dropdown.style.display = 'none';
+                    }
+                });
+            }
         });
 
         // Close dropdown when clicking outside
@@ -966,78 +888,13 @@
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 closeProfileModal();
+                closeCurrencyModal();
                 const dropdown = document.getElementById('locationDropdown');
                 if (dropdown) {
                     dropdown.classList.remove('show');
                 }
             }
         });
-
-        // Currency settings logic (shared with dashboard)
-        let currencySettings = {
-            preferredCurrency: 'USD',
-            exchangeRates: {
-                'USD': 1,
-                'EUR': 0.85,
-                'GBP': 0.73,
-                'JPY': 110,
-                'CNY': 6.45,
-                'INR': 74.5,
-                'AUD': 1.35,
-                'CAD': 1.25
-            }
-        };
-        function loadCurrencySettings() {
-            const stored = localStorage.getItem('alphawave_currency_settings');
-            if (stored) {
-                try {
-                    const settings = JSON.parse(stored);
-                    currencySettings = { ...currencySettings, ...settings };
-                } catch (error) {
-                    console.warn('Error loading currency settings:', error);
-                }
-            }
-        }
-        function saveCurrencySettingsToStorage() {
-            localStorage.setItem('alphawave_currency_settings', JSON.stringify(currencySettings));
-        }
-        function showCurrencySettingsModal() {
-            loadCurrencySettings();
-            document.getElementById('preferredCurrency').value = currencySettings.preferredCurrency;
-            const modal = document.getElementById('currencyModalOverlay');
-            modal.style.display = 'block';
-            setTimeout(() => {
-                modal.style.opacity = '1';
-            }, 10);
-        }
-        function closeCurrencyModal(event) {
-            if (event && event.target.id !== 'currencyModalOverlay') {
-                return;
-            }
-            const modal = document.getElementById('currencyModalOverlay');
-            modal.style.opacity = '0';
-            setTimeout(() => {
-                modal.style.display = 'none';
-            }, 300);
-        }
-        function saveCurrencySettings() {
-            const preferredCurrency = document.getElementById('preferredCurrency').value;
-            currencySettings.preferredCurrency = preferredCurrency;
-            saveCurrencySettingsToStorage();
-            // Update location service if it exists
-            if (window.locationService) {
-                window.locationService.currentLocation.currency = preferredCurrency;
-                window.locationService.saveLocationSettings();
-                window.locationService.updatePortfolioValue && window.locationService.updatePortfolioValue();
-            }
-            // Show a message (optional)
-            if (window.authSystem && window.authSystem.showMessage) {
-                window.authSystem.showMessage('Currency settings saved!', 'success');
-            }
-            closeCurrencyModal();
-        }
-        // Make modal functions global
-        window.showCurrencySettingsModal = showCurrencySettingsModal;
     </script>
 </body>
 </html>
