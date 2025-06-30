@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="geolocation-service.js"></script>
     <script src="location-components.js"></script>
+    <script src="auth.js"></script>
     <style>
         * {
             margin: 0;
@@ -28,11 +29,11 @@
             color: white;
         }
 
-        .navbar { 
+        .navbar {
             background: #1a1a1a;
-            padding: 5px 0;
+            padding: 15px 0;
             border-bottom: 1px solid #333;
-            height: 75px;
+            height: 99px;
             display: flex;
             align-items: center;
             position: fixed;
@@ -52,13 +53,12 @@
             flex-wrap: nowrap;
         }
 
-        .navbar-brand { 
+        .navbar-brand {
             color: white !important;
             font-weight: bold;
             font-size: 35px;
             display: flex;
-            align-items: center; 
-            padding: 0;
+            align-items: center;
             text-decoration: none;
             font-family: 'Quicksand', sans-serif;
         }
@@ -68,14 +68,16 @@
             max-width: 450px;
             margin: 0 auto;
             position: relative;
+            z-index: 2;
         }
 
         .search-input {
             width: 100%;
             max-width: 450px;
+            height: 43px;
             padding: 10px 40px 10px 15px;
             border: 1px solid #444;
-            border-radius: 25px;
+            border-radius: 9px;
             background: white;
             color: #333;
             font-family: 'Quicksand', sans-serif;
@@ -87,90 +89,109 @@
             top: 50%;
             transform: translateY(-50%);
             color: #666;
-        }
-
-        .location-selector {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 9px;
-            font-size: 12px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: 'Quicksand', sans-serif;
-            min-width: 80px;
         }
 
-        .location-selector:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .location-dropdown {
+        /* Search Results Dropdown */
+        .search-results-dropdown {
             position: absolute;
             top: 100%;
             left: 0;
             right: 0;
-            background: #2a2a2a;
-            border: 1px solid #444;
-            border-radius: 9px;
-            padding: 8px 0;
-            margin-top: 5px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1001;
             display: none;
-            z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            margin-top: 5px;
         }
 
-        .location-dropdown.show {
+        .search-results-dropdown.show {
             display: block;
         }
 
-        .location-option {
-            padding: 8px 12px;
+        .search-result-item {
+            padding: 12px 16px;
+            color: #333;
             cursor: pointer;
             transition: background 0.2s ease;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-item:hover {
+            background: #f8f9fa;
+        }
+
+        .search-result-info {
+            flex: 1;
+        }
+
+        .search-result-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .search-result-symbol {
             font-size: 12px;
-            color: #ccc;
-            font-family: 'Quicksand', sans-serif;
+            color: #666;
         }
 
-        .location-option:hover {
-            background: #3a3a3a;
-            color: white;
+        .search-result-exchange {
+            font-size: 11px;
+            color: #999;
+            padding: 2px 6px;
+            background: #f0f0f0;
+            border-radius: 4px;
         }
 
-        .location-option.active {
-            background: #4CAF50;
-            color: white;
+        .search-loading {
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-style: italic;
         }
 
+        .search-no-results {
+            padding: 20px;
+            text-align: center;
+            color: #666;
+        }
+
+        .search-error {
+            padding: 20px;
+            text-align: center;
+            color: #f44336;
+            font-size: 14px;
+        }
 
         .navbar-right {
             display: flex;
             align-items: center;
-            gap: 30px;
+            gap: 15px;
+            position: relative;
+            z-index: 2;
         }
 
         .pro-badge {
-           background: #D9D9D9;
-            color: #333;
+            background: #333;
+            color: white;
             padding: 8px 20px;
-            border-radius: 9px;
+            border-radius: 20px;
             text-decoration: none;
             font-weight: 600;
-            border: none;
+            border: 1px solid #555;
             font-family: 'Quicksand', sans-serif;
-            font-size: 20px;
-            width: 84px;
-            height: 42px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-         .navbar-right i.fa-bell { 
-            color: white;
-            font-size: 30px;
         }
 
         .user-avatar {
@@ -384,21 +405,19 @@
 
         .main-layout {
             display: flex;
-            margin-top: 75px;
-            
         }
 
-        .sidebar { 
-            width: 250px; 
+        .sidebar {
+            width: 200px;
             background: white;
-            height: calc(100vh - 70px);
+            height: calc(100vh - 99px);
             padding: 30px 0;
             border-right: 1px solid #333;
             position: fixed;
             left: 0;
-            top: 70px;
-            background-image: url('images/navi.png');
-            background-size: cover;
+            top: 80px;
+            background-image: url('SideGradient.png');
+            background-size: 100%;
             background-position: center bottom;
             background-repeat: no-repeat;
             z-index: 10;
@@ -416,7 +435,7 @@
         .sidebar-nav a {
             display: block;
             padding: 15px 30px;
-            color: #1C1C1C;
+            color: #ccc;
             text-decoration: none;
             transition: all 0.3s;
             font-weight: 500;
@@ -427,21 +446,20 @@
         .sidebar-nav a.active {
             background: #2a2a2a;
             color: white;
-            font-weight: bold;
         }
 
-        .content { 
+        .content {
             flex: 1;
             padding: 30px;
             background: #f5f5f5;
             color: #333;
-            min-height: calc(100vh - 75px);
+            min-height: calc(100vh - 99px);
             font-family: 'Quicksand', sans-serif;
-            margin-left: 250px; 
+            margin-left: 200px;
         }
 
         .stocks-header {
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         .stocks-title {
@@ -451,7 +469,7 @@
         }
 
         .stocks-title-left h2 {
-            font-size: 30px;
+            font-size: 40px;
             font-weight: bold;
             color: #333;
             font-family: 'Quicksand', sans-serif;
@@ -460,7 +478,7 @@
 
         .companies-count {
             color: #666;
-            font-size: 20px;
+            font-size: 30px;
             font-weight: 300;
             font-family: 'Quicksand', sans-serif;
             margin-top: 5px;
@@ -468,7 +486,7 @@
 
         .sort-option {
             color: #666;
-            font-size: 25px;
+            font-size: 30px;
             font-weight: 300;
             font-family: 'Quicksand', sans-serif;
             cursor: pointer;
@@ -629,7 +647,61 @@
         }
 
         
-        
+        .location-selector {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 9px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Quicksand', sans-serif;
+            min-width: 80px;
+        }
+
+        .location-selector:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .location-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 9px;
+            padding: 8px 0;
+            margin-top: 5px;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .location-dropdown.show {
+            display: block;
+        }
+
+        .location-option {
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            font-size: 12px;
+            color: #ccc;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .location-option:hover {
+            background: #3a3a3a;
+            color: white;
+        }
+
+        .location-option.active {
+            background: #4CAF50;
+            color: white;
+        }
+
         .flag {
             display: inline-block;
             width: 20px;
@@ -784,15 +856,18 @@
 </head>
 <body>
     <div class="dashboard-page">
-       <nav class="navbar">
+        <nav class="navbar">
             <div class="container-fluid">
                 <a class="navbar-brand" href="dashboard.html">
                     <img src="images/logoLight.png" width="50px" alt="Logo">
                     <p>&nbsp</p>AlphaWave
                 </a>
                 <div class="search-container">
-                    <input type="text" class="search-input" placeholder="Search stocks...">
-                    <i class="fas fa-search search-icon"></i> 
+                    <input type="text" class="search-input" id="stocksSearchInput" placeholder="Search stocks..." autocomplete="off">
+                    <i class="fas fa-search search-icon" onclick="performSearch()"></i>
+                    <div class="search-results-dropdown" id="searchResultsDropdown">
+                        <!-- Search results will be populated here -->
+                    </div>
                 </div>
                 <div class="navbar-right">
                     <!-- Location Selector -->
@@ -854,7 +929,7 @@
                         </div>
                     </div>
                     <div class="user-avatar" onclick="toggleProfileModal()">
-                        <img src="images/profilepic.jpg" alt="User">
+                        <img src="accountLogo.jpg" alt="User">
                     </div>
                 </div>
             </div>
@@ -984,6 +1059,259 @@
     </div>
 
     <script>
+        // ============================================
+        // ENHANCED SEARCH SYSTEM FOR STOCKS PAGE
+        // ============================================
+        
+        const FINNHUB_API_KEY = 'd1hf3vpr01qsvr29q1qgd1hf3vpr01qsvr29q1r0';
+        
+        class StocksSearchSystem {
+            constructor() {
+                this.searchInput = document.getElementById('stocksSearchInput');
+                this.searchResults = document.getElementById('searchResultsDropdown');
+                this.searchTimeout = null;
+                this.isSearching = false;
+                this.lastQuery = '';
+                
+                this.initializeSearch();
+            }
+            
+            initializeSearch() {
+                console.log('Initializing stocks search system...');
+                
+                // Add event listeners
+                this.searchInput.addEventListener('input', (e) => this.handleSearchInput(e));
+                this.searchInput.addEventListener('keydown', (e) => this.handleKeyDown(e));
+                this.searchInput.addEventListener('focus', (e) => this.handleFocus(e));
+                this.searchInput.addEventListener('blur', (e) => this.handleBlur(e));
+                
+                // Close search results when clicking outside
+                document.addEventListener('click', (e) => this.handleOutsideClick(e));
+                
+                console.log('Stocks search system initialized');
+            }
+            
+            handleSearchInput(event) {
+                const query = event.target.value.trim();
+                
+                // Clear previous timeout
+                if (this.searchTimeout) {
+                    clearTimeout(this.searchTimeout);
+                }
+                
+                // If query is empty, hide results
+                if (query.length === 0) {
+                    this.hideSearchResults();
+                    return;
+                }
+                
+                // If query is too short, don't search
+                if (query.length < 2) {
+                    return;
+                }
+                
+                // Debounce search requests
+                this.searchTimeout = setTimeout(() => {
+                    this.performSearch(query);
+                }, 300);
+            }
+            
+            handleKeyDown(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    const query = this.searchInput.value.trim();
+                    if (query) {
+                        this.performSearch(query);
+                    }
+                } else if (event.key === 'Escape') {
+                    this.hideSearchResults();
+                    this.searchInput.blur();
+                }
+            }
+            
+            handleFocus(event) {
+                // Show results if there's a query and results exist
+                if (this.searchInput.value.trim() && this.searchResults.children.length > 0) {
+                    this.showSearchResults();
+                }
+            }
+            
+            handleBlur(event) {
+                // Delay hiding to allow clicks on results
+                setTimeout(() => {
+                    if (!this.searchResults.matches(':hover')) {
+                        this.hideSearchResults();
+                    }
+                }, 150);
+            }
+            
+            handleOutsideClick(event) {
+                if (!this.searchInput.contains(event.target) && 
+                    !this.searchResults.contains(event.target)) {
+                    this.hideSearchResults();
+                }
+            }
+            
+            async performSearch(query) {
+                if (this.isSearching || query === this.lastQuery) {
+                    return;
+                }
+                
+                this.isSearching = true;
+                this.lastQuery = query;
+                
+                console.log('Searching for:', query);
+                
+                // Show loading state
+                this.showLoadingState();
+                
+                try {
+                    const results = await this.searchCompanies(query);
+                    this.displaySearchResults(results, query);
+                } catch (error) {
+                    console.error('Search error:', error);
+                    this.showErrorState();
+                } finally {
+                    this.isSearching = false;
+                }
+            }
+            
+            async searchCompanies(query) {
+                const url = `https://finnhub.io/api/v1/search?q=${encodeURIComponent(query)}&token=${FINNHUB_API_KEY}`;
+                
+                try {
+                    const response = await fetch(url);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    console.log('Search results:', data);
+                    
+                    if (data.result && data.result.length > 0) {
+                        return data.result.slice(0, 8); // Limit to 8 results
+                    }
+                    
+                    return [];
+                } catch (error) {
+                    console.error('Error searching companies:', error);
+                    throw error;
+                }
+            }
+            
+            displaySearchResults(results, query) {
+                if (results.length === 0) {
+                    this.showNoResultsState(query);
+                    return;
+                }
+                
+                const resultsHTML = results.map(result => this.createResultHTML(result)).join('');
+                
+                this.searchResults.innerHTML = resultsHTML;
+                this.showSearchResults();
+                
+                // Add click handlers to results
+                this.searchResults.querySelectorAll('.search-result-item').forEach(item => {
+                    item.addEventListener('click', (e) => this.handleResultClick(e, item));
+                });
+            }
+            
+            createResultHTML(result) {
+                const { symbol, description, displaySymbol, type } = result;
+                const exchange = result.exchange || '';
+                
+                return `
+                    <div class="search-result-item" data-symbol="${symbol}" data-description="${description}">
+                        <div class="search-result-info">
+                            <div class="search-result-name">${description || symbol}</div>
+                            <div class="search-result-symbol">${symbol}${displaySymbol && displaySymbol !== symbol ? ` (${displaySymbol})` : ''}</div>
+                        </div>
+                        ${exchange ? `<div class="search-result-exchange">${exchange}</div>` : ''}
+                    </div>
+                `;
+            }
+            
+            handleResultClick(event, item) {
+                const symbol = item.dataset.symbol;
+                const description = item.dataset.description;
+                
+                console.log('Selected stock:', symbol, description);
+                
+                // Update search input with selected value
+                this.searchInput.value = `${description} (${symbol})`;
+                
+                // Hide search results
+                this.hideSearchResults();
+                
+                // Navigate to stock detail page or show stock info
+                this.navigateToStock(symbol, description);
+            }
+            
+            navigateToStock(symbol, description) {
+                // For specific stocks, navigate to their detail pages
+                if (symbol === 'AAPL') {
+                    window.location.href = 'apple-stock-detail.html';
+                } else if (symbol === 'GOOGL' || symbol === 'GOOG') {
+                    window.location.href = 'stock-detail.html';
+                } else {
+                    // For other stocks, navigate to search-company page
+                    window.location.href = `search-company.html?company=${encodeURIComponent(symbol)}`;
+                }
+            }
+            
+            showLoadingState() {
+                this.searchResults.innerHTML = `
+                    <div class="search-loading">
+                        <i class="fas fa-spinner fa-spin"></i> Searching...
+                    </div>
+                `;
+                this.showSearchResults();
+            }
+            
+            showNoResultsState(query) {
+                this.searchResults.innerHTML = `
+                    <div class="search-no-results">
+                        No results found for "${query}"
+                        <br><small>Try searching by company name or stock symbol</small>
+                    </div>
+                `;
+                this.showSearchResults();
+            }
+            
+            showErrorState() {
+                this.searchResults.innerHTML = `
+                    <div class="search-error">
+                        Search temporarily unavailable
+                        <br><small>Please try again in a moment</small>
+                    </div>
+                `;
+                this.showSearchResults();
+            }
+            
+            showSearchResults() {
+                this.searchResults.classList.add('show');
+            }
+            
+            hideSearchResults() {
+                this.searchResults.classList.remove('show');
+            }
+            
+            clearSearch() {
+                this.searchInput.value = '';
+                this.hideSearchResults();
+                this.lastQuery = '';
+            }
+        }
+        
+        // Global search function for the search icon
+        function performSearch() {
+            const query = document.getElementById('stocksSearchInput').value.trim();
+            if (query && window.stocksSearch) {
+                window.stocksSearch.performSearch(query);
+            }
+        }
+
         // Finnhub API Integration for Stocks List
         class FinnhubStocksAPI {
             constructor() {
@@ -1161,14 +1489,14 @@
 
             getStockLogo(symbol) {
                 const logos = {
-                    'TSLA': 'images/TeslaBigLogo.png',
-                    'AAPL': 'images/AppleBigLogo.png',
-                    'NVDA': 'images/nvidia.jpg',
-                    'AMD': 'images/AMD.jpg',
-                    'META': 'images/meta.jpg',
-                    'AMZN': 'images/amazon_.png',
-                    'GOOGL': 'images/Google.jpg',
-                    'NFLX': 'images/netflix.png'
+                    'TSLA': 'TeslaBigLogo.png',
+                    'AAPL': 'AppleBigLogo.png',
+                    'NVDA': 'nvidia.jpg',
+                    'AMD': 'AMD.jpg',
+                    'META': 'Meta.png',
+                    'AMZN': 'AmazonBigLogo.png',
+                    'GOOGL': 'Google.jpg',
+                    'NFLX': 'netflix.png'
                 };
                 return logos[symbol] || `${symbol.toLowerCase()}.png`;
             }
@@ -1425,11 +1753,16 @@
 
         // Load stocks content on page load
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Stocks page loaded with Finnhub API');
+            console.log('Enhanced Stocks page with Search loading...');
+            
+            // Initialize search system
+            window.stocksSearch = new StocksSearchSystem();
             
             // Initialize location service
             window.locationService = new SimpleLocationService();
             window.locationService.init();
+            
+            console.log('Stocks page initialization complete');
         });
 
         // --- BEGIN: SimpleLocationService (copied from dashboard.html) ---
