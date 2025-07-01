@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="geolocation-service.js"></script>
     <script src="location-components.js"></script>
+    <script src="auth.js"></script>
     <style>
         * {
             margin: 0;
@@ -479,6 +480,111 @@
             color: #4CAF50;
         }
 
+        .message-dropdown {
+            position: absolute;
+            top: 60px;
+            right: 60px;
+            background: #ecebeb;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            min-width: 320px;
+            min-height: 380px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .message-dropdown-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            padding: 60px 0 0 0;
+        }
+        .message-dropdown-content svg {
+            margin-bottom: 30px;
+        }
+        .message-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .message-subtext {
+            font-size: 1.1rem;
+            color: #555;
+            text-align: center;
+        }
+
+        /* Delete Account Modal CSS - matching news.html */
+        .delete-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .delete-modal-overlay.show {
+            display: block;
+            opacity: 1;
+        }
+        .delete-modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            padding: 32px 28px;
+            font-family: 'Quicksand', sans-serif;
+            color: #111;
+        }
+        .delete-warning-icon {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .delete-warning-triangle {
+            width: 40px;
+            height: 40px;
+            background: #fff3cd;
+            border: 2px solid #ffe066;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            margin: 0 auto;
+        }
+        .delete-message {
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 24px;
+        }
+        .delete-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .delete-btn {
+            background: #f44336;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 24px;
+            font-size: 16px;
+            font-family: 'Quicksand', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .delete-btn:hover {
+            background: #d32f2f;
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
@@ -526,13 +632,6 @@
             .content {
                 margin-left: 0;
             }
-        }
-
-        .message-dropdown {
-            position: absolute;
-            top: 60px;
-            right: 60px;
-            background: #ecebeb;
         }
     </style>
 </head>
@@ -640,61 +739,61 @@
         </div>
     </div>
 
-    <!-- Profile Modal Overlay -->
-    <div class="profile-modal-overlay" id="profileModalOverlay" onclick="closeProfileModal(event)">
-        <div class="profile-modal" onclick="event.stopPropagation()">
-            <div class="profile-menu-item" onclick="handleMenuClick('personal-info')">
-                <div class="profile-menu-icon">
+    <!-- Profile Modal Overlay - Fixed to match news.html exactly -->
+    <div class="profile-modal-overlay" id="profileModalOverlay" onclick="closeProfileModal(event)" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s ease;">
+        <div class="profile-modal" onclick="event.stopPropagation()" style="position: absolute; top: 80px; right: 20px; width: 380px; height: 450px; background: #e8e8e8; border-radius: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); padding: 20px; font-family: 'Quicksand', sans-serif; transform: translateY(-20px); transition: transform 0.3s ease; display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="profile-menu-item" onclick="handleMenuClick('personal-info')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
                     <i class="fas fa-user"></i>
                 </div>
-                <div class="profile-menu-text">Personal info</div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Personal info</div>
             </div>
 
-            <div class="profile-menu-item" onclick="handleMenuClick('logout')">
-                <div class="profile-menu-icon">
+            <div class="profile-menu-item" onclick="handleMenuClick('logout')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
                     <i class="fas fa-door-open"></i>
                 </div>
-                <div class="profile-menu-text">Logout</div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Logout</div>
             </div>
 
-            <div class="profile-menu-item" onclick="handleMenuClick('currency')">
-                <div class="profile-menu-icon">
+            <div class="profile-menu-item" onclick="handleMenuClick('currency')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
                     <i class="fas fa-dollar-sign"></i>
                 </div>
-                <div class="profile-menu-text">Currency</div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Currency</div>
             </div>
 
-            <div class="profile-menu-item" onclick="handleMenuClick('theme')">
-                <div class="profile-menu-icon">
+            <div class="profile-menu-item" onclick="handleMenuClick('theme')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
                     <i class="fas fa-sun"></i>
                 </div>
-                <div class="profile-menu-text">Theme</div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Theme</div>
             </div>
 
-            <div class="profile-menu-item" onclick="handleMenuClick('help')">
-                <div class="profile-menu-icon">
+            <div class="profile-menu-item" onclick="handleMenuClick('help')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
                     <i class="fas fa-question-circle"></i>
                 </div>
-                <div class="profile-menu-text">Help & Support</div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Help & Support</div>
             </div>
 
-            <div class="profile-menu-item" onclick="handleMenuClick('terms')">
-                <div class="profile-menu-icon">
+            <div class="profile-menu-item" onclick="handleMenuClick('terms')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
                     <i class="fas fa-file-contract"></i>
                 </div>
-                <div class="profile-menu-text">Terms of Service</div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Terms of Service</div>
             </div>
 
-            <div class="profile-menu-item" onclick="handleMenuClick('delete-account')">
-                <div class="profile-menu-icon">
+            <div class="profile-menu-item" onclick="handleMenuClick('delete-account')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
                     <i class="fas fa-user-times"></i>
                 </div>
-                <div class="profile-menu-text">Delete your account</div>
+                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Delete your account</div>
             </div>
         </div>
     </div>
 
-    <!-- Delete Account Confirmation Modal -->
+    <!-- Delete Account Confirmation Modal - Fixed to match news.html -->
     <div class="delete-modal-overlay" id="deleteModalOverlay" onclick="closeDeleteModal(event)">
         <div class="delete-modal" onclick="event.stopPropagation()">
             <div class="delete-warning-icon">
@@ -734,10 +833,10 @@
     </div>
     
     <script>
-        // Profile Modal Functions
+        // Fixed Profile Modal Functions to match news.html exactly
         function toggleProfileModal() {
             const overlay = document.getElementById('profileModalOverlay');
-            if (overlay.classList.contains('show')) {
+            if (overlay.style.display === 'flex') {
                 closeProfileModal();
             } else {
                 openProfileModal();
@@ -746,7 +845,8 @@
 
         function openProfileModal() {
             const overlay = document.getElementById('profileModalOverlay');
-            overlay.classList.add('show');
+            overlay.style.display = 'flex';
+            overlay.style.opacity = '1';
             document.body.style.overflow = 'hidden';
         }
 
@@ -756,13 +856,14 @@
             }
             
             const overlay = document.getElementById('profileModalOverlay');
-            overlay.classList.remove('show');
+            overlay.style.display = 'none';
+            overlay.style.opacity = '0';
             document.body.style.overflow = 'auto';
         }
 
+        // Fixed handleMenuClick function to match news.html exactly
         function handleMenuClick(action) {
             console.log('Menu action:', action);
-            
             switch(action) {
                 case 'logout':
                     closeProfileModal();
@@ -770,45 +871,38 @@
                         window.authSystem.logout();
                     }, 300);
                     break;
-                    
                 case 'delete-account':
-                closeProfileModal();
+                    closeProfileModal();
                     setTimeout(() => {
-                showDeleteModal();
+                        showDeleteModal();
                     }, 300);
                     break;
-                    
                 case 'personal-info':
                     window.authSystem.showMessage('Personal info page not implemented yet', 'info');
                     closeProfileModal();
                     break;
-                    
                 case 'currency':
                     showCurrencySettingsModal();
                     closeProfileModal();
                     break;
-                    
                 case 'theme':
                     window.authSystem.showMessage('Theme settings not implemented yet', 'info');
                     closeProfileModal();
                     break;
-                    
                 case 'help':
                     window.authSystem.showMessage('Help & Support not implemented yet', 'info');
                     closeProfileModal();
                     break;
-                    
                 case 'terms':
                     window.authSystem.showMessage('Terms of Service not implemented yet', 'info');
                     closeProfileModal();
                     break;
-                    
                 default:
-            closeProfileModal();
+                    closeProfileModal();
             }
         }
 
-        
+        // Fixed Delete Account Modal functions to match news.html exactly
         function showDeleteModal() {
             const overlay = document.getElementById('deleteModalOverlay');
             overlay.classList.add('show');
@@ -819,22 +913,28 @@
             if (event && event.target !== event.currentTarget) {
                 return;
             }
-            
             const overlay = document.getElementById('deleteModalOverlay');
             overlay.classList.remove('show');
             document.body.style.overflow = 'auto';
         }
 
         function confirmDelete() {
-            console.log('Account deletion confirmed - no action taken');
+            try {
+                window.authSystem.deleteAccount();
+                window.authSystem.showMessage('Account deleted successfully', 'success');
+                setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+            } catch (error) {
+                window.authSystem.showMessage(error.message, 'error');
+            }
             closeDeleteModal();
         }
 
-       
+        // Fixed escape key handling
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 closeProfileModal();
                 closeDeleteModal();
+                closeCurrencyModal();
             }
         });
 
@@ -1263,40 +1363,6 @@ function changeLocation(country, label, currency) {
             }
         });
 
-        // Profile modal functions (add to all pages)
-        function toggleProfileModal() {
-            const overlay = document.getElementById('profileModalOverlay');
-            if (overlay) {
-                if (overlay.style.display === 'flex') {
-                    closeProfileModal();
-                } else {
-                    openProfileModal();
-                }
-            }
-        }
-
-        function openProfileModal() {
-            const overlay = document.getElementById('profileModalOverlay');
-            if (overlay) {
-                overlay.style.display = 'flex';
-                overlay.style.opacity = '1';
-                document.body.style.overflow = 'hidden';
-            }
-        }
-
-        function closeProfileModal(event) {
-            if (event && event.target !== event.currentTarget) {
-                return;
-            }
-            
-            const overlay = document.getElementById('profileModalOverlay');
-            if (overlay) {
-                overlay.style.display = 'none';
-                overlay.style.opacity = '0';
-                document.body.style.overflow = 'auto';
-            }
-        }
-
         // Refresh function (dashboard.html only)
         function refreshStockData() {
             // You can implement real refresh logic here if needed
@@ -1310,17 +1376,6 @@ function changeLocation(country, label, currency) {
                 }, 1000);
             }
         }
-
-        // Close modals when pressing Escape key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                closeProfileModal();
-                const dropdown = document.getElementById('locationDropdown');
-                if (dropdown) {
-                    dropdown.classList.remove('show');
-                }
-            }
-        });
 
         // --- BEGIN: SimpleLocationService (copied from dashboard.html) ---
         class SimpleLocationService {
@@ -1478,34 +1533,108 @@ function changeLocation(country, label, currency) {
             if (window.authSystem && window.authSystem.showMessage) {
                 window.authSystem.showMessage('Currency settings saved!', 'success');
             }
-            // Reload the page to ensure all data and UI update
-            window.location.reload();
+            closeCurrencyModal();
         }
-        // Also ensure the modal closes on select change
+
+        // Initialize location service
         document.addEventListener('DOMContentLoaded', function() {
-            var currencySelect = document.getElementById('preferredCurrency');
-            if (currencySelect) {
-                currencySelect.addEventListener('change', saveCurrencySettings);
-            }
-            // Hide modals by default
-            var currencyModal = document.getElementById('currencyModalOverlay');
-            if (currencyModal) {
-                currencyModal.style.display = 'none';
-                currencyModal.style.opacity = '0';
-            }
-            var profileModal = document.getElementById('profileModalOverlay');
-            if (profileModal) {
-                profileModal.classList.remove('show');
-                profileModal.style.display = '';
-                profileModal.style.opacity = '';
-            }
-            var deleteModal = document.getElementById('deleteModalOverlay');
-            if (deleteModal) {
-                deleteModal.classList.remove('show');
-                deleteModal.style.display = '';
-                deleteModal.style.opacity = '';
+            console.log('Watchlist page loading...');
+            
+            // Initialize location service
+            window.locationService = new SimpleLocationService();
+            window.locationService.init();
+            
+            // Listen for location changes
+            window.addEventListener('locationChanged', function(event) {
+                console.log('Location changed event:', event.detail);
+                
+                // Refresh watchlist with new currency
+                if (window.watchlistAPI) {
+                    window.watchlistAPI.refreshWatchlistDisplay();
+                }
+            });
+            
+            console.log('Watchlist page initialization complete');
+        });
+
+        // Message dropdown logic - exactly like news.html
+        const bell = document.getElementById('notificationBell');
+        const dropdown = document.getElementById('messageDropdown');
+        document.addEventListener('click', function(event) {
+            if (bell && bell.contains(event.target)) {
+                dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+            } else if (dropdown && !dropdown.contains(event.target)) {
+                dropdown.style.display = 'none';
             }
         });
+
+        // AuthSystem fallback - exactly like news.html
+        if (!window.authSystem) {
+            window.authSystem = {
+                logout: function() {
+                    console.log('Logging out...');
+                    
+                    // Set logout flag to prevent auto-login redirects
+                    localStorage.setItem('alphawave_logout_flag', 'true');
+                    
+                    // Show success message using the same toast system as locationService
+                    this.showMessage('Logged out successfully!', 'success');
+                    
+                    // Clear any stored data
+                    localStorage.removeItem('alphawave_user_session');
+                    localStorage.removeItem('alphawave_auth_token');
+                    localStorage.removeItem('alphawave_user_data');
+                    localStorage.removeItem('alphawave_remember_me');
+                    
+                    // Clear session storage as well
+                    sessionStorage.clear();
+                    
+                    // Redirect after a short delay to show the message
+                    setTimeout(() => {
+                        window.location.replace('index.html'); // Use replace to prevent back button issues
+                    }, 1500);
+                },
+                deleteAccount: function() {
+                    console.log('Deleting account...');
+                    
+                    // Show success message
+                    this.showMessage('Account deleted successfully', 'success');
+                    
+                    // Clear all stored data
+                    localStorage.clear();
+                    
+                    // Redirect after delay
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                },
+                showMessage: function(message, type) {
+                    const colors = {
+                        success: '#4CAF50', warning: '#ff9800', error: '#f44336', info: '#2196F3'
+                    };
+                    
+                    const msg = document.createElement('div');
+                    msg.style.cssText = `
+                        position: fixed; top: 20px; right: 20px; padding: 12px 16px; border-radius: 8px;
+                        color: white; font-family: 'Quicksand', sans-serif; font-size: 13px; font-weight: 500;
+                        z-index: 2001; transform: translateX(100%); transition: transform 0.3s ease;
+                        background: ${colors[type] || colors.info}; max-width: 300px;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    `;
+                    msg.textContent = message;
+                    
+                    document.body.appendChild(msg);
+                    
+                    setTimeout(() => msg.style.transform = 'translateX(0)', 100);
+                    setTimeout(() => {
+                        msg.style.transform = 'translateX(100%)';
+                        setTimeout(() => msg.remove(), 300);
+                    }, 3000);
+                }
+            };
+        }
+
+        console.log('Watchlist page with working settings loaded successfully');
     </script>
 </body>
 </html>
