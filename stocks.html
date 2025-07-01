@@ -1759,7 +1759,14 @@
         }
 
         function showStockDetail(symbol) {
-            window.location.href = `stock-detail.html?symbol=${symbol}`;
+             if (symbol === 'AAPL') {
+                    window.location.href = 'apple-stock-detail.html';
+                } else if (symbol === 'GOOGL' || symbol === 'GOOG') {
+                    window.location.href = 'stock-detail.html';
+                } else {
+                    // For other stocks, navigate to search-company page
+                    window.location.href = `search-company.html?company=${encodeURIComponent(symbol)}`;
+                }
         }
 
         // Event listeners
