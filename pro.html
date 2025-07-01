@@ -1416,7 +1416,7 @@
         function upgradeToMonthly() {
             console.log('Upgrading to Monthly plan...');
             try {
-                window.location.href = 'pro-version-payment-page.html?plan=monthly&price=$50&duration=Month';
+                window.location.href = 'pro-version-payment-page.html?plan=monthly&price=50&duration=Month';
             } catch (error) {
                 console.error('Error redirecting to payment page:', error);
             }
@@ -1425,7 +1425,7 @@
         function upgradeToYearly() {
             console.log('Upgrading to Yearly plan...');
             try {
-                window.location.href = 'pro-version-payment-page.html?plan=yearly&price=$480&duration=Year&originalPrice=$600&discount=20';
+                window.location.href = 'pro-version-payment-page.html?plan=yearly&price=480&duration=Year&originalPrice=600&discount=20';
             } catch (error) {
                 console.error('Error redirecting to payment page:', error);
             }
