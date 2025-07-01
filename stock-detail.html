@@ -1774,14 +1774,14 @@
         function saveCurrencySettings() {
             const preferredCurrency = document.getElementById('preferredCurrency').value;
             currencySettings.preferredCurrency = preferredCurrency;
+            currentCurrency = preferredCurrency;
             saveCurrencySettingsToStorage();
-            // Update location service if it exists
             if (window.locationService) {
                 window.locationService.currentLocation.currency = preferredCurrency;
                 window.locationService.saveLocationSettings();
                 window.locationService.updatePortfolioValue && window.locationService.updatePortfolioValue();
             }
-            // Show a message (optional)
+            updatePriceDisplay();
             if (window.authSystem && window.authSystem.showMessage) {
                 window.authSystem.showMessage('Currency settings saved!', 'success');
             }
@@ -1841,6 +1841,57 @@
                 }
             };
         }
+
+        // --- Currency symbol and conversion logic ---
+        const currencies = {
+            'USD': { name: 'US Dollar', rate: 1.0, symbol: '$' },
+            'EUR': { name: 'Euro', rate: 0.85, symbol: '€' },
+            'GBP': { name: 'British Pound', rate: 0.73, symbol: '£' },
+            'JPY': { name: 'Japanese Yen', rate: 110.0, symbol: '¥' },
+            'CAD': { name: 'Canadian Dollar', rate: 1.25, symbol: 'CA$' },
+            'AUD': { name: 'Australian Dollar', rate: 1.35, symbol: 'A$' },
+            'CNY': { name: 'Chinese Yuan', rate: 6.45, symbol: '¥' },
+            'INR': { name: 'Indian Rupee', rate: 74.5, symbol: '₹' }
+        };
+        let currentCurrency = currencySettings.preferredCurrency || 'USD';
+        function formatCurrency(amount, currency = currentCurrency) {
+            const convertedAmount = amount * (currencies[currency]?.rate || 1);
+            const symbol = currencies[currency]?.symbol || currency;
+            const formatOptions = {
+                style: 'currency',
+                currency: currency,
+                minimumFractionDigits: currency === 'JPY' ? 0 : 2,
+                maximumFractionDigits: currency === 'JPY' ? 0 : 2
+            };
+            let formatted = new Intl.NumberFormat('en-US', formatOptions).format(convertedAmount);
+            if (currency === 'CAD' || currency === 'AUD') {
+                formatted = symbol + formatted.replace(/[^\d.,]+/, '');
+            }
+            return formatted;
+        }
+        function updatePriceDisplay() {
+            const basePrice = 158.71;
+            const baseChange = 2.89;
+            const baseChangePercent = 1.85;
+            document.getElementById('currentPrice').textContent = formatCurrency(basePrice);
+            document.getElementById('priceChange').textContent = `+${formatCurrency(baseChange)} (+${baseChangePercent}%)`;
+            document.getElementById('dayRange').textContent = `${formatCurrency(154.20)} - ${formatCurrency(160.45)}`;
+            document.getElementById('previousClose').textContent = formatCurrency(155.82);
+            document.getElementById('openPrice').textContent = formatCurrency(157.35);
+            document.getElementById('highPrice').textContent = formatCurrency(160.45);
+            document.getElementById('lowPrice').textContent = formatCurrency(154.20);
+            // Market Cap: convert trillions to local currency
+            const baseMarketCap = 1.93; // in trillions USD
+            const convertedMarketCap = baseMarketCap * (currencies[currentCurrency]?.rate || 1);
+            let marketCapStr = formatCurrency(convertedMarketCap, currentCurrency).replace(/\.00/, '') + 'T';
+            document.getElementById('marketCap').textContent = marketCapStr;
+        }
+        // Update prices on load and when currency changes
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCurrencySettings();
+            currentCurrency = currencySettings.preferredCurrency || 'USD';
+            updatePriceDisplay();
+        });
     </script>
 </body>
 </html>

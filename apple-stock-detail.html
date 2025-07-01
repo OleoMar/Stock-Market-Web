@@ -1417,45 +1417,51 @@
 
         // Currency configuration
         const currencies = {
-            'USD': { name: 'US Dollar', flag: '🇺🇸', rate: 1.0 },
-            'EUR': { name: 'Euro', flag: '🇪🇺', rate: 0.85 },
-            'GBP': { name: 'British Pound', flag: '🇬🇧', rate: 0.73 },
-            'JPY': { name: 'Japanese Yen', flag: '🇯🇵', rate: 110.0 },
-            'CAD': { name: 'Canadian Dollar', flag: '🇨🇦', rate: 1.25 },
-            'AUD': { name: 'Australian Dollar', flag: '🇦🇺', rate: 1.35 },
-            'CHF': { name: 'Swiss Franc', flag: '🇨🇭', rate: 0.92 },
-            'CNY': { name: 'Chinese Yuan', flag: '🇨🇳', rate: 6.45 },
-            'INR': { name: 'Indian Rupee', flag: '🇮🇳', rate: 74.5 }
+            'USD': { name: 'US Dollar', flag: '🇺🇸', rate: 1.0, symbol: '$' },
+            'EUR': { name: 'Euro', flag: '🇪🇺', rate: 0.85, symbol: '€' },
+            'GBP': { name: 'British Pound', flag: '🇬🇧', rate: 0.73, symbol: '£' },
+            'JPY': { name: 'Japanese Yen', flag: '🇯🇵', rate: 110.0, symbol: '¥' },
+            'CAD': { name: 'Canadian Dollar', flag: '🇨🇦', rate: 1.25, symbol: 'CA$' },
+            'AUD': { name: 'Australian Dollar', flag: '🇦🇺', rate: 1.35, symbol: 'A$' },
+            'CHF': { name: 'Swiss Franc', flag: '🇨🇭', rate: 0.92, symbol: 'CHF' },
+            'CNY': { name: 'Chinese Yuan', flag: '🇨🇳', rate: 6.45, symbol: '¥' },
+            'INR': { name: 'Indian Rupee', flag: '🇮🇳', rate: 74.5, symbol: '₹' }
         };
 
         // Currency Functions
         function formatCurrency(amount, currency = currentCurrency) {
             const convertedAmount = amount * currencies[currency].rate;
-            
+            const symbol = currencies[currency].symbol || currency;
             const formatOptions = {
                 style: 'currency',
                 currency: currency,
                 minimumFractionDigits: currency === 'JPY' ? 0 : 2,
                 maximumFractionDigits: currency === 'JPY' ? 0 : 2
             };
-
-            return new Intl.NumberFormat('en-US', formatOptions).format(convertedAmount);
+            // Use symbol override for some currencies
+            let formatted = new Intl.NumberFormat('en-US', formatOptions).format(convertedAmount);
+            if (currency === 'CAD' || currency === 'AUD') {
+                formatted = symbol + formatted.replace(/[^\d.,]+/, '');
+            }
+            return formatted;
         }
 
         function updatePriceDisplay() {
             const basePrice = 198.85;
             const baseChange = 3.53;
             const baseChangePercent = 1.81;
-
             document.getElementById('currentPrice').textContent = formatCurrency(basePrice);
             document.getElementById('priceChange').textContent = `+${formatCurrency(baseChange)} (+${baseChangePercent}%)`;
-            
-            // Update other price elements
             document.getElementById('dayRange').textContent = `${formatCurrency(194.20)} - ${formatCurrency(200.45)}`;
             document.getElementById('previousClose').textContent = formatCurrency(195.32);
             document.getElementById('openPrice').textContent = formatCurrency(196.78);
             document.getElementById('highPrice').textContent = formatCurrency(200.45);
             document.getElementById('lowPrice').textContent = formatCurrency(194.20);
+            // Market Cap: convert trillions to local currency
+            const baseMarketCap = 3.23; // in trillions USD
+            const convertedMarketCap = baseMarketCap * currencies[currentCurrency].rate;
+            let marketCapStr = formatCurrency(convertedMarketCap, currentCurrency).replace(/\.00/, '') + 'T';
+            document.getElementById('marketCap').textContent = marketCapStr;
         }
 
         // Proper chart data generator for each time period
