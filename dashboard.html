@@ -1103,6 +1103,21 @@
         </div>
     </div>
 
+    <!-- Delete Account Modal Overlay -->
+    <div class="delete-modal-overlay" id="deleteModalOverlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: none; opacity: 0; transition: opacity 0.3s ease;">
+        <div class="delete-modal" onclick="event.stopPropagation()" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; background: #fff; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); padding: 32px 28px; font-family: 'Quicksand', sans-serif; color: #111;">
+            <div class="delete-warning-icon" style="display: flex; justify-content: center; align-items: center; margin-bottom: 16px;">
+                <div class="delete-warning-triangle" style="width: 40px; height: 40px; background: #fff3cd; border: 2px solid #ffe066; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); margin: 0 auto;"></div>
+            </div>
+            <div style="text-align: center; margin-bottom: 18px; font-size: 20px; font-weight: 600;">Delete Account?</div>
+            <div style="text-align: center; color: #555; margin-bottom: 24px;">This action cannot be undone. All your data will be permanently deleted.</div>
+            <div style="display: flex; justify-content: space-between;">
+                <button onclick="closeDeleteModal()" style="background: #e0e0e0; color: #333; border: none; border-radius: 7px; padding: 10px 24px; font-size: 16px; font-family: 'Quicksand', sans-serif; font-weight: 500; cursor: pointer;">Cancel</button>
+                <button onclick="confirmDeleteAccount()" style="background: #f44336; color: #fff; border: none; border-radius: 7px; padding: 10px 24px; font-size: 16px; font-family: 'Quicksand', sans-serif; font-weight: 600; cursor: pointer;">Delete</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ============================================
         // ENHANCED SEARCH SYSTEM FOR DASHBOARD
@@ -1988,82 +2003,149 @@
 
         function handleMenuClick(action) {
             console.log('Menu action:', action);
-            
             switch(action) {
                 case 'logout':
                     closeProfileModal();
                     setTimeout(() => {
-                        if (window.authSystem) {
-                            window.authSystem.logout();
-                        }
+                        window.authSystem.logout();
                     }, 300);
                     break;
-                    
                 case 'delete-account':
                     closeProfileModal();
                     setTimeout(() => {
-                        showDeleteConfirmation();
+                        showDeleteModal();
                     }, 300);
                     break;
-                    
                 case 'personal-info':
                     if (window.authSystem) {
                         window.authSystem.showMessage('Personal info page not implemented yet', 'info');
                     }
                     closeProfileModal();
                     break;
-                    
                 case 'currency':
                     showCurrencySettingsModal();
                     closeProfileModal();
                     break;
-                    
                 case 'theme':
                     if (window.authSystem) {
                         window.authSystem.showMessage('Theme settings not implemented yet', 'info');
                     }
                     closeProfileModal();
                     break;
-                    
                 case 'help':
                     if (window.authSystem) {
                         window.authSystem.showMessage('Help & Support not implemented yet', 'info');
                     }
                     closeProfileModal();
                     break;
-                    
                 case 'terms':
                     if (window.authSystem) {
                         window.authSystem.showMessage('Terms of Service not implemented yet', 'info');
                     }
                     closeProfileModal();
                     break;
-                    
                 default:
                     closeProfileModal();
             }
         }
 
-        function showDeleteConfirmation() {
-            const confirmed = confirm('WARNING: Do you really want to delete your account?\n\nThis action cannot be undone and you will lose all your data.');
-            
-            if (confirmed) {
+        // --- Currency Settings Logic ---
+        let currencySettings = {
+            preferredCurrency: 'USD',
+            exchangeRates: {
+                'USD': 1, 'EUR': 0.85, 'GBP': 0.73, 'JPY': 110,
+                'CNY': 6.45, 'INR': 74.5, 'AUD': 1.35, 'CAD': 1.25
+            }
+        };
+        function loadCurrencySettings() {
+            const stored = localStorage.getItem('alphawave_currency_settings');
+            if (stored) {
                 try {
-                    if (window.authSystem) {
-                        window.authSystem.deleteAccount();
-                        window.authSystem.showMessage('Account deleted successfully. Redirecting...', 'success');
-                        
-                        setTimeout(() => {
-                            window.location.href = 'index.html';
-                        }, 2000);
-                    }
+                    const settings = JSON.parse(stored);
+                    currencySettings = { ...currencySettings, ...settings };
                 } catch (error) {
-                    if (window.authSystem) {
-                        window.authSystem.showMessage(error.message, 'error');
-                    }
+                    console.warn('Error loading currency settings:', error);
                 }
             }
         }
+        function saveCurrencySettingsToStorage() {
+            localStorage.setItem('alphawave_currency_settings', JSON.stringify(currencySettings));
+        }
+        function showCurrencySettingsModal() {
+            loadCurrencySettings();
+            document.getElementById('preferredCurrency').value = currencySettings.preferredCurrency;
+            const overlay = document.getElementById('currencyModalOverlay');
+            if (overlay) {
+                overlay.style.display = 'flex';
+                setTimeout(() => { overlay.style.opacity = '1'; }, 10);
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        function closeCurrencyModal(event) {
+            if (!event || event.target === event.currentTarget) {
+                const overlay = document.getElementById('currencyModalOverlay');
+                if (overlay) {
+                    overlay.style.opacity = '0';
+                    setTimeout(() => { overlay.style.display = 'none'; }, 300);
+                    document.body.style.overflow = 'auto';
+                }
+            }
+        }
+        function saveCurrencySettings() {
+            const preferredCurrency = document.getElementById('preferredCurrency').value;
+            currencySettings.preferredCurrency = preferredCurrency;
+            saveCurrencySettingsToStorage();
+            // Update location service if it exists
+            if (window.locationService) {
+                window.locationService.currentLocation.currency = preferredCurrency;
+                window.locationService.saveLocationSettings();
+                if (window.finnhubAPI) {
+                    window.finnhubAPI.updatePortfolioValueOnly && window.finnhubAPI.updatePortfolioValueOnly();
+                    window.finnhubAPI.fetchAllStockData && window.finnhubAPI.fetchAllStockData();
+                }
+            }
+            if (window.authSystem && window.authSystem.showMessage) {
+                window.authSystem.showMessage('Currency settings saved!', 'success');
+            }
+            closeCurrencyModal();
+        }
+        // --- End Currency Settings Logic ---
+
+        // --- Delete Account Modal Logic ---
+        function showDeleteModal() {
+            const overlay = document.getElementById('deleteModalOverlay');
+            if (overlay) {
+                overlay.style.display = 'flex';
+                setTimeout(() => { overlay.style.opacity = '1'; }, 10);
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        function closeDeleteModal(event) {
+            if (!event || event.target === event.currentTarget) {
+                const overlay = document.getElementById('deleteModalOverlay');
+                if (overlay) {
+                    overlay.style.opacity = '0';
+                    setTimeout(() => { overlay.style.display = 'none'; }, 300);
+                    document.body.style.overflow = 'auto';
+                }
+            }
+        }
+        function confirmDeleteAccount() {
+            try {
+                window.authSystem.deleteAccount();
+                window.authSystem.showMessage('Account deleted successfully', 'success');
+                setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+            } catch (error) {
+                window.authSystem.showMessage(error.message, 'error');
+            }
+            closeDeleteModal();
+        }
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeDeleteModal();
+            }
+        });
+        // --- End Delete Account Modal Logic ---
 
         // Initialize everything when page loads
         document.addEventListener('DOMContentLoaded', function() {
@@ -2119,17 +2201,21 @@
             }
         });
 
-        // Stub functions for currency settings
-        function showCurrencySettingsModal() {
-            console.log('Currency settings modal would open here');
-        }
-
-        function closeCurrencyModal() {
-            console.log('Currency settings modal would close here');
-        }
-
-        function saveCurrencySettings() {
-            console.log('Currency settings would be saved here');
+        // Fallback authSystem for testing if not already defined
+        if (!window.authSystem) {
+            window.authSystem = {
+                logout: function() {
+                    alert('Logged out!');
+                    window.location.href = 'index.html';
+                },
+                deleteAccount: function() {
+                    alert('Account deleted!');
+                    window.location.href = 'index.html';
+                },
+                showMessage: function(msg, type) {
+                    alert(msg);
+                }
+            };
         }
 
         console.log('Enhanced Dashboard with Search System loaded successfully');

@@ -93,6 +93,90 @@
             top: 50%;
             transform: translateY(-50%);
             color: #666;
+            cursor: pointer;
+        }
+
+        /* Search Results Dropdown */
+        .search-results-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1001;
+            display: none;
+            margin-top: 5px;
+        }
+
+        .search-results-dropdown.show {
+            display: block;
+        }
+
+        .search-result-item {
+            padding: 12px 16px;
+            color: #333;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-item:hover {
+            background: #f8f9fa;
+        }
+
+        .search-result-info {
+            flex: 1;
+        }
+
+        .search-result-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .search-result-symbol {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .search-result-exchange {
+            font-size: 11px;
+            color: #999;
+            padding: 2px 6px;
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+
+        .search-loading {
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+
+        .search-no-results {
+            padding: 20px;
+            text-align: center;
+            color: #666;
+        }
+
+        .search-error {
+            padding: 20px;
+            text-align: center;
+            color: #f44336;
+            font-size: 14px;
         }
 
         .navbar-right { 
@@ -741,8 +825,11 @@
                     <p>&nbsp</p>AlphaWave
                 </a>
                 <div class="search-container">
-                    <input type="text" class="search-input" placeholder="Search stocks...">
-                    <i class="fas fa-search search-icon"></i> 
+                    <input type="text" class="search-input" id="portfolioSearchInput" placeholder="Search stocks..." autocomplete="off">
+                    <i class="fas fa-search search-icon" onclick="performSearch()"></i>
+                    <div class="search-results-dropdown" id="searchResultsDropdown">
+                        <!-- Search results will be populated here -->
+                    </div>
                 </div>
                 <div class="navbar-right">
                     <!-- Location Selector -->
@@ -962,6 +1049,264 @@
     </div>
 
     <script>
+        // ============================================
+        // ENHANCED SEARCH SYSTEM FOR PORTFOLIO
+        // ============================================
+        
+        const FINNHUB_API_KEY = 'd1hf3vpr01qsvr29q1qgd1hf3vpr01qsvr29q1r0';
+        
+        class PortfolioSearchSystem {
+            constructor() {
+                this.searchInput = document.getElementById('portfolioSearchInput');
+                this.searchResults = document.getElementById('searchResultsDropdown');
+                this.searchTimeout = null;
+                this.isSearching = false;
+                this.lastQuery = '';
+                
+                this.initializeSearch();
+            }
+            
+            initializeSearch() {
+                console.log('Initializing portfolio search system...');
+                
+                // Add event listeners
+                this.searchInput.addEventListener('input', (e) => this.handleSearchInput(e));
+                this.searchInput.addEventListener('keydown', (e) => this.handleKeyDown(e));
+                this.searchInput.addEventListener('focus', (e) => this.handleFocus(e));
+                this.searchInput.addEventListener('blur', (e) => this.handleBlur(e));
+                
+                // Close search results when clicking outside
+                document.addEventListener('click', (e) => this.handleOutsideClick(e));
+                
+                console.log('Portfolio search system initialized');
+            }
+            
+            handleSearchInput(event) {
+                const query = event.target.value.trim();
+                
+                // Clear previous timeout
+                if (this.searchTimeout) {
+                    clearTimeout(this.searchTimeout);
+                }
+                
+                // If query is empty, hide results
+                if (query.length === 0) {
+                    this.hideSearchResults();
+                    return;
+                }
+                
+                // If query is too short, don't search
+                if (query.length < 2) {
+                    return;
+                }
+                
+                // Debounce search requests
+                this.searchTimeout = setTimeout(() => {
+                    this.performSearch(query);
+                }, 300);
+            }
+            
+            handleKeyDown(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    const query = this.searchInput.value.trim();
+                    if (query) {
+                        this.performSearch(query);
+                    }
+                } else if (event.key === 'Escape') {
+                    this.hideSearchResults();
+                    this.searchInput.blur();
+                }
+            }
+            
+            handleFocus(event) {
+                // Show results if there's a query and results exist
+                if (this.searchInput.value.trim() && this.searchResults.children.length > 0) {
+                    this.showSearchResults();
+                }
+            }
+            
+            handleBlur(event) {
+                // Delay hiding to allow clicks on results
+                setTimeout(() => {
+                    if (!this.searchResults.matches(':hover')) {
+                        this.hideSearchResults();
+                    }
+                }, 150);
+            }
+            
+            handleOutsideClick(event) {
+                if (!this.searchInput.contains(event.target) && 
+                    !this.searchResults.contains(event.target)) {
+                    this.hideSearchResults();
+                }
+            }
+            
+            async performSearch(query) {
+                if (this.isSearching || query === this.lastQuery) {
+                    return;
+                }
+                
+                this.isSearching = true;
+                this.lastQuery = query;
+                
+                console.log('Searching for:', query);
+                
+                // Show loading state
+                this.showLoadingState();
+                
+                try {
+                    const results = await this.searchCompanies(query);
+                    this.displaySearchResults(results, query);
+                } catch (error) {
+                    console.error('Search error:', error);
+                    this.showErrorState();
+                } finally {
+                    this.isSearching = false;
+                }
+            }
+            
+            async searchCompanies(query) {
+                const url = `https://finnhub.io/api/v1/search?q=${encodeURIComponent(query)}&token=${FINNHUB_API_KEY}`;
+                
+                try {
+                    const response = await fetch(url);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    console.log('Search results:', data);
+                    
+                    if (data.result && data.result.length > 0) {
+                        return data.result.slice(0, 8); // Limit to 8 results
+                    }
+                    
+                    return [];
+                } catch (error) {
+                    console.error('Error searching companies:', error);
+                    throw error;
+                }
+            }
+            
+            displaySearchResults(results, query) {
+                if (results.length === 0) {
+                    this.showNoResultsState(query);
+                    return;
+                }
+                
+                const resultsHTML = results.map(result => this.createResultHTML(result)).join('');
+                
+                this.searchResults.innerHTML = resultsHTML;
+                this.showSearchResults();
+                
+                // Add click handlers to results
+                this.searchResults.querySelectorAll('.search-result-item').forEach(item => {
+                    item.addEventListener('click', (e) => this.handleResultClick(e, item));
+                });
+            }
+            
+            createResultHTML(result) {
+                const { symbol, description, displaySymbol, type } = result;
+                const exchange = result.exchange || '';
+                
+                return `
+                    <div class="search-result-item" data-symbol="${symbol}" data-description="${description}">
+                        <div class="search-result-info">
+                            <div class="search-result-name">${description || symbol}</div>
+                            <div class="search-result-symbol">${symbol}${displaySymbol && displaySymbol !== symbol ? ` (${displaySymbol})` : ''}</div>
+                        </div>
+                        ${exchange ? `<div class="search-result-exchange">${exchange}</div>` : ''}
+                    </div>
+                `;
+            }
+            
+            handleResultClick(event, item) {
+                const symbol = item.dataset.symbol;
+                const description = item.dataset.description;
+                
+                console.log('Selected stock:', symbol, description);
+                
+                // Update search input with selected value
+                this.searchInput.value = `${description} (${symbol})`;
+                
+                // Hide search results
+                this.hideSearchResults();
+                
+                // Navigate to stock detail page or show stock info
+                this.navigateToStock(symbol, description);
+            }
+            
+            navigateToStock(symbol, description) {
+                // For specific stocks, navigate to their detail pages
+                if (symbol === 'AAPL') {
+                    window.location.href = 'apple-stock-detail.html';
+                } else if (symbol === 'GOOGL' || symbol === 'GOOG') {
+                    window.location.href = 'stock-detail.html';
+                } else {
+                    // For other stocks, you could:
+                    // 1. Navigate to a general stock detail page with the symbol as parameter
+                    // 2. Show a modal with stock information
+                    // 3. Navigate to the search-company page with the symbol
+                    
+                    // Option 3: Navigate to search-company page
+                    window.location.href = `search-company.html?company=${encodeURIComponent(symbol)}`;
+                }
+            }
+            
+            showLoadingState() {
+                this.searchResults.innerHTML = `
+                    <div class="search-loading">
+                        <i class="fas fa-spinner fa-spin"></i> Searching...
+                    </div>
+                `;
+                this.showSearchResults();
+            }
+            
+            showNoResultsState(query) {
+                this.searchResults.innerHTML = `
+                    <div class="search-no-results">
+                        No results found for "${query}"
+                        <br><small>Try searching by company name or stock symbol</small>
+                    </div>
+                `;
+                this.showSearchResults();
+            }
+            
+            showErrorState() {
+                this.searchResults.innerHTML = `
+                    <div class="search-error">
+                        Search temporarily unavailable
+                        <br><small>Please try again in a moment</small>
+                    </div>
+                `;
+                this.showSearchResults();
+            }
+            
+            showSearchResults() {
+                this.searchResults.classList.add('show');
+            }
+            
+            hideSearchResults() {
+                this.searchResults.classList.remove('show');
+            }
+            
+            clearSearch() {
+                this.searchInput.value = '';
+                this.hideSearchResults();
+                this.lastQuery = '';
+            }
+        }
+        
+        // Global search function for the search icon
+        function performSearch() {
+            const query = document.getElementById('portfolioSearchInput').value.trim();
+            if (query && window.portfolioSearch) {
+                window.portfolioSearch.performSearch(query);
+            }
+        }
+
         
         class SimpleLocationService {
             constructor() {
@@ -972,12 +1317,14 @@
                     'CNY': 6.45, 'INR': 74.5, 'AUD': 1.35, 'CAD': 1.25
                 };
             }
+
             init() {
                 this.updateLocationDisplay();
                 this.updateMarketStatus();
                 this.updatePortfolioValue();
                 setInterval(() => this.updateMarketStatus(), 60000);
             }
+
             loadLocationSettings() {
                 const stored = localStorage.getItem('alphawave_location_settings');
                 if (stored) {
@@ -985,9 +1332,11 @@
                 }
                 return { country: 'US', currency: 'USD', label: 'Global' };
             }
+
             saveLocationSettings() {
                 localStorage.setItem('alphawave_location_settings', JSON.stringify(this.currentLocation));
             }
+
             setLocation(country, label, currency) {
                 this.currentLocation = { country, currency, label };
                 this.saveLocationSettings();
@@ -996,12 +1345,14 @@
                 this.updatePortfolioValue();
                 window.dispatchEvent(new CustomEvent('locationChanged', { detail: this.currentLocation }));
             }
+
             updateLocationDisplay() {
                 const locationElement = document.getElementById('currentLocation');
                 if (locationElement) {
                     locationElement.textContent = this.currentLocation.label;
                 }
             }
+
             updateMarketStatus() {
                 const timezone = this.getTimezoneForCountry(this.currentLocation.country);
                 const status = this.getMarketStatus(timezone);
@@ -1011,6 +1362,7 @@
                     statusElement.className = `market-status ${status.isOpen ? 'open' : 'closed'}`;
                 }
             }
+
             getTimezoneForCountry(country) {
                 const timezones = {
                     'US': 'America/New_York', 'EU': 'Europe/London', 'GB': 'Europe/London',
@@ -1019,6 +1371,7 @@
                 };
                 return timezones[country] || 'America/New_York';
             }
+
             getMarketStatus(timezone) {
                 try {
                     const now = new Date();
@@ -1037,11 +1390,13 @@
                     return { isOpen: false };
                 }
             }
+
             convertCurrency(amountUSD, targetCurrency) {
                 if (targetCurrency === 'USD') return amountUSD;
                 const rate = this.exchangeRates[targetCurrency];
                 return rate ? amountUSD * rate : amountUSD;
             }
+
             formatCurrency(amount, currency = null) {
                 const targetCurrency = currency || this.currentLocation.currency;
                 const convertedAmount = this.convertCurrency(amount, targetCurrency);
@@ -1056,6 +1411,7 @@
                     return `${targetCurrency} ${convertedAmount.toFixed(2)}`;
                 }
             }
+
             getLocaleForCountry(country) {
                 const locales = {
                     'US': 'en-US', 'EU': 'en-GB', 'GB': 'en-GB', 'JP': 'ja-JP',
@@ -1063,6 +1419,7 @@
                 };
                 return locales[country] || 'en-US';
             }
+
             updatePortfolioValue() {
                 const baseValue = 47892.50; // Base USD value
                 const baseChange = 1245.30; // Base USD change
@@ -1081,7 +1438,7 @@
                 }
             }
         }
-        -
+        
 
         
         function refreshStockData() {
@@ -1624,9 +1981,12 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Enhanced Portfolio Page with Location Support loading...');
+            console.log('Enhanced Portfolio Page with Search and Location Support loading...');
             
-            // Initialize location service first
+            // Initialize search system first
+            window.portfolioSearch = new PortfolioSearchSystem();
+            
+            // Initialize location service
             window.locationService = new SimpleLocationService();
             window.locationService.init();
             
@@ -1753,6 +2113,11 @@
                 const dropdown = document.getElementById('locationDropdown');
                 if (dropdown) {
                     dropdown.classList.remove('show');
+                }
+                
+                // Close search results
+                if (window.portfolioSearch) {
+                    window.portfolioSearch.hideSearchResults();
                 }
             }
         });
