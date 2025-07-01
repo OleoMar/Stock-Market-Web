@@ -64,14 +64,12 @@
             font-family: 'Quicksand', sans-serif;
         }
 
-
         .search-container { 
             flex: 1;
             max-width: 450px;
             margin: 0 auto;
             position: relative;
             z-index: 2;
-            
         }
 
         .search-input {
@@ -92,6 +90,90 @@
             top: 50%;
             transform: translateY(-50%);
             color: #666;
+            cursor: pointer;
+        }
+
+        /* Search Results Dropdown */
+        .search-results-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1001;
+            display: none;
+            margin-top: 5px;
+        }
+
+        .search-results-dropdown.show {
+            display: block;
+        }
+
+        .search-result-item {
+            padding: 12px 16px;
+            color: #333;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-item:hover {
+            background: #f8f9fa;
+        }
+
+        .search-result-info {
+            flex: 1;
+        }
+
+        .search-result-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .search-result-symbol {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .search-result-exchange {
+            font-size: 11px;
+            color: #999;
+            padding: 2px 6px;
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+
+        .search-loading {
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+
+        .search-no-results {
+            padding: 20px;
+            text-align: center;
+            color: #666;
+        }
+
+        .search-error {
+            padding: 20px;
+            text-align: center;
+            color: #f44336;
+            font-size: 14px;
         }
 
         .navbar-right { 
@@ -214,7 +296,6 @@
             justify-content: center;
         }
 
-
         .user-avatar {
             width: 35px;
             height: 35px;
@@ -321,21 +402,6 @@
             text-align: center;
         }
 
-        
-        @media (max-width: 768px) {
-            .search-input {
-                width: 300px;
-            }
-            
-            .navbar-brand {
-                font-size: 24px;
-            }
-
-            .location-selector {
-                display: none;
-            }
-        }
-        
         .main-layout {
             display: flex;
             margin-top: 75px;
@@ -382,8 +448,6 @@
             color: white;
             font-weight: bold;
         }
-
-       
 
         .content { 
             flex: 1;
@@ -542,7 +606,6 @@
             font-weight: 400;
             color: #777;
         }
-        
 
         .summary-divider {
             border: 0;
@@ -665,7 +728,20 @@
             background: #d32f2f;
         }
 
+        /* Responsive Design */
         @media (max-width: 768px) {
+            .search-input {
+                width: 300px;
+            }
+            
+            .navbar-brand {
+                font-size: 24px;
+            }
+
+            .location-selector {
+                display: none;
+            }
+
             .sidebar {
                 width: 100%;
                 height: auto;
@@ -677,10 +753,12 @@
 
             .content {
                 margin-left: 0; 
+                padding: 20px;
             }
 
             .main-layout {
                 flex-direction: column;
+                margin-top: 99px;
             }
 
             .payment-container {
@@ -705,154 +783,175 @@
         @media (max-width: 576px) {
             .content {
                 margin-left: 0;
+                padding: 15px;
+            }
+            
+            .navbar-brand {
+                font-size: 24px;
+            }
+
+            .search-input {
+                width: 250px;
+            }
+
+            .payment-title {
+                font-size: 28px;
+            }
+
+            .pay-with-title {
+                font-size: 24px;
             }
         }
     </style>
 </head>
 <body>
-         <nav class="navbar">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="dashboard.html">
-                    <img src="images/logoLight.png" width="50px" alt="Logo">
-                    <p>&nbsp</p>AlphaWave
-                </a>
-                <div class="search-container">
-                    <input type="text" class="search-input" placeholder="Search stocks...">
-                    <i class="fas fa-search search-icon"></i> 
+    <nav class="navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="dashboard.html">
+                <img src="images/logoLight.png" width="50px" alt="Logo">
+                <p>&nbsp</p>AlphaWave
+            </a>
+            <div class="search-container">
+                <input type="text" class="search-input" id="paymentSearchInput" placeholder="Search stocks..." autocomplete="off">
+                <i class="fas fa-search search-icon" onclick="performSearch()"></i>
+                <div class="search-results-dropdown" id="searchResultsDropdown">
+                    <!-- Search results will be populated here -->
                 </div>
-                <div class="navbar-right">
-                    <!-- Location Selector -->
-                    <div class="location-selector-container" style="position: relative;">
-                        <button class="location-selector" id="locationSelector" onclick="toggleLocationDropdown()">
-                            <span id="currentLocation">Global</span>
-                            <i class="fas fa-chevron-down" style="margin-left: 5px; font-size: 10px;"></i>
-                        </button>
-                        <div class="location-dropdown" id="locationDropdown">
-                            <div class="location-option" onclick="changeLocation('US', 'United States', 'USD')">
-                                <span class="flag">US</span> United States (USD)
-                            </div>
-                            <div class="location-option" onclick="changeLocation('EU', 'Europe', 'EUR')">
-                                <span class="flag">EU</span> Europe (EUR)
-                            </div>
-                            <div class="location-option" onclick="changeLocation('GB', 'United Kingdom', 'GBP')">
-                                <span class="flag">GB</span> United Kingdom (GBP)
-                            </div>
-                            <div class="location-option" onclick="changeLocation('JP', 'Japan', 'JPY')">
-                                <span class="flag">JP</span> Japan (JPY)
-                            </div>
-                            <div class="location-option" onclick="changeLocation('CN', 'China', 'CNY')">
-                                <span class="flag">CN</span> China (CNY)
-                            </div>
-                            <div class="location-option" onclick="changeLocation('IN', 'India', 'INR')">
-                                <span class="flag">IN</span> India (INR)
-                            </div>
-                            <div class="location-option" onclick="changeLocation('AU', 'Australia', 'AUD')">
-                                <span class="flag">AU</span> Australia (AUD)
-                            </div>
-                            <div class="location-option" onclick="changeLocation('CA', 'Canada', 'CAD')">
-                                <span class="flag">CA</span> Canada (CAD)
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Market Status -->
-                    <!-- <span class="market-status" id="marketStatus">Market Closed</span> -->
-
-                    <!-- Refresh stocks button -->
-                    <button class="refresh-stocks-btn" onclick="refreshStockData()" title="Refresh stock data">
-                        <i class="fas fa-sync-alt"></i>
-                        Refresh
+            </div>
+            <div class="navbar-right">
+                <!-- Location Selector -->
+                <div class="location-selector-container" style="position: relative;">
+                    <button class="location-selector" id="locationSelector" onclick="toggleLocationDropdown()">
+                        <span id="currentLocation">Global</span>
+                        <i class="fas fa-chevron-down" style="margin-left: 5px; font-size: 10px;"></i>
                     </button>
-                    
-                    <a href="pro.html" class="pro-badge">Pro</a>
-                    <i class="fas fa-bell" id="notificationBell" style="color: white; cursor: pointer;"></i>
-                    <div id="messageDropdown" class="message-dropdown" style="display: none;">
-                        <div class="message-dropdown-content">
-                            <svg width="90" height="90" viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="45" cy="45" r="45" fill="#444"/>
-                                <ellipse cx="45" cy="45" rx="30" ry="22" fill="#444"/>
-                                <circle cx="34" cy="50" r="4" fill="#fff"/>
-                                <circle cx="45" cy="50" r="4" fill="#fff"/>
-                                <circle cx="56" cy="50" r="4" fill="#fff"/>
-                            </svg>
-                            <div class="message-title">No Notices Right Now!</div>
-                            <div class="message-subtext">You are up to date!</div>
+                    <div class="location-dropdown" id="locationDropdown">
+                        <div class="location-option" onclick="changeLocation('US', 'United States', 'USD')">
+                            <span class="flag">US</span> United States (USD)
                         </div>
-                    </div>
-                    <div class="user-avatar" onclick="toggleProfileModal()">
-                        <img src="images/profilepic.jpg" alt="User">
+                        <div class="location-option" onclick="changeLocation('EU', 'Europe', 'EUR')">
+                            <span class="flag">EU</span> Europe (EUR)
+                        </div>
+                        <div class="location-option" onclick="changeLocation('GB', 'United Kingdom', 'GBP')">
+                            <span class="flag">GB</span> United Kingdom (GBP)
+                        </div>
+                        <div class="location-option" onclick="changeLocation('JP', 'Japan', 'JPY')">
+                            <span class="flag">JP</span> Japan (JPY)
+                        </div>
+                        <div class="location-option" onclick="changeLocation('CN', 'China', 'CNY')">
+                            <span class="flag">CN</span> China (CNY)
+                        </div>
+                        <div class="location-option" onclick="changeLocation('IN', 'India', 'INR')">
+                            <span class="flag">IN</span> India (INR)
+                        </div>
+                        <div class="location-option" onclick="changeLocation('AU', 'Australia', 'AUD')">
+                            <span class="flag">AU</span> Australia (AUD)
+                        </div>
+                        <div class="location-option" onclick="changeLocation('CA', 'Canada', 'CAD')">
+                            <span class="flag">CA</span> Canada (CAD)
+                        </div>
                     </div>
                 </div>
+
+                <!-- Market Status -->
+                <!-- <span class="market-status" id="marketStatus">Market Closed</span> -->
+
+                <!-- Refresh stocks button -->
+                <button class="refresh-stocks-btn" onclick="refreshStockData()" title="Refresh stock data">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh
+                </button>
+                
+                <a href="pro.html" class="pro-badge">Pro</a>
+                <i class="fas fa-bell" id="notificationBell" style="color: white; cursor: pointer;"></i>
+                <div id="messageDropdown" class="message-dropdown" style="display: none;">
+                    <div class="message-dropdown-content">
+                        <svg width="90" height="90" viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="45" cy="45" r="45" fill="#444"/>
+                            <ellipse cx="45" cy="45" rx="30" ry="22" fill="#444"/>
+                            <circle cx="34" cy="50" r="4" fill="#fff"/>
+                            <circle cx="45" cy="50" r="4" fill="#fff"/>
+                            <circle cx="56" cy="50" r="4" fill="#fff"/>
+                        </svg>
+                        <div class="message-title">No Notices Right Now!</div>
+                        <div class="message-subtext">You are up to date!</div>
+                    </div>
+                </div>
+                <div class="user-avatar" onclick="toggleProfileModal()">
+                    <img src="images/profilepic.jpg" alt="User">
+                </div>
             </div>
-        </nav>
+        </div>
+    </nav>
 
-        <div class="main-layout">
-            <div class="sidebar">
-                <ul class="sidebar-nav">
-                    <li><a href="dashboard.html">Dashboard</a></li>
-                    <li><a href="portfolio.html">Portfolio</a></li>
-                    <li><a href="news.html">Latest News</a></li>
-                </ul>
-            </div>
+    <div class="main-layout">
+        <div class="sidebar">
+            <ul class="sidebar-nav">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="portfolio.html">Portfolio</a></li>
+                <li><a href="news.html">Latest News</a></li>
+            </ul>
+        </div>
 
-            <div class="content">
-                <div class="payment-wrapper">
-                    <!-- Left Side: Payment Method -->
-                    <div class="payment-method-container">
-                        <h2 class="payment-section-title">Payment Method</h2>
-            
-                        <!-- PayPal Option -->
-                        <div class="payment-method-option selected" onclick="selectPaymentMethod(this)">
-                            <input type="radio" name="paymentMethod" value="paypal" checked>
-                            <label for="paypal">Paypal</label>
-                            <img src="images/PayPalLogo.png" alt="PayPal" class="payment-method-logo">
+        <div class="content">
+            <div class="payment-wrapper">
+                <!-- Left Side: Payment Method -->
+                <div class="payment-method-container">
+                    <h2 class="payment-section-title">Payment Method</h2>
+        
+                    <!-- PayPal Option -->
+                    <div class="payment-method-option selected" onclick="selectPaymentMethod(this)">
+                        <input type="radio" name="paymentMethod" value="paypal" checked>
+                        <label for="paypal">Paypal</label>
+                        <img src="images/PayPalLogo.png" alt="PayPal" class="payment-method-logo">
+                    </div>
+
+                    <!-- Credit Card Option & Form -->
+                    <div class="payment-method-option" onclick="selectPaymentMethod(this)">
+                        <input type="radio" name="paymentMethod" value="credit-card">
+                        <label for="credit-card">Credit card</label>
+                        <div class="card-logos">
+                            <img src="images/visa-logo.png" alt="Visa">
+                            <img src="images/Mastercard-Logo.png" alt="Mastercard">
                         </div>
-
-                        <!-- Credit Card Option & Form -->
-                        <div class="payment-method-option" onclick="selectPaymentMethod(this)">
-                            <input type="radio" name="paymentMethod" value="credit-card">
-                            <label for="credit-card">Credit card</label>
-                            <div class="card-logos">
-                                <img src="images/visa-logo.png" alt="Visa">
-                                <img src="images/Mastercard-Logo.png" alt="Mastercard">
-                            </div>
-                        </div>
-            
-                        <div id="creditCardForm" class="credit-card-form">
-                            <div class="form-row">
-                                <div class="form-group full-width">
-                                    <label for="cardNumber">Card Number</label>
-                                    <div class="input-with-icon">
-                                        <i class="fas fa-credit-card"></i>
-                                        <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="expiryDate">Expiry Date</label>
-                                    <div class="input-with-icon">
-                                        <i class="fas fa-calendar-alt"></i>
-                                        <input type="text" id="expiryDate" placeholder="MM/YY">
-                                    </div>
-                                </div>
-                            <div class="form-group">
-                                <label for="cvc">CVC/CVV</label>
+                    </div>
+        
+                    <div id="creditCardForm" class="credit-card-form">
+                        <div class="form-row">
+                            <div class="form-group full-width">
+                                <label for="cardNumber">Card Number</label>
                                 <div class="input-with-icon">
-                                    <i class="fas fa-lock"></i>
-                                    <input type="text" id="cvc" placeholder="000">
+                                    <i class="fas fa-credit-card"></i>
+                                    <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000">
                                 </div>
                             </div>
                         </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="expiryDate">Expiry Date</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <input type="text" id="expiryDate" placeholder="MM/YY">
+                                </div>
+                            </div>
+                        <div class="form-group">
+                            <label for="cvc">CVC/CVV</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-lock"></i>
+                                <input type="text" id="cvc" placeholder="000">
+                            </div>
+                        </div>
                     </div>
-
-                    <p class="ssl-info">
-                    <i class="fas fa-lock"></i> Your transaction is secured with ssl certificate</p>
-
                 </div>
 
-                <!-- Right Side: Summary -->
-                <div class="summary-container">
+                <p class="ssl-info">
+                <i class="fas fa-lock"></i> Your transaction is secured with ssl certificate</p>
+
+            </div>
+
+ <!-- Right Side: Summary -->
+                 <!-- Right Side: Summary -->
+                 <div class="summary-container">
                     <h2 class="payment-section-title">Order Overview</h2>
 
                     <div class="summary-item plan">
@@ -873,441 +972,751 @@
                     <div class="summary-price">7%</div>
                 </div>
 
-                <hr class="summary-divider">
-            
-                <div class="summary-total">
-                    <div class="summary-text">
-                        Total Price
-                    </div>
-                    <div class="summary-price">$214.77</div>
+            <hr class="summary-divider">
+        
+            <div class="summary-total">
+                <div class="summary-text">
+                    Total Price
                 </div>
-
-                <button class="btn-submit-payment" onclick="processPayment()">Confirm the payment</button>
-                <a href="#" class="cancel-link"id="cancelLink">Cancel</a>
+                <div class="summary-price">$214.77</div>
             </div>
+
+            <button class="btn-submit-payment" onclick="processPayment()">Confirm the payment</button>
+            <a href="#" class="cancel-link"id="cancelLink">Cancel</a>
         </div>
     </div>
+</div>
 
-
-    <!-- Profile Modal Overlay (same design as news.html) -->
-    <div class="profile-modal-overlay" id="profileModalOverlay" onclick="closeProfileModal(event)" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s ease;">
-        <div class="profile-modal" onclick="event.stopPropagation()" style="position: absolute; top: 80px; right: 20px; width: 380px; height: 450px; background: #e8e8e8; border-radius: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); padding: 20px; font-family: 'Quicksand', sans-serif; transform: translateY(-20px); transition: transform 0.3s ease; display: flex; flex-direction: column; justify-content: space-between;">
-            <div class="profile-menu-item" onclick="handleMenuClick('personal-info')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
-                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
-                    <i class="fas fa-user"></i>
-                </div>
-                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Personal info</div>
+<!-- Profile Modal Overlay (same design as news.html) -->
+<div class="profile-modal-overlay" id="profileModalOverlay" onclick="closeProfileModal(event)" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s ease;">
+    <div class="profile-modal" onclick="event.stopPropagation()" style="position: absolute; top: 80px; right: 20px; width: 380px; height: 450px; background: #e8e8e8; border-radius: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); padding: 20px; font-family: 'Quicksand', sans-serif; transform: translateY(-20px); transition: transform 0.3s ease; display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="profile-menu-item" onclick="handleMenuClick('personal-info')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+            <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
+                <i class="fas fa-user"></i>
             </div>
+            <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Personal info</div>
+        </div>
 
-            <div class="profile-menu-item" onclick="handleMenuClick('logout')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
-                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
-                    <i class="fas fa-door-open"></i>
-                </div>
-                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Logout</div>
+        <div class="profile-menu-item" onclick="handleMenuClick('logout')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+            <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
+                <i class="fas fa-door-open"></i>
             </div>
+            <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Logout</div>
+        </div>
 
-            <div class="profile-menu-item" onclick="handleMenuClick('currency')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
-                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
-                    <i class="fas fa-dollar-sign"></i>
-                </div>
-                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Currency</div>
+        <div class="profile-menu-item" onclick="handleMenuClick('currency')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+            <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
+                <i class="fas fa-dollar-sign"></i>
             </div>
+            <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Currency</div>
+        </div>
 
-            <div class="profile-menu-item" onclick="handleMenuClick('theme')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
-                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
-                    <i class="fas fa-sun"></i>
-                </div>
-                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Theme</div>
+        <div class="profile-menu-item" onclick="handleMenuClick('theme')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+            <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
+                <i class="fas fa-sun"></i>
             </div>
+            <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Theme</div>
+        </div>
 
-            <div class="profile-menu-item" onclick="handleMenuClick('help')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
-                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
-                    <i class="fas fa-question-circle"></i>
-                </div>
-                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Help & Support</div>
+        <div class="profile-menu-item" onclick="handleMenuClick('help')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+            <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
+                <i class="fas fa-question-circle"></i>
             </div>
+            <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Help & Support</div>
+        </div>
 
-            <div class="profile-menu-item" onclick="handleMenuClick('terms')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
-                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
-                    <i class="fas fa-file-contract"></i>
-                </div>
-                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Terms of Service</div>
+        <div class="profile-menu-item" onclick="handleMenuClick('terms')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+            <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
+                <i class="fas fa-file-contract"></i>
             </div>
+            <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Terms of Service</div>
+        </div>
 
-            <div class="profile-menu-item" onclick="handleMenuClick('delete-account')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
-                <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
-                    <i class="fas fa-user-times"></i>
-                </div>
-                <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Delete your account</div>
+        <div class="profile-menu-item" onclick="handleMenuClick('delete-account')" style="display: flex; align-items: center; padding: 8px 0; cursor: pointer; transition: background 0.3s ease; border-radius: 8px; margin-bottom: 2px;">
+            <div class="profile-menu-icon" style="width: 35px; height: 35px; border-radius: 50%; background: #666; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-size: 14px; flex-shrink: 0;">
+                <i class="fas fa-user-times"></i>
             </div>
+            <div class="profile-menu-text" style="font-size: 14px; font-weight: 500; color: #333; font-family: 'Quicksand', sans-serif;">Delete your account</div>
         </div>
     </div>
+</div>
+
+<!-- Currency Settings Modal -->
+<div class="currency-modal-overlay" id="currencyModalOverlay" onclick="closeCurrencyModal(event)" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s ease;">
+    <div class="currency-modal" onclick="event.stopPropagation()" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; background: #fff; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); padding: 32px 28px; font-family: 'Quicksand', sans-serif; color: #111;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h2 style="margin: 0; color: #111; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">Currency Settings</h2>
+            <button onclick="closeCurrencyModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #111; padding: 5px;">&times;</button>
+        </div>
+        <div style="margin-bottom: 0;">
+            <label for="preferredCurrency" style="display: block; margin-bottom: 10px; color: #111; font-size: 16px; font-weight: 600;">Preferred Currency</label>
+            <select id="preferredCurrency" onchange="saveCurrencySettings()" style="width: 100%; padding: 14px; border: 2px solid #111; border-radius: 7px; font-size: 16px; font-family: 'Quicksand', sans-serif; background: #fff; color: #111; font-weight: 500; outline: none;">
+                <option value="USD">USD - US Dollar</option>
+                <option value="EUR">EUR - Euro</option>
+                <option value="GBP">GBP - British Pound</option>
+                <option value="JPY">JPY - Japanese Yen</option>
+                <option value="CNY">CNY - Chinese Yuan</option>
+                <option value="INR">INR - Indian Rupee</option>
+                <option value="AUD">AUD - Australian Dollar</option>
+                <option value="CAD">CAD - Canadian Dollar</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Confirmation Modal -->
+<div class="delete-modal-overlay" id="deleteModalOverlay" onclick="closeDeleteModal(event)">
+    <div class="delete-modal" onclick="event.stopPropagation()">
+        <div class="delete-warning-icon">
+            <div class="delete-warning-triangle"></div>
+        </div>
+        <div class="delete-message">
+            Are you sure that you<br>want to <strong>delete</strong> your account?
+        </div>
+        <div class="delete-buttons">
+            <button class="delete-btn" onclick="confirmDelete()">Yes</button>
+            <button class="delete-btn" onclick="closeDeleteModal()">No</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============================================
+    // ENHANCED SEARCH SYSTEM FOR PAYMENT PAGE
+    // ============================================
     
-    <!-- Currency Settings Modal (from news.html) -->
-    <div class="currency-modal-overlay" id="currencyModalOverlay" onclick="closeCurrencyModal(event)" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s ease;">
-        <div class="currency-modal" onclick="event.stopPropagation()" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; background: #fff; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); padding: 32px 28px; font-family: 'Quicksand', sans-serif; color: #111;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                <h2 style="margin: 0; color: #111; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">Currency Settings</h2>
-                <button onclick="closeCurrencyModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #111; padding: 5px;">&times;</button>
-            </div>
-            <div style="margin-bottom: 0;">
-                <label for="preferredCurrency" style="display: block; margin-bottom: 10px; color: #111; font-size: 16px; font-weight: 600;">Preferred Currency</label>
-                <select id="preferredCurrency" onchange="saveCurrencySettings()" style="width: 100%; padding: 14px; border: 2px solid #111; border-radius: 7px; font-size: 16px; font-family: 'Quicksand', sans-serif; background: #fff; color: #111; font-weight: 500; outline: none;">
-                    <option value="USD">USD - US Dollar</option>
-                    <option value="EUR">EUR - Euro</option>
-                    <option value="GBP">GBP - British Pound</option>
-                    <option value="JPY">JPY - Japanese Yen</option>
-                    <option value="CNY">CNY - Chinese Yuan</option>
-                    <option value="INR">INR - Indian Rupee</option>
-                    <option value="AUD">AUD - Australian Dollar</option>
-                    <option value="CAD">CAD - Canadian Dollar</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-    <!-- Delete Account Confirmation Modal (from news.html) -->
-    <div class="delete-modal-overlay" id="deleteModalOverlay" onclick="closeDeleteModal(event)">
-        <div class="delete-modal" onclick="event.stopPropagation()">
-            <div class="delete-warning-icon">
-                <div class="delete-warning-triangle"></div>
-            </div>
-            <div class="delete-message">
-                Are you sure that you<br>want to <strong>delete</strong> your account?
-            </div>
-            <div class="delete-buttons">
-                <button class="delete-btn" onclick="confirmDelete()">Yes</button>
-                <button class="delete-btn" onclick="closeDeleteModal()">No</button>
-            </div>
-        </div>
-    </div>
-
-        <script>
-        // ============================================
-        // NEW PAYMENT PAGE FUNCTIONS
-        // ============================================
-
-        // Function to handle selection of payment method
-        function selectPaymentMethod(element) {
-            // Remove 'selected' from all options
-            document.querySelectorAll('.payment-method-option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
-
-            // Add 'selected' to the clicked option
-            element.classList.add('selected');
-
-            // Find and check the actual radio button inside
-            const radio = element.querySelector('input[type="radio"]');
-            if (radio) {
-                radio.checked = true;
-            }
-
-            // Show or hide the credit card form
-            const creditCardForm = document.getElementById('creditCardForm');
-            if (creditCardForm) {
-                if (radio.value === 'credit-card') {
-                    creditCardForm.classList.add('visible');
-                } else {
-                    creditCardForm.classList.remove('visible');
-                }
-            }
-        }
-
-        // Function to process the payment
-                function processPayment() {
-            const selectedMethodRadio = document.querySelector('input[name="paymentMethod"]:checked');
+    const FINNHUB_API_KEY = 'd1hf3vpr01qsvr29q1qgd1hf3vpr01qsvr29q1r0';
+    
+    class PaymentSearchSystem {
+        constructor() {
+            this.searchInput = document.getElementById('paymentSearchInput');
+            this.searchResults = document.getElementById('searchResultsDropdown');
+            this.searchTimeout = null;
+            this.isSearching = false;
+            this.lastQuery = '';
             
-            if (!selectedMethodRadio) {
-                alert('Please select a payment method.');
-                return;
-            }
-
-            const selectedMethod = selectedMethodRadio.value;
-            let message = '';
-            let paymentSuccessful = false;
-
-            if (selectedMethod === 'paypal') {
-                message = 'Payment confirmed with PayPal!';
-                paymentSuccessful = true;
-            } else if (selectedMethod === 'credit-card') {
-                const cardNumber = document.getElementById('cardNumber').value;
-                const expiryDate = document.getElementById('expiryDate').value;
-                const cvc = document.getElementById('cvc').value;
-                
-                if (!cardNumber || !expiryDate || !cvc) {
-                    // Use a more user-friendly alert or a custom message display
-                    if(window.authSystem && window.authSystem.showMessage) {
-                        window.authSystem.showMessage('Please fill in all credit card details.', 'error');
-                    } else {
-                        alert('Please fill in all credit card details.');
-                    }
-                    return;
-                }
-                message = 'Payment confirmed with Credit Card!';
-                paymentSuccessful = true;
-            }
-
-            if (paymentSuccessful) {
-                // Use the custom showMessage function if available, otherwise fallback to alert
-                if (window.authSystem && window.authSystem.showMessage) {
-                    window.authSystem.showMessage(message, 'success');
-                } else {
-                    alert(message);
-                }
-                
-                // Disable the button to prevent multiple clicks
-                const submitBtn = document.querySelector('.btn-submit-payment');
-                if(submitBtn) {
-                    submitBtn.disabled = true;
-                    submitBtn.textContent = 'Processing...';
-                }
-
-                // Wait for a few seconds before redirecting
-                console.log('Redirecting to dashboard in 2 seconds...');
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 2000); // 2000 milliseconds = 2 seconds
-            }
+            this.initializeSearch();
         }
-
-
-        // ============================================
-        // SHARED FUNCTIONS (Profile, Currency, Delete Modals, etc.)
-        // ============================================
-
-        // --- Profile Modal Functions ---
-        function toggleProfileModal() {
-            const overlay = document.getElementById('profileModalOverlay');
-            if (overlay) {
-                if (overlay.style.display === 'flex') {
-                    closeProfileModal();
-                } else {
-                    openProfileModal();
-                }
-            }
+        
+        initializeSearch() {
+            console.log('Initializing payment search system...');
+            
+            // Add event listeners
+            this.searchInput.addEventListener('input', (e) => this.handleSearchInput(e));
+            this.searchInput.addEventListener('keydown', (e) => this.handleKeyDown(e));
+            this.searchInput.addEventListener('focus', (e) => this.handleFocus(e));
+            this.searchInput.addEventListener('blur', (e) => this.handleBlur(e));
+            
+            // Close search results when clicking outside
+            document.addEventListener('click', (e) => this.handleOutsideClick(e));
+            
+            console.log('Payment search system initialized');
         }
-
-        function openProfileModal() {
-            const overlay = document.getElementById('profileModalOverlay');
-            if (overlay) {
-                overlay.style.display = 'flex';
-                overlay.style.opacity = '1';
-                document.body.style.overflow = 'hidden';
+        
+        handleSearchInput(event) {
+            const query = event.target.value.trim();
+            
+            // Clear previous timeout
+            if (this.searchTimeout) {
+                clearTimeout(this.searchTimeout);
             }
-        }
-
-        function closeProfileModal(event) {
-            if (event && event.target !== event.currentTarget) {
+            
+            // If query is empty, hide results
+            if (query.length === 0) {
+                this.hideSearchResults();
                 return;
             }
             
-            const overlay = document.getElementById('profileModalOverlay');
-            if (overlay) {
-                overlay.style.display = 'none';
-                overlay.style.opacity = '0';
-                document.body.style.overflow = 'auto';
-            }
-        }
-
-        function handleMenuClick(action) {
-            console.log('Menu action:', action);
-            switch(action) {
-                case 'logout':
-                    closeProfileModal();
-                    setTimeout(() => {
-                        if (window.authSystem) {
-                            window.authSystem.logout();
-                        } else {
-                            alert('Logged out');
-                            window.location.href = 'index.html';
-                        }
-                    }, 300);
-                    break;
-                case 'delete-account':
-                    closeProfileModal();
-                    setTimeout(() => {
-                        showDeleteModal();
-                    }, 300);
-                    break;
-                case 'currency':
-                    showCurrencySettingsModal();
-                    closeProfileModal();
-                    break;
-                // Add cases for other menu items...
-                default:
-                    alert(action + ' page not implemented yet');
-                    closeProfileModal();
-            }
-        }
-
-        // --- Currency Settings Functions ---
-        let currencySettings = {
-            preferredCurrency: 'USD',
-            exchangeRates: { 'USD': 1, 'EUR': 0.85, 'GBP': 0.73, 'JPY': 110, 'CNY': 6.45, 'INR': 74.5, 'AUD': 1.35, 'CAD': 1.25 }
-        };
-
-        function loadCurrencySettings() {
-            const stored = localStorage.getItem('alphawave_currency_settings');
-            if (stored) {
-                try {
-                    const settings = JSON.parse(stored);
-                    currencySettings = { ...currencySettings, ...settings };
-                } catch (error) { console.warn('Error loading currency settings:', error); }
-            }
-        }
-
-        function saveCurrencySettingsToStorage() {
-            localStorage.setItem('alphawave_currency_settings', JSON.stringify(currencySettings));
-        }
-
-        function showCurrencySettingsModal() {
-            loadCurrencySettings();
-            const selectElement = document.getElementById('preferredCurrency');
-            if (selectElement) {
-                selectElement.value = currencySettings.preferredCurrency;
-            }
-            const modal = document.getElementById('currencyModalOverlay');
-            if(modal) {
-                modal.style.display = 'block';
-                setTimeout(() => { modal.style.opacity = '1'; }, 10);
-            }
-        }
-
-        function closeCurrencyModal(event) {
-            if (event && event.target.id !== 'currencyModalOverlay' && !event.target.closest('.currency-modal')) {
+            // If query is too short, don't search
+            if (query.length < 2) {
                 return;
             }
-            const modal = document.getElementById('currencyModalOverlay');
-            if(modal) {
-                modal.style.opacity = '0';
-                setTimeout(() => { modal.style.display = 'none'; }, 300);
+            
+            // Debounce search requests
+            this.searchTimeout = setTimeout(() => {
+                this.performSearch(query);
+            }, 300);
+        }
+        
+        handleKeyDown(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const query = this.searchInput.value.trim();
+                if (query) {
+                    this.performSearch(query);
+                }
+            } else if (event.key === 'Escape') {
+                this.hideSearchResults();
+                this.searchInput.blur();
             }
         }
-
-        function saveCurrencySettings() {
-            const selectElement = document.getElementById('preferredCurrency');
-            if (selectElement) {
-                currencySettings.preferredCurrency = selectElement.value;
-                saveCurrencySettingsToStorage();
-                alert('Currency settings saved!');
-                closeCurrencyModal();
+        
+        handleFocus(event) {
+            // Show results if there's a query and results exist
+            if (this.searchInput.value.trim() && this.searchResults.children.length > 0) {
+                this.showSearchResults();
             }
         }
-
-        // --- Delete Account Functions ---
-        function showDeleteModal() {
-            const overlay = document.getElementById('deleteModalOverlay');
-            if (overlay) {
-                overlay.style.display = 'flex';
-                setTimeout(() => { overlay.classList.add('show'); }, 10);
-                document.body.style.overflow = 'hidden';
+        
+        handleBlur(event) {
+            // Delay hiding to allow clicks on results
+            setTimeout(() => {
+                if (!this.searchResults.matches(':hover')) {
+                    this.hideSearchResults();
+                }
+            }, 150);
+        }
+        
+        handleOutsideClick(event) {
+            if (!this.searchInput.contains(event.target) && 
+                !this.searchResults.contains(event.target)) {
+                this.hideSearchResults();
             }
         }
-
-        function closeDeleteModal(event) {
-            if (event && event.target !== event.currentTarget) {
+        
+        async performSearch(query) {
+            if (this.isSearching || query === this.lastQuery) {
                 return;
             }
-            const overlay = document.getElementById('deleteModalOverlay');
-            if (overlay) {
-                overlay.classList.remove('show');
-                document.body.style.overflow = 'auto';
-            }
-        }
-
-        function confirmDelete() {
+            
+            this.isSearching = true;
+            this.lastQuery = query;
+            
+            console.log('Searching for:', query);
+            
+            // Show loading state
+            this.showLoadingState();
+            
             try {
-                if (window.authSystem) {
-                    window.authSystem.deleteAccount();
-                    alert('Account deleted successfully');
-                } else {
-                    alert('Account deleted successfully (simulation)');
-                }
-                setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+                const results = await this.searchCompanies(query);
+                this.displaySearchResults(results, query);
             } catch (error) {
-                alert(error.message || 'Error deleting account');
-            }
-            closeDeleteModal();
-        }
-
-        // --- Navbar Functions (Location, Refresh) ---
-        function toggleLocationDropdown() {
-            const dropdown = document.getElementById('locationDropdown');
-            if (dropdown) {
-                dropdown.classList.toggle('show');
+                console.error('Search error:', error);
+                this.showErrorState();
+            } finally {
+                this.isSearching = false;
             }
         }
-
-        function changeLocation(country, label, currency) {
-            if (window.locationService) {
-                window.locationService.setLocation(country, label, currency);
+        
+        async searchCompanies(query) {
+            const url = `https://finnhub.io/api/v1/search?q=${encodeURIComponent(query)}&token=${FINNHUB_API_KEY}`;
+            
+            try {
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Search results:', data);
+                
+                if (data.result && data.result.length > 0) {
+                    return data.result.slice(0, 8); // Limit to 8 results
+                }
+                
+                return [];
+            } catch (error) {
+                console.error('Error searching companies:', error);
+                throw error;
             }
-            toggleLocationDropdown();
+        }
+        
+        displaySearchResults(results, query) {
+            if (results.length === 0) {
+                this.showNoResultsState(query);
+                return;
+            }
+            
+            const resultsHTML = results.map(result => this.createResultHTML(result)).join('');
+            
+            this.searchResults.innerHTML = resultsHTML;
+            this.showSearchResults();
+            
+            // Add click handlers to results
+            this.searchResults.querySelectorAll('.search-result-item').forEach(item => {
+                item.addEventListener('click', (e) => this.handleResultClick(e, item));
+            });
+        }
+        
+        createResultHTML(result) {
+            const { symbol, description, displaySymbol, type } = result;
+            const exchange = result.exchange || '';
+            
+            return `
+                <div class="search-result-item" data-symbol="${symbol}" data-description="${description}">
+                    <div class="search-result-info">
+                        <div class="search-result-name">${description || symbol}</div>
+                        <div class="search-result-symbol">${symbol}${displaySymbol && displaySymbol !== symbol ? ` (${displaySymbol})` : ''}</div>
+                    </div>
+                    ${exchange ? `<div class="search-result-exchange">${exchange}</div>` : ''}
+                </div>
+            `;
+        }
+        
+        handleResultClick(event, item) {
+            const symbol = item.dataset.symbol;
+            const description = item.dataset.description;
+            
+            console.log('Selected stock:', symbol, description);
+            
+            // Update search input with selected value
+            this.searchInput.value = `${description} (${symbol})`;
+            
+            // Hide search results
+            this.hideSearchResults();
+            
+            // Navigate to stock detail page or show stock info
+            this.navigateToStock(symbol, description);
+        }
+        
+        navigateToStock(symbol, description) {
+            // For specific stocks, navigate to their detail pages
+            if (symbol === 'AAPL') {
+                window.location.href = 'apple-stock-detail.html';
+            } else if (symbol === 'GOOGL' || symbol === 'GOOG') {
+                window.location.href = 'stock-detail.html';
+            } else {
+                // For other stocks, navigate to search-company page
+                window.location.href = `search-company.html?company=${encodeURIComponent(symbol)}`;
+            }
+        }
+        
+        showLoadingState() {
+            this.searchResults.innerHTML = `
+                <div class="search-loading">
+                    <i class="fas fa-spinner fa-spin"></i> Searching...
+                </div>
+            `;
+            this.showSearchResults();
+        }
+        
+        showNoResultsState(query) {
+            this.searchResults.innerHTML = `
+                <div class="search-no-results">
+                    No results found for "${query}"
+                    <br><small>Try searching by company name or stock symbol</small>
+                </div>
+            `;
+            this.showSearchResults();
+        }
+        
+        showErrorState() {
+            this.searchResults.innerHTML = `
+                <div class="search-error">
+                    Search temporarily unavailable
+                    <br><small>Please try again in a moment</small>
+                </div>
+            `;
+            this.showSearchResults();
+        }
+        
+        showSearchResults() {
+            this.searchResults.classList.add('show');
+        }
+        
+        hideSearchResults() {
+            this.searchResults.classList.remove('show');
+        }
+        
+        clearSearch() {
+            this.searchInput.value = '';
+            this.hideSearchResults();
+            this.lastQuery = '';
+        }
+    }
+    
+    // Global search function for the search icon
+    function performSearch() {
+        const query = document.getElementById('paymentSearchInput').value.trim();
+        if (query && window.paymentSearch) {
+            window.paymentSearch.performSearch(query);
+        }
+    }
+
+    // ============================================
+    // PAYMENT PAGE FUNCTIONS
+    // ============================================
+
+    // Function to handle selection of payment method
+    function selectPaymentMethod(element) {
+        // Remove 'selected' from all options
+        document.querySelectorAll('.payment-method-option').forEach(opt => {
+            opt.classList.remove('selected');
+        });
+
+        // Add 'selected' to the clicked option
+        element.classList.add('selected');
+
+        // Find and check the actual radio button inside
+        const radio = element.querySelector('input[type="radio"]');
+        if (radio) {
+            radio.checked = true;
         }
 
-        function refreshStockData() {
-            alert('Refresh functionality is not implemented on this page.');
-        }
-
-        // ============================================
-        // GLOBAL EVENT LISTENERS & PAGE INITIALIZATION
-        // ============================================
-
-        // Initialize page when DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Payment page loaded');
-
-            // Attach event listener for cencel link
-            const cancelLink = document.getElementById('cancelLink');
-            if (cancelLink) {
-                cancelLink.addEventListener('click', (e) => {
-                    e.preventDefault(); // Prevent the link from navigating to "#"
-                    console.log('Payment cancelled, returning to stock detail page.');
-                    window.location.href = 'apple-stock-detail.html';
-                });
-            }
-
-            // Ensure the credit card form is hidden on initial load
-            const creditCardForm = document.getElementById('creditCardForm');
-            if (creditCardForm) {
+        // Show or hide the credit card form
+        const creditCardForm = document.getElementById('creditCardForm');
+        if (creditCardForm) {
+            if (radio.value === 'credit-card') {
+                creditCardForm.classList.add('visible');
+            } else {
                 creditCardForm.classList.remove('visible');
             }
-        });
+        }
+    }
 
-        // Close dropdowns and modals with Escape key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                closeProfileModal();
-                closeCurrencyModal();
-                closeDeleteModal();
-                const dropdown = document.getElementById('locationDropdown');
-                if (dropdown) {
-                    dropdown.classList.remove('show');
+    // Function to process the payment
+    function processPayment() {
+        const selectedMethodRadio = document.querySelector('input[name="paymentMethod"]:checked');
+        
+        if (!selectedMethodRadio) {
+            alert('Please select a payment method.');
+            return;
+        }
+
+        const selectedMethod = selectedMethodRadio.value;
+        let message = '';
+        let paymentSuccessful = false;
+
+        if (selectedMethod === 'paypal') {
+            message = 'Payment confirmed with PayPal!';
+            paymentSuccessful = true;
+        } else if (selectedMethod === 'credit-card') {
+            const cardNumber = document.getElementById('cardNumber').value;
+            const expiryDate = document.getElementById('expiryDate').value;
+            const cvc = document.getElementById('cvc').value;
+            
+            if (!cardNumber || !expiryDate || !cvc) {
+                // Use a more user-friendly alert or a custom message display
+                if(window.authSystem && window.authSystem.showMessage) {
+                    window.authSystem.showMessage('Please fill in all credit card details.', 'error');
+                } else {
+                    alert('Please fill in all credit card details.');
                 }
+                return;
             }
-        });
+            message = 'Payment confirmed with Credit Card!';
+            paymentSuccessful = true;
+        }
 
-        // Close location dropdown when clicking outside
-        document.addEventListener('click', function(event) {
+        if (paymentSuccessful) {
+            // Use the custom showMessage function if available, otherwise fallback to alert
+            if (window.authSystem && window.authSystem.showMessage) {
+                window.authSystem.showMessage(message, 'success');
+            } else {
+                alert(message);
+            }
+            
+            // Disable the button to prevent multiple clicks
+            const submitBtn = document.querySelector('.btn-submit-payment');
+            if(submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Processing...';
+            }
+
+            // Wait for a few seconds before redirecting
+            console.log('Redirecting to dashboard in 2 seconds...');
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 2000); // 2000 milliseconds = 2 seconds
+        }
+    }
+
+    // ============================================
+    // SHARED FUNCTIONS (Profile, Currency, Delete Modals, etc.)
+    // ============================================
+
+    // --- Profile Modal Functions ---
+    function toggleProfileModal() {
+        const overlay = document.getElementById('profileModalOverlay');
+        if (overlay) {
+            if (overlay.style.display === 'flex') {
+                closeProfileModal();
+            } else {
+                openProfileModal();
+            }
+        }
+    }
+
+    function openProfileModal() {
+        const overlay = document.getElementById('profileModalOverlay');
+        if (overlay) {
+            overlay.style.display = 'flex';
+            overlay.style.opacity = '1';
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeProfileModal(event) {
+        if (event && event.target !== event.currentTarget) {
+            return;
+        }
+        
+        const overlay = document.getElementById('profileModalOverlay');
+        if (overlay) {
+            overlay.style.display = 'none';
+            overlay.style.opacity = '0';
+            document.body.style.overflow = 'auto';
+        }
+    }
+
+    function handleMenuClick(action) {
+        console.log('Menu action:', action);
+        switch(action) {
+            case 'logout':
+                closeProfileModal();
+                setTimeout(() => {
+                    if (window.authSystem) {
+                        window.authSystem.logout();
+                    } else {
+                        alert('Logged out');
+                        window.location.href = 'index.html';
+                    }
+                }, 300);
+                break;
+            case 'delete-account':
+                closeProfileModal();
+                setTimeout(() => {
+                    showDeleteModal();
+                }, 300);
+                break;
+            case 'currency':
+                showCurrencySettingsModal();
+                closeProfileModal();
+                break;
+            // Add cases for other menu items...
+            default:
+                alert(action + ' page not implemented yet');
+                closeProfileModal();
+        }
+    }
+
+    // --- Currency Settings Functions ---
+    let currencySettings = {
+        preferredCurrency: 'USD',
+        exchangeRates: { 'USD': 1, 'EUR': 0.85, 'GBP': 0.73, 'JPY': 110, 'CNY': 6.45, 'INR': 74.5, 'AUD': 1.35, 'CAD': 1.25 }
+    };
+
+    function loadCurrencySettings() {
+        const stored = localStorage.getItem('alphawave_currency_settings');
+        if (stored) {
+            try {
+                const settings = JSON.parse(stored);
+                currencySettings = { ...currencySettings, ...settings };
+            } catch (error) { console.warn('Error loading currency settings:', error); }
+        }
+    }
+
+    function saveCurrencySettingsToStorage() {
+        localStorage.setItem('alphawave_currency_settings', JSON.stringify(currencySettings));
+    }
+
+    function showCurrencySettingsModal() {
+        loadCurrencySettings();
+        const selectElement = document.getElementById('preferredCurrency');
+        if (selectElement) {
+            selectElement.value = currencySettings.preferredCurrency;
+        }
+        const modal = document.getElementById('currencyModalOverlay');
+        if(modal) {
+            modal.style.display = 'block';
+            setTimeout(() => { modal.style.opacity = '1'; }, 10);
+        }
+    }
+
+    function closeCurrencyModal(event) {
+        if (event && event.target.id !== 'currencyModalOverlay' && !event.target.closest('.currency-modal')) {
+            return;
+        }
+        const modal = document.getElementById('currencyModalOverlay');
+        if(modal) {
+            modal.style.opacity = '0';
+            setTimeout(() => { modal.style.display = 'none'; }, 300);
+        }
+    }
+
+    function saveCurrencySettings() {
+        const selectElement = document.getElementById('preferredCurrency');
+        if (selectElement) {
+            currencySettings.preferredCurrency = selectElement.value;
+            saveCurrencySettingsToStorage();
+            alert('Currency settings saved!');
+            closeCurrencyModal();
+        }
+    }
+
+    // --- Delete Account Functions ---
+    function showDeleteModal() {
+        const overlay = document.getElementById('deleteModalOverlay');
+        if (overlay) {
+            overlay.style.display = 'flex';
+            setTimeout(() => { overlay.classList.add('show'); }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeDeleteModal(event) {
+        if (event && event.target !== event.currentTarget) {
+            return;
+        }
+        const overlay = document.getElementById('deleteModalOverlay');
+        if (overlay) {
+            overlay.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+    }
+
+    function confirmDelete() {
+        try {
+            if (window.authSystem) {
+                window.authSystem.deleteAccount();
+                alert('Account deleted successfully');
+            } else {
+                alert('Account deleted successfully (simulation)');
+            }
+            setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+        } catch (error) {
+            alert(error.message || 'Error deleting account');
+        }
+        closeDeleteModal();
+    }
+
+    // --- Navbar Functions (Location, Refresh) ---
+    function toggleLocationDropdown() {
+        const dropdown = document.getElementById('locationDropdown');
+        if (dropdown) {
+            dropdown.classList.toggle('show');
+        }
+    }
+
+    function changeLocation(country, label, currency) {
+        if (window.locationService) {
+            window.locationService.setLocation(country, label, currency);
+        }
+        toggleLocationDropdown();
+    }
+
+    function refreshStockData() {
+        alert('Refresh functionality is not implemented on this page.');
+    }
+
+    // ============================================
+    // GLOBAL EVENT LISTENERS & PAGE INITIALIZATION
+    // ============================================
+
+    // Initialize page when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Payment page with search loaded');
+
+        // Initialize search system
+        window.paymentSearch = new PaymentSearchSystem();
+
+        // Attach event listener for cancel link
+        const cancelLink = document.getElementById('cancelLink');
+        if (cancelLink) {
+            cancelLink.addEventListener('click', (e) => {
+                e.preventDefault(); // Prevent the link from navigating to "#"
+                console.log('Payment cancelled, returning to stock detail page.');
+                window.location.href = 'apple-stock-detail.html';
+            });
+        }
+
+        // Ensure the credit card form is hidden on initial load
+        const creditCardForm = document.getElementById('creditCardForm');
+        if (creditCardForm) {
+            creditCardForm.classList.remove('visible');
+        }
+    });
+
+    // Close dropdowns and modals with Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeProfileModal();
+            closeCurrencyModal();
+            closeDeleteModal();
             const dropdown = document.getElementById('locationDropdown');
-            const selector = document.getElementById('locationSelector');
-            if (dropdown && selector && !dropdown.contains(event.target) && !selector.contains(event.target)) {
+            if (dropdown) {
                 dropdown.classList.remove('show');
             }
-        });
-        
-        // --- Message Dropdown logic ---
-        const bell = document.getElementById('notificationBell');
-        const messageDropdown = document.getElementById('messageDropdown');
-        document.addEventListener('click', function(event) {
-            if (bell && bell.contains(event.target)) {
-                messageDropdown.style.display = messageDropdown.style.display === 'flex' ? 'none' : 'flex';
-            } else if (messageDropdown && !messageDropdown.contains(event.target)) {
-                messageDropdown.style.display = 'none';
+            
+            // Close search results
+            if (window.paymentSearch) {
+                window.paymentSearch.hideSearchResults();
             }
-        });
+        }
+    });
 
-    </script>
+    // Close location dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('locationDropdown');
+        const selector = document.getElementById('locationSelector');
+        if (dropdown && selector && !dropdown.contains(event.target) && !selector.contains(event.target)) {
+            dropdown.classList.remove('show');
+        }
+    });
+    
+    // --- Message Dropdown logic ---
+    const bell = document.getElementById('notificationBell');
+    const messageDropdown = document.getElementById('messageDropdown');
+    document.addEventListener('click', function(event) {
+        if (bell && bell.contains(event.target)) {
+            messageDropdown.style.display = messageDropdown.style.display === 'flex' ? 'none' : 'flex';
+        } else if (messageDropdown && !messageDropdown.contains(event.target)) {
+            messageDropdown.style.display = 'none';
+        }
+    });
+
+    // Fallback authSystem
+    if (!window.authSystem) {
+        window.authSystem = {
+            logout: function() {
+                console.log('Logging out...');
+                localStorage.setItem('alphawave_logout_flag', 'true');
+                this.showMessage('Logged out successfully!', 'success');
+                localStorage.removeItem('alphawave_user_session');
+                localStorage.removeItem('alphawave_auth_token');
+                localStorage.removeItem('alphawave_user_data');
+                localStorage.removeItem('alphawave_remember_me');
+                sessionStorage.clear();
+                setTimeout(() => {
+                    window.location.replace('index.html');
+                }, 1500);
+            },
+            deleteAccount: function() {
+                console.log('Deleting account...');
+                this.showMessage('Account deleted successfully', 'success');
+                localStorage.clear();
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            },
+            showMessage: function(message, type) {
+                const colors = {
+                    success: '#4CAF50', warning: '#ff9800', error: '#f44336', info: '#2196F3'
+                };
+                
+                const msg = document.createElement('div');
+                msg.style.cssText = `
+                    position: fixed; top: 20px; right: 20px; padding: 12px 16px; border-radius: 8px;
+                    color: white; font-family: 'Quicksand', sans-serif; font-size: 13px; font-weight: 500;
+                    z-index: 2001; transform: translateX(100%); transition: transform 0.3s ease;
+                    background: ${colors[type] || colors.info}; max-width: 300px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                `;
+                msg.textContent = message;
+                
+                document.body.appendChild(msg);
+                
+                setTimeout(() => msg.style.transform = 'translateX(0)', 100);
+                setTimeout(() => {
+                    msg.style.transform = 'translateX(100%)';
+                    setTimeout(() => msg.remove(), 300);
+                }, 3000);
+            }
+        };
+    }
+
+    console.log('Payment page with search system loaded successfully');
+</script>
 </body>
 </html>
